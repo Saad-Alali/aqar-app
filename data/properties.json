@@ -1,0 +1,194 @@
+[
+  {
+    "id": "prop_1",
+    "title": "Modern Apartment",
+    "location": "Downtown, City Center",
+    "price": 350000,
+    "priceFormatted": "$350,000",
+    "propertyType": "apartment",
+    "features": {
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "area": 1200
+    },
+    "description": "A beautiful modern apartment in the heart of the city with stunning views and easy access to amenities.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-08-15"
+  },
+  {
+    "id": "prop_2",
+    "title": "Luxury Villa",
+    "location": "Beachfront, Ocean Drive",
+    "price": 1250000,
+    "priceFormatted": "$1,250,000",
+    "propertyType": "villa",
+    "features": {
+      "bedrooms": 5,
+      "bathrooms": 4,
+      "area": 3500
+    },
+    "description": "Stunning beachfront villa with panoramic ocean views, private pool, and luxury finishes throughout.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-07-22"
+  },
+  {
+    "id": "prop_3",
+    "title": "Family Home",
+    "location": "Suburban, Green Valley",
+    "price": 580000,
+    "priceFormatted": "$580,000",
+    "propertyType": "house",
+    "features": {
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "area": 2400
+    },
+    "description": "Spacious family home in a quiet neighborhood with large backyard, modern kitchen, and close to schools.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-08-01"
+  },
+  {
+    "id": "prop_4",
+    "title": "Penthouse Suite",
+    "location": "Downtown, Skyline Tower",
+    "price": 950000,
+    "priceFormatted": "$950,000",
+    "propertyType": "apartment",
+    "features": {
+      "bedrooms": 3,
+      "bathrooms": 3,
+      "area": 2100
+    },
+    "description": "Stunning penthouse with panoramic city views, private terrace, and high-end finishes throughout.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-08-10"
+  },
+  {
+    "id": "prop_5",
+    "title": "Waterfront Cottage",
+    "location": "Countryside, Lakeside",
+    "price": 420000,
+    "priceFormatted": "$420,000",
+    "propertyType": "house",
+    "features": {
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "area": 1600
+    },
+    "description": "Charming cottage with direct lake access, private dock, and beautiful natural surroundings.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-07-05"
+  },
+  {
+    "id": "prop_6",
+    "title": "City Studio",
+    "location": "Downtown, Arts District",
+    "price": 210000,
+    "priceFormatted": "$210,000",
+    "propertyType": "apartment",
+    "features": {
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "area": 650
+    },
+    "description": "Cozy studio in the vibrant arts district, perfect for young professionals or as an investment property.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-08-18"
+  },
+  {
+    "id": "prop_7",
+    "title": "Commercial Space",
+    "location": "Downtown, Business Center",
+    "price": 780000,
+    "priceFormatted": "$780,000",
+    "propertyType": "commercial",
+    "features": {
+      "bedrooms": 0,
+      "bathrooms": 2,
+      "area": 2800
+    },
+    "description": "Prime commercial space in the business district, perfect for office or retail with high foot traffic.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-06-30"
+  },
+  {
+    "id": "prop_8",
+    "title": "Mountain Retreat",
+    "location": "Countryside, Alpine Heights",
+    "price": 890000,
+    "priceFormatted": "$890,000",
+    "propertyType": "house",
+    "features": {
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "area": 2900
+    },
+    "description": "Beautiful mountain home with stunning views, wrap-around deck, and spacious interiors.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-07-15"
+  },
+  {
+    "id": "prop_9",
+    "title": "Suburban Townhouse",
+    "location": "Suburban, Maple Drive",
+    "price": 320000,
+    "priceFormatted": "$320,000",
+    "propertyType": "house",
+    "features": {
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "area": 1800
+    },
+    "description": "Modern townhouse in a family-friendly community with park, pool, and walking trails.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-08-05"
+  },
+  {
+    "id": "prop_10",
+    "title": "Luxury Condo",
+    "location": "Downtown, Harbor View",
+    "price": 675000,
+    "priceFormatted": "$675,000",
+    "propertyType": "apartment",
+    "features": {
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "area": 1500
+    },
+    "description": "Elegant condo with harbor views, premium finishes, and access to exclusive building amenities.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-07-28"
+  },
+  {
+    "id": "prop_11",
+    "title": "Historic Brownstone",
+    "location": "Downtown, Historic District",
+    "price": 920000,
+    "priceFormatted": "$920,000",
+    "propertyType": "house",
+    "features": {
+      "bedrooms": 4,
+      "bathrooms": 3,
+      "area": 2700
+    },
+    "description": "Beautifully renovated historic brownstone with original details, modern updates, and private garden.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-06-15"
+  },
+  {
+    "id": "prop_12",
+    "title": "Garden Apartment",
+    "location": "Suburban, Willow Creek",
+    "price": 245000,
+    "priceFormatted": "$245,000",
+    "propertyType": "apartment",
+    "features": {
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "area": 950
+    },
+    "description": "Charming first-floor apartment with private garden, updated kitchen, and ample natural light.",
+    "imageUrl": "img/placeholder.jpg",
+    "dateAdded": "2024-08-07"
+  }
+]

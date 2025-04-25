@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>تفاصيل العقار - عقار</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .property-details-container {
+            padding-bottom: 60px;
+        }
+        .property-gallery {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        .property-gallery img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .property-gallery-nav {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .gallery-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        .gallery-dot--active {
+            background-color: var(--white-color);
+        }
+        .property-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background-color: var(--white-color);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 900;
+        }
+        .property-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--spacing-xs);
+            color: var(--dark-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        .property-action-btn i {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+        }
+        .property-feature-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .property-feature-item {
+            flex: 0 0 50%;
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+        .property-feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--lighter-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            margin-left: var(--spacing-sm);
+            font-size: 1.2rem;
+        }
+        .property-section {
+            margin-bottom: var(--spacing-lg);
+        }
+        .property-section-title {
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+        .property-map {
+            height: 200px;
+            background-color: var(--lighter-gray);
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-color);
+        }
+        .property-owner {
+            display: flex;
+            align-items: center;
+            background-color: var(--lighter-gray);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+        }
+        .property-owner-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-left: var(--spacing-md);
+        }
+        .property-owner-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .property-owner-info {
+            flex: 1;
+        }
+        .property-owner-name {
+            font-weight: 600;
+        }
+        .property-owner-type {
+            font-size: 0.875rem;
+            color: var(--gray-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header (Transparent) -->
+        <header class="app-header" style="background-color: transparent; position: absolute; box-shadow: none; z-index: 10;">
+            <div class="app-header-action">
+                <a href="index.html" class="back-button" style="color: white; background-color: rgba(0,0,0,0.3); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="app-title" style="color: transparent;">
+                <!-- Transparent title for layout -->
+            </div>
+            <div class="app-header-action">
+                <a href="#" class="back-button" id="shareBtn" style="color: white; background-color: rgba(0,0,0,0.3); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-share-alt"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- App Content -->
+        <div class="app-content property-details-container">
+            <!-- Property Gallery -->
+            <div class="property-gallery">
+                <img src="img/placeholder.jpg" alt="Property" id="propertyMainImage">
+                <div class="property-gallery-nav">
+                    <div class="gallery-dot gallery-dot--active"></div>
+                    <div class="gallery-dot"></div>
+                    <div class="gallery-dot"></div>
+                    <div class="gallery-dot"></div>
+                </div>
+            </div>
+
+            <!-- Property Details -->
+            <div class="container py-3">
+                <div class="property-section">
+                    <h1 class="property-card__title" style="font-size: 1.5rem;">فيلا فاخرة على الواجهة البحرية</h1>
+                    <div class="property-card__location mt-2">
+                        <i class="fas fa-map-marker-alt property-card__location-icon"></i>
+                        الواجهة البحرية، شارع المحيط
+                    </div>
+                    <div class="property-card__price mt-2" style="font-size: 1.5rem;">$1,250,000</div>
+                </div>
+
+                <!-- Property Features -->
+                <div class="property-section">
+                    <h2 class="property-section-title">المميزات</h2>
+                    <div class="property-feature-list">
+                        <div class="property-feature-item">
+                            <div class="property-feature-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            <div>
+                                <div>غرف النوم</div>
+                                <div style="font-weight: 600;">5 غرف</div>
+                            </div>
+                        </div>
+                        <div class="property-feature-item">
+                            <div class="property-feature-icon">
+                                <i class="fas fa-bath"></i>
+                            </div>
+                            <div>
+                                <div>الحمامات</div>
+                                <div style="font-weight: 600;">4 حمامات</div>
+                            </div>
+                        </div>
+                        <div class="property-feature-item">
+                            <div class="property-feature-icon">
+                                <i class="fas fa-ruler-combined"></i>
+                            </div>
+                            <div>
+                                <div>المساحة</div>
+                                <div style="font-weight: 600;">3,500 قدم²</div>
+                            </div>
+                        </div>
+                        <div class="property-feature-item">
+                            <div class="property-feature-icon">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <div>
+                                <div>الجراج</div>
+                                <div style="font-weight: 600;">2 سيارة</div>
+                            </div>
+                        </div>
+                        <div class="property-feature-item">
+                            <div class="property-feature-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div>
+                                <div>سنة البناء</div>
+                                <div style="font-weight: 600;">2020</div>
+                            </div>
+                        </div>
+                        <div class="property-feature-item">
+                            <div class="property-feature-icon">
+                                <i class="fas fa-swimming-pool"></i>
+                            </div>
+                            <div>
+                                <div>حمام سباحة</div>
+                                <div style="font-weight: 600;">نعم</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Description -->
+                <div class="property-section">
+                    <h2 class="property-section-title">الوصف</h2>
+                    <p>
+                        فيلا فاخرة مذهلة على الواجهة البحرية مع إطلالات بانورامية خلابة على المحيط. تتميز هذه الفيلا بحمام سباحة خاص ومساحات واسعة وتشطيبات عالية الجودة في جميع أنحاء المنزل.
+                    </p>
+                    <p class="mt-2">
+                        تضم الفيلا خمس غرف نوم واسعة، وأربعة حمامات فاخرة، ومطبخ مفتوح مجهز بالكامل، وغرفة معيشة فسيحة، وغرفة طعام رسمية، بالإضافة إلى تراس كبير يطل على البحر.
+                    </p>
+                    <p class="mt-2">
+                        يوفر موقع الفيلا المميز سهولة الوصول إلى الشاطئ، والمطاعم الراقية، ومناطق التسوق، والمدارس المرموقة.
+                    </p>
+                </div>
+
+                <!-- Property Location -->
+                <div class="property-section">
+                    <h2 class="property-section-title">الموقع</h2>
+                    <div class="property-map">
+                        <i class="fas fa-map-marker-alt" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+
+                <!-- Property Owner -->
+                <div class="property-section">
+                    <h2 class="property-section-title">المالك</h2>
+                    <div class="property-owner">
+                        <div class="property-owner-avatar">
+                            <img src="img/placeholder.jpg" alt="Owner">
+                        </div>
+                        <div class="property-owner-info">
+                            <div class="property-owner-name">سارة الأحمد</div>
+                            <div class="property-owner-type">وكيل عقاري</div>
+                        </div>
+                        <a href="tel:+123456789" class="btn btn--primary" style="padding: 8px 16px; font-size: 0.875rem;">
+                            <i class="fas fa-phone-alt"></i> اتصل
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Actions Bar -->
+        <div class="property-actions">
+            <a href="#" class="property-action-btn" id="favoriteBtn">
+                <i class="far fa-heart"></i>
+                <span>المفضلة</span>
+            </a>
+            <a href="#message" class="property-action-btn">
+                <i class="far fa-comment"></i>
+                <span>رسالة</span>
+            </a>
+            <a href="tel:+123456789" class="property-action-btn">
+                <i class="fas fa-phone-alt"></i>
+                <span>اتصال</span>
+            </a>
+            <a href="#" class="btn btn--primary" style="height: 40px; padding: 0 20px; display: flex; align-items: center;">
+                حجز معاينة
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide tab bar on property details page - we have our own action bar
+            const tabBar = document.querySelector('.tab-bar');
+            if (tabBar) {
+                tabBar.style.display = 'none';
+            }
+            
+            // Toggle favorite
+            const favoriteBtn = document.getElementById('favoriteBtn');
+            if (favoriteBtn) {
+                favoriteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const heartIcon = this.querySelector('i');
+                    if (heartIcon.classList.contains('far')) {
+                        heartIcon.classList.remove('far');
+                        heartIcon.classList.add('fas');
+                        heartIcon.style.color = '#ef4444';
+                    } else {
+                        heartIcon.classList.remove('fas');
+                        heartIcon.classList.add('far');
+                        heartIcon.style.color = '';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>عقار - ابحث عن عقارك المثالي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="app-header-action">
+                <i class="fas fa-search" id="searchToggle"></i>
+            </div>
+            <h1 class="app-title">عقار</h1>
+            <div class="app-header-action">
+                <i class="fas fa-bell" id="notificationsBtn"></i>
+            </div>
+        </header>
+
+        <!-- Search Panel (Hidden by default) -->
+        <div class="search" id="searchPanel" style="display: none;">
+            <form class="search__form" id="searchForm">
+                <div class="search__group">
+                    <label for="keyword" class="search__label">كلمات البحث</label>
+                    <input type="text" id="keyword" class="search__input" placeholder="ادخل كلمات البحث...">
+                </div>
+                <div class="search__group">
+                    <label for="location" class="search__label">الموقع</label>
+                    <select id="location" class="search__select">
+                        <option value="">كل المواقع</option>
+                        <option value="downtown">وسط المدينة</option>
+                        <option value="suburban">ضواحي</option>
+                        <option value="beachfront">على البحر</option>
+                        <option value="countryside">ريف</option>
+                    </select>
+                </div>
+                <div class="search__group">
+                    <label for="propertyType" class="search__label">نوع العقار</label>
+                    <select id="propertyType" class="search__select">
+                        <option value="">كل الأنواع</option>
+                        <option value="apartment">شقة</option>
+                        <option value="house">منزل</option>
+                        <option value="villa">فيلا</option>
+                        <option value="commercial">تجاري</option>
+                    </select>
+                </div>
+                <div class="search__group">
+                    <label for="priceRange" class="search__label">نطاق السعر</label>
+                    <select id="priceRange" class="search__select">
+                        <option value="">أي سعر</option>
+                        <option value="0-100000">$0 - $100,000</option>
+                        <option value="100000-300000">$100,000 - $300,000</option>
+                        <option value="300000-500000">$300,000 - $500,000</option>
+                        <option value="500000-1000000">$500,000 - $1,000,000</option>
+                        <option value="1000000+">$1,000,000+</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn--primary search__btn">
+                    <i class="fas fa-search"></i> بحث
+                </button>
+            </form>
+        </div>
+
+        <!-- App Content -->
+        <div class="app-content">
+            <!-- Pull to Refresh Indicator -->
+            <div class="pull-indicator" id="pullIndicator" style="display: none;">
+                <div class="pull-indicator__spinner"></div>
+                <span>جاري التحديث...</span>
+            </div>
+
+            <!-- Properties Section -->
+            <section class="properties">
+                <div class="container">
+                    <div class="properties__header">
+                        <h2 class="properties__title">العقارات المتاحة</h2>
+                        <div class="properties__controls">
+                            <select id="sortProperties" class="properties__sort">
+                                <option value="default">ترتيب حسب</option>
+                                <option value="price-asc">السعر: من الأقل للأعلى</option>
+                                <option value="price-desc">السعر: من الأعلى للأقل</option>
+                                <option value="date-newest">التاريخ: الأحدث أولاً</option>
+                                <option value="date-oldest">التاريخ: الأقدم أولاً</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Property Listings Grid -->
+                    <div class="properties__grid" id="propertiesGrid">
+                        <!-- Property cards will be dynamically generated here -->
+                        <div class="property-card swipe-item">
+                            <div class="property-card__image">
+                                <img src="img/placeholder.jpg" alt="شقة حديثة" class="property-card__img">
+                            </div>
+                            <div class="property-card__content">
+                                <h3 class="property-card__title">شقة حديثة</h3>
+                                <div class="property-card__location">
+                                    <i class="fas fa-map-marker-alt property-card__location-icon"></i>
+                                    وسط المدينة
+                                </div>
+                                <div class="property-card__price">$350,000</div>
+                                <div class="property-card__features">
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-bed property-card__feature-icon"></i> 2 غرف
+                                    </div>
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-bath property-card__feature-icon"></i> 2 حمامات
+                                    </div>
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-ruler-combined property-card__feature-icon"></i> 1,200 قدم²
+                                    </div>
+                                </div>
+                                <p class="property-card__description">
+                                    شقة جميلة وحديثة في قلب المدينة مع إطلالات رائعة وسهولة الوصول إلى الخدمات.
+                                </p>
+                                <a href="property-details.html" class="btn btn--primary property-card__btn">عرض التفاصيل</a>
+                            </div>
+                            <div class="swipe-actions">
+                                <div class="swipe-action swipe-action--favorite">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="swipe-action swipe-action--delete">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional property cards -->
+                        <div class="property-card swipe-item">
+                            <div class="property-card__image">
+                                <img src="img/placeholder.jpg" alt="فيلا فاخرة" class="property-card__img">
+                            </div>
+                            <div class="property-card__content">
+                                <h3 class="property-card__title">فيلا فاخرة</h3>
+                                <div class="property-card__location">
+                                    <i class="fas fa-map-marker-alt property-card__location-icon"></i>
+                                    على البحر
+                                </div>
+                                <div class="property-card__price">$1,250,000</div>
+                                <div class="property-card__features">
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-bed property-card__feature-icon"></i> 5 غرف
+                                    </div>
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-bath property-card__feature-icon"></i> 4 حمامات
+                                    </div>
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-ruler-combined property-card__feature-icon"></i> 3,500 قدم²
+                                    </div>
+                                </div>
+                                <p class="property-card__description">
+                                    فيلا مذهلة على الواجهة البحرية مع إطلالات بانورامية على المحيط وحمام سباحة خاص وتشطيبات فاخرة.
+                                </p>
+                                <a href="property-details.html" class="btn btn--primary property-card__btn">عرض التفاصيل</a>
+                            </div>
+                            <div class="swipe-actions">
+                                <div class="swipe-action swipe-action--favorite">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="swipe-action swipe-action--delete">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="property-card swipe-item">
+                            <div class="property-card__image">
+                                <img src="img/placeholder.jpg" alt="بيت عائلي" class="property-card__img">
+                            </div>
+                            <div class="property-card__content">
+                                <h3 class="property-card__title">بيت عائلي</h3>
+                                <div class="property-card__location">
+                                    <i class="fas fa-map-marker-alt property-card__location-icon"></i>
+                                    ضواحي، الوادي الأخضر
+                                </div>
+                                <div class="property-card__price">$580,000</div>
+                                <div class="property-card__features">
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-bed property-card__feature-icon"></i> 4 غرف
+                                    </div>
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-bath property-card__feature-icon"></i> 3 حمامات
+                                    </div>
+                                    <div class="property-card__feature">
+                                        <i class="fas fa-ruler-combined property-card__feature-icon"></i> 2,400 قدم²
+                                    </div>
+                                </div>
+                                <p class="property-card__description">
+                                    منزل عائلي واسع في حي هادئ مع فناء خلفي كبير ومطبخ حديث وقريب من المدارس.
+                                </p>
+                                <a href="property-details.html" class="btn btn--primary property-card__btn">عرض التفاصيل</a>
+                            </div>
+                            <div class="swipe-actions">
+                                <div class="swipe-action swipe-action--favorite">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="swipe-action swipe-action--delete">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <ul class="pagination" id="pagination">
+                        <li class="pagination__item">
+                            <a href="#" class="pagination__link pagination__link--active">1</a>
+                        </li>
+                        <li class="pagination__item">
+                            <a href="#" class="pagination__link">2</a>
+                        </li>
+                        <li class="pagination__item">
+                            <a href="#" class="pagination__link">3</a>
+                        </li>
+                        <li class="pagination__item">
+                            <a href="#" class="pagination__link">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <!-- Floating Action Button -->
+        <a href="#" class="action-button" id="filterBtn">
+            <i class="fas fa-filter"></i>
+        </a>
+
+        <!-- Bottom Tab Bar -->
+        <div class="tab-bar">
+            <a href="index.html" class="tab-bar__item tab-bar__item--active">
+                <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
+                <div class="tab-bar__label">الرئيسية</div>
+            </a>
+            <a href="search.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
+                <div class="tab-bar__label">بحث</div>
+            </a>
+            <a href="favorites.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
+                <div class="tab-bar__label">المفضلة</div>
+            </a>
+            <a href="map.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="tab-bar__label">الخريطة</div>
+            </a>
+            <a href="profile.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
+                <div class="tab-bar__label">حسابي</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/properties.js"></script>
+</body>
+</html>

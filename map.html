@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>الخريطة - عقار</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .map-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            background-color: #f3f4f6;
+        }
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-color);
+        }
+        .map-filter-bar {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            right: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            padding: 10px;
+            z-index: 5;
+        }
+        .map-filter-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .map-filter-chip {
+            white-space: nowrap;
+            padding: 6px 12px;
+            background-color: var(--lighter-gray);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--dark-color);
+        }
+        .map-filter-chip--active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .map-property-popup {
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            bottom: 70px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+        .map-property-content {
+            display: flex;
+            padding: 10px;
+        }
+        .map-property-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        .map-property-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .map-property-info {
+            flex: 1;
+        }
+        .map-property-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+        .map-property-location {
+            font-size: 0.75rem;
+            color: var(--gray-color);
+            margin-bottom: 4px;
+        }
+        .map-property-price {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+        .map-property-features {
+            display: flex;
+            font-size: 0.75rem;
+            color: var(--gray-color);
+            margin-top: 4px;
+        }
+        .map-property-feature {
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .map-property-feature i {
+            margin-left: 2px;
+            font-size: 0.7rem;
+        }
+        .map-current-location {
+            position: fixed;
+            bottom: 80px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+            z-index: 5;
+        }
+        .map-view-toggle {
+            position: fixed;
+            bottom: 130px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+            z-index: 5;
+        }
+        /* Map markers */
+        .map-marker {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .map-marker--active {
+            background-color: var(--secondary-color);
+            transform: scale(1.2);
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="app-header-action">
+                <!-- Empty for layout balance -->
+            </div>
+            <h1 class="app-title">الخريطة</h1>
+            <div class="app-header-action">
+                <i class="fas fa-sliders-h" id="mapFilterBtn"></i>
+            </div>
+        </header>
+
+        <!-- Map Filter Bar -->
+        <div class="map-filter-bar">
+            <div class="map-filter-row">
+                <div class="map-filter-chip map-filter-chip--active">الكل</div>
+                <div class="map-filter-chip">شقق</div>
+                <div class="map-filter-chip">فلل</div>
+                <div class="map-filter-chip">منازل</div>
+                <div class="map-filter-chip">تجاري</div>
+                <div class="map-filter-chip">أراضي</div>
+                <div class="map-filter-chip">للبيع</div>
+                <div class="map-filter-chip">للإيجار</div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <!-- This would be replaced with actual map implementation like Google Maps -->
+            <div class="map-placeholder">
+                <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <div>عرض الخريطة</div>
+            </div>
+
+            <!-- Sample Map Markers -->
+            <div class="map-marker" style="top: 30%; left: 40%;">1</div>
+            <div class="map-marker map-marker--active" style="top: 45%; left: 60%;">2</div>
+            <div class="map-marker" style="top: 60%; left: 30%;">3</div>
+            <div class="map-marker" style="top: 50%; left: 50%;">4</div>
+            <div class="map-marker" style="top: 35%; left: 70%;">5</div>
+        </div>
+
+        <!-- Map Control Buttons -->
+        <a href="#" class="map-current-location" id="currentLocationBtn">
+            <i class="fas fa-location-arrow"></i>
+        </a>
+        <a href="#" class="map-view-toggle" id="mapViewToggleBtn">
+            <i class="fas fa-layer-group"></i>
+        </a>
+
+        <!-- Property Popup -->
+        <div class="map-property-popup" id="propertyPopup">
+            <div class="map-property-content">
+                <div class="map-property-image">
+                    <img src="img/placeholder.jpg" alt="عقار">
+                </div>
+                <div class="map-property-info">
+                    <div class="map-property-title">فيلا فاخرة</div>
+                    <div class="map-property-location">
+                        <i class="fas fa-map-marker-alt"></i> الواجهة البحرية
+                    </div>
+                    <div class="map-property-price">$1,250,000</div>
+                    <div class="map-property-features">
+                        <div class="map-property-feature">
+                            <i class="fas fa-bed"></i> 5
+                        </div>
+                        <div class="map-property-feature">
+                            <i class="fas fa-bath"></i> 4
+                        </div>
+                        <div class="map-property-feature">
+                            <i class="fas fa-ruler-combined"></i> 3,500 قدم²
+                        </div>
+                    </div>
+                </div>
+                <a href="property-details.html" class="btn btn--primary" style="height: 36px; padding: 0 15px; display: flex; align-items: center; white-space: nowrap;">
+                    عرض
+                </a>
+            </div>
+        </div>
+
+        <!-- Bottom Tab Bar -->
+        <div class="tab-bar">
+            <a href="index.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
+                <div class="tab-bar__label">الرئيسية</div>
+            </a>
+            <a href="search.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
+                <div class="tab-bar__label">بحث</div>
+            </a>
+            <a href="favorites.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
+                <div class="tab-bar__label">المفضلة</div>
+            </a>
+            <a href="map.html" class="tab-bar__item tab-bar__item--active">
+                <div class="tab-bar__icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="tab-bar__label">الخريطة</div>
+            </a>
+            <a href="profile.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
+                <div class="tab-bar__label">حسابي</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter chip selection
+            const filterChips = document.querySelectorAll('.map-filter-chip');
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    // Remove active class from all chips
+                    filterChips.forEach(c => c.classList.remove('map-filter-chip--active'));
+                    // Add active class to clicked chip
+                    this.classList.add('map-filter-chip--active');
+                });
+            });
+
+            // Map markers interaction
+            const mapMarkers = document.querySelectorAll('.map-marker');
+            const propertyPopup = document.getElementById('propertyPopup');
+            
+            mapMarkers.forEach(marker => {
+                marker.addEventListener('click', function() {
+                    // Remove active class from all markers
+                    mapMarkers.forEach(m => m.classList.remove('map-marker--active'));
+                    // Add active class to clicked marker
+                    this.classList.add('map-marker--active');
+                    // Show property popup
+                    propertyPopup.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Toggle map view
+            const mapViewToggleBtn = document.getElementById('mapViewToggleBtn');
+            if (mapViewToggleBtn) {
+                mapViewToggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('تبديل طريقة عرض الخريطة');
+                });
+            }
+
+            // Current location button
+            const currentLocationBtn = document.getElementById('currentLocationBtn');
+            if (currentLocationBtn) {
+                currentLocationBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('الانتقال إلى موقعك الحالي');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
