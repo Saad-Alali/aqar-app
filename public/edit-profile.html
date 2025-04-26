@@ -55,7 +55,7 @@
                 
                 <div class="form__group">
                     <label for="email" class="form__label">البريد الإلكتروني</label>
-                    <input type="email" id="email" name="email" class="form__input" placeholder="أدخل بريدك الإلكتروني" required>
+                    <input type="email" id="email" name="email" class="form__input" placeholder="أدخل بريدك الإلكتروني" required disabled>
                     <small class="form__error" id="emailError">يرجى إدخال بريد إلكتروني صحيح</small>
                 </div>
                 
@@ -116,124 +116,156 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
-    <script src="js/auth-guard.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userData = localStorage.getItem('aqar_user');
-            if (!userData) {
-                // User is not logged in, show auth overlay and blur content
-                const authOverlay = document.getElementById('authOverlay');
-                const content = document.getElementById('editProfileContent');
-                
-                if (authOverlay) {
-                    authOverlay.style.display = 'flex';
-                }
-                
-                if (content) {
-                    content.classList.add('blurred-content');
-                }
-                
-                return;
-            }
-            
-            // Initialize form with user data
+    <script type="module">
+        import { initializeFirebase } from './js/firebase.js';
+        import { getCurrentUser, updateUserProfile } from './js/auth-service.js';
+        import { showToast } from './js/app.js';
+        
+        document.addEventListener('DOMContentLoaded', async function() {
             try {
-                const user = JSON.parse(userData);
-                const fullNameInput = document.getElementById('fullName');
-                const emailInput = document.getElementById('email');
-                const phoneInput = document.getElementById('phone');
-                const addressInput = document.getElementById('address');
+                await initializeFirebase();
                 
-                if (fullNameInput) fullNameInput.value = user.fullName || '';
-                if (emailInput) emailInput.value = user.email || '';
-                if (phoneInput) phoneInput.value = user.phone || '';
-                if (addressInput) addressInput.value = user.address || '';
+                const user = await getCurrentUser();
                 
-                // Form validation and submission
-                const editProfileForm = document.getElementById('editProfileForm');
-                if (editProfileForm) {
-                    // Validate on input blur
-                    fullNameInput.addEventListener('blur', function() {
-                        validateFullName(this);
-                    });
-                    
-                    emailInput.addEventListener('blur', function() {
-                        validateEmail(this);
-                    });
-                    
-                    phoneInput.addEventListener('blur', function() {
-                        validatePhone(this);
-                    });
-                    
-                    // Form submission
-                    editProfileForm.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        
-                        // Validate all fields
-                        const isFullNameValid = validateFullName(fullNameInput);
-                        const isEmailValid = validateEmail(emailInput);
-                        const isPhoneValid = validatePhone(phoneInput);
-                        
-                        // Only proceed if all validations pass
-                        if (isFullNameValid && isEmailValid && isPhoneValid) {
-                            // Update user data
-                            user.fullName = fullNameInput.value;
-                            user.email = emailInput.value;
-                            user.phone = phoneInput.value;
-                            user.address = addressInput.value;
-                            
-                            // Save updated user
-                            localStorage.setItem('aqar_user', JSON.stringify(user));
-                            
-                            // Show success message
-                            const alertsContainer = document.getElementById('formAlerts');
-                            alertsContainer.innerHTML = '<div class="alert alert--success">تم تحديث الملف الشخصي بنجاح!</div>';
-                            
-                            // Redirect back to profile page after short delay
-                            setTimeout(() => {
-                                window.location.href = 'profile.html';
-                            }, 1500);
-                        }
-                    });
+                if (!user) {
+                    showAuthOverlay();
+                    return;
                 }
+                
+                // Populate form with user data
+                populateForm(user);
+                
+                // Initialize form submission
+                initializeForm(user);
+                
             } catch (error) {
-                console.error("Error loading user data:", error);
+                console.error("Error initializing edit profile page:", error);
+                showToast("حدث خطأ في تهيئة الصفحة", "error");
             }
         });
         
-        function validateFullName(input) {
-            const isValid = input.value.trim().length >= 3;
-            toggleError(input, isValid);
-            return isValid;
+        function showAuthOverlay() {
+            const authOverlay = document.getElementById('authOverlay');
+            const content = document.getElementById('editProfileContent');
+            
+            if (authOverlay) {
+                authOverlay.style.display = 'flex';
+            }
+            
+            if (content) {
+                content.classList.add('blurred-content');
+            }
         }
         
-        function validateEmail(input) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const isValid = emailRegex.test(input.value);
-            toggleError(input, isValid);
+        function populateForm(user) {
+            const fullNameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+            const addressInput = document.getElementById('address');
+            
+            if (fullNameInput) fullNameInput.value = user.fullName || '';
+            if (emailInput) emailInput.value = user.email || '';
+            if (phoneInput) phoneInput.value = user.phone || '';
+            if (addressInput) addressInput.value = user.address || '';
+        }
+        
+        function initializeForm(user) {
+            const editProfileForm = document.getElementById('editProfileForm');
+            if (!editProfileForm) return;
+            
+            const fullNameInput = document.getElementById('fullName');
+            const phoneInput = document.getElementById('phone');
+            const addressInput = document.getElementById('address');
+            
+            // Add validation on blur
+            fullNameInput.addEventListener('blur', function() {
+                validateFullName(this);
+            });
+            
+            phoneInput.addEventListener('blur', function() {
+                validatePhone(this);
+            });
+            
+            // Handle form submission
+            editProfileForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate fields
+                const isFullNameValid = validateFullName(fullNameInput);
+                const isPhoneValid = validatePhone(phoneInput);
+                
+                if (!isFullNameValid || !isPhoneValid) {
+                    return;
+                }
+                
+                try {
+                    // Show loading state
+                    const saveBtn = document.getElementById('saveBtn');
+                    saveBtn.textContent = 'جارٍ الحفظ...';
+                    saveBtn.disabled = true;
+                    
+                    // Update user profile
+                    const updatedUser = await updateUserProfile(user.id, {
+                        fullName: fullNameInput.value,
+                        phone: phoneInput.value,
+                        address: addressInput.value,
+                        avatarUrl: user.avatarUrl,
+                        favorites: user.favorites
+                    });
+                    
+                    // Show success message
+                    const alertsContainer = document.getElementById('formAlerts');
+                    alertsContainer.innerHTML = '<div class="alert alert--success">تم تحديث الملف الشخصي بنجاح!</div>';
+                    
+                    // Reset button state
+                    saveBtn.textContent = 'حفظ التغييرات';
+                    saveBtn.disabled = false;
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = 'profile.html';
+                    }, 1500);
+                } catch (error) {
+                    console.error("Error updating profile:", error);
+                    
+                    // Show error message
+                    const alertsContainer = document.getElementById('formAlerts');
+                    alertsContainer.innerHTML = '<div class="alert alert--danger">فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.</div>';
+                    
+                    // Reset button state
+                    const saveBtn = document.getElementById('saveBtn');
+                    saveBtn.textContent = 'حفظ التغييرات';
+                    saveBtn.disabled = false;
+                }
+            });
+        }
+        
+        function validateFullName(input) {
+            const isValid = input.value.trim().length >= 3;
+            toggleError(input, isValid, 'fullNameError');
             return isValid;
         }
         
         function validatePhone(input) {
             if (input.value.trim() === '') {
                 // Phone is optional
-                toggleError(input, true);
+                toggleError(input, true, 'phoneError');
                 return true;
             }
             
             const phoneRegex = /^[\d\s\+\-\(\)]{8,15}$/;
             const isValid = phoneRegex.test(input.value);
-            toggleError(input, isValid);
+            toggleError(input, isValid, 'phoneError');
             return isValid;
         }
         
-        function toggleError(input, isValid) {
+        function toggleError(input, isValid, errorId) {
             if (isValid) {
                 input.classList.remove('form__input--error');
+                document.getElementById(errorId).style.display = 'none';
             } else {
                 input.classList.add('form__input--error');
+                document.getElementById(errorId).style.display = 'block';
             }
         }
     </script>

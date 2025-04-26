@@ -49,6 +49,12 @@
             pointer-events: none;
             user-select: none;
         }
+        .profile-menu-item--danger {
+            color: var(--danger-color);
+        }
+        .profile-menu-icon--danger {
+            color: var(--danger-color);
+        }
     </style>
 </head>
 <body>
@@ -85,8 +91,8 @@
                         <img src="img/placeholder.jpg" alt="صورة الملف الشخصي" id="profileAvatar" class="profile__img">
                     </div>
                     <div>
-                        <h2 class="profile__title" id="profileName">محمد أحمد</h2>
-                        <p class="profile__email" id="profileEmail">mohammed@example.com</p>
+                        <h2 class="profile__title" id="profileName">جاري التحميل...</h2>
+                        <p class="profile__email" id="profileEmail"></p>
                         
                         <div class="profile__upload">
                             <input type="file" id="avatarUpload" class="profile__upload-input" accept="image/*">
@@ -123,20 +129,8 @@
                     </div>
                 </a>
                 
-                <a href="change-password.html" class="profile-menu-item">
-                    <div class="profile-menu-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <div class="profile-menu-text" data-i18n="changePassword">
-                        تغيير كلمة المرور
-                    </div>
-                    <div class="profile-menu-arrow">
-                        <i class="fas fa-chevron-left"></i>
-                    </div>
-                </a>
-                
-                <a href="#" class="profile-menu-item" style="color: var(--danger-color);" id="logoutBtn">
-                    <div class="profile-menu-icon" style="color: var(--danger-color);">
+                <a href="#" class="profile-menu-item profile-menu-item--danger" id="logoutBtn">
+                    <div class="profile-menu-icon profile-menu-icon--danger">
                         <i class="fas fa-sign-out-alt"></i>
                     </div>
                     <div class="profile-menu-text" data-i18n="logout">
@@ -180,7 +174,7 @@
             </div>
             <h2 class="auth-overlay__title" data-i18n="loginRequired">تسجيل الدخول مطلوب</h2>
             <p class="auth-overlay__description" data-i18n="loginToViewProfile">
-                يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى صفحة الملف الشخصي وتخصيص تجربتك.
+                يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى صفحة الملف الشخصي
             </p>
             <div class="auth-overlay__buttons">
                 <a href="login.html" class="btn btn--primary" data-i18n="login">تسجيل الدخول</a>
@@ -189,43 +183,55 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
-    <script src="js/auth-guard.js"></script>
-    <script src="js/language-switcher.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userData = localStorage.getItem('aqar_user');
-            if (!userData) {
-                // User is not logged in, show auth overlay and blur content
-                const authOverlay = document.getElementById('authOverlay');
-                const content = document.getElementById('profileContent');
-                
-                if (authOverlay) {
-                    authOverlay.style.display = 'flex';
-                }
-                
-                if (content) {
-                    content.classList.add('blurred-content');
-                }
-                
-                return;
-            }
-            
-            // Initialize profile page for logged in user
+    <script type="module">
+        import { initializeFirebase } from './js/firebase.js';
+        import { getCurrentUser, logoutUser, updateUserAvatar } from './js/auth-service.js';
+        import { showToast } from './js/app.js';
+        
+        document.addEventListener('DOMContentLoaded', async function() {
             try {
-                const user = JSON.parse(userData);
-                const profileName = document.getElementById('profileName');
-                const profileEmail = document.getElementById('profileEmail');
-                const profileAvatar = document.getElementById('profileAvatar');
+                await initializeFirebase();
                 
-                if (profileName) profileName.textContent = user.fullName || 'المستخدم';
-                if (profileEmail) profileEmail.textContent = user.email || '';
-                if (profileAvatar && user.avatarUrl) profileAvatar.src = user.avatarUrl;
+                const user = await getCurrentUser();
+                
+                if (!user) {
+                    showAuthOverlay();
+                    return;
+                }
+                
+                updateProfileUI(user);
+                initializeInteractions(user);
+                
             } catch (error) {
-                console.error("Error parsing user data:", error);
+                console.error("Error initializing profile page:", error);
+                showToast("حدث خطأ في تهيئة الصفحة", "error");
+            }
+        });
+        
+        function showAuthOverlay() {
+            const authOverlay = document.getElementById('authOverlay');
+            const content = document.getElementById('profileContent');
+            
+            if (authOverlay) {
+                authOverlay.style.display = 'flex';
             }
             
+            if (content) {
+                content.classList.add('blurred-content');
+            }
+        }
+        
+        function updateProfileUI(user) {
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const profileAvatar = document.getElementById('profileAvatar');
+            
+            if (profileName) profileName.textContent = user.fullName || 'المستخدم';
+            if (profileEmail) profileEmail.textContent = user.email || '';
+            if (profileAvatar) profileAvatar.src = user.avatarUrl || 'img/placeholder.jpg';
+        }
+        
+        function initializeInteractions(user) {
             // Initialize language switcher
             const switcherButton = document.getElementById('languageSwitcher');
             const languageDropdown = document.getElementById('languageDropdown');
@@ -243,21 +249,89 @@
                         languageDropdown.style.display = 'none';
                     }
                 });
+                
+                // Handle language selection
+                const languageOptions = document.querySelectorAll('.language-switcher__option');
+                languageOptions.forEach(option => {
+                    option.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        const lang = this.getAttribute('data-lang');
+                        
+                        // Store selected language
+                        localStorage.setItem('aqar_language', lang);
+                        
+                        // Update UI
+                        languageOptions.forEach(opt => {
+                            opt.classList.remove('language-switcher__option--active');
+                        });
+                        this.classList.add('language-switcher__option--active');
+                        
+                        switcherButton.querySelector('.language-switcher__current').textContent = 
+                            lang === 'ar' ? 'العربية' : 'English';
+                        
+                        languageDropdown.style.display = 'none';
+                        
+                        // Show success message
+                        showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
+                    });
+                });
             }
             
-            // Add logout functionality
+            // Initialize logout button
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
+                logoutBtn.addEventListener('click', async function(e) {
                     e.preventDefault();
                     
                     if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-                        localStorage.removeItem('aqar_user');
-                        window.location.href = 'login.html';
+                        try {
+                            await logoutUser();
+                            window.location.href = 'login.html';
+                        } catch (error) {
+                            console.error("Error logging out:", error);
+                            showToast("حدث خطأ في تسجيل الخروج", "error");
+                        }
                     }
                 });
             }
-        });
+            
+            // Initialize avatar upload
+            const avatarUpload = document.getElementById('avatarUpload');
+            if (avatarUpload) {
+                avatarUpload.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    // Check if file is an image
+                    if (!file.type.match('image.*')) {
+                        showToast('الرجاء اختيار صورة صالحة', 'error');
+                        return;
+                    }
+                    
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        showToast('حجم الصورة كبير جدًا (الحد الأقصى 5 ميجابايت)', 'error');
+                        return;
+                    }
+                    
+                    try {
+                        showToast('جارٍ رفع الصورة...', 'info');
+                        
+                        // Upload to Firebase Storage
+                        const updatedUser = await updateUserAvatar(user.id, file);
+                        
+                        // Update UI
+                        updateProfileUI(updatedUser);
+                        
+                        showToast('تم تحديث الصورة الشخصية بنجاح', 'success');
+                    } catch (error) {
+                        console.error("Error uploading avatar:", error);
+                        showToast('فشل تحديث الصورة الشخصية', 'error');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>

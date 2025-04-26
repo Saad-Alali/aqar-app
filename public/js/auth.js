@@ -1,5 +1,3 @@
-import { updateAuthUI } from './auth-utilities.js';
-
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -15,11 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
+        logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
             if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-                await logoutUser();
+                logoutUser();
+                window.location.href = 'login.html';
             }
         });
     }
@@ -30,7 +29,7 @@ function checkAuthState() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     
     const protectedPages = ['profile.html', 'favorites.html', 'edit-profile.html', 
-                           'change-password.html', 'my-properties.html'];
+                          'change-password.html'];
                            
     const publicOnlyPages = ['login.html', 'register.html'];
     
@@ -39,6 +38,8 @@ function checkAuthState() {
             window.location.href = 'index.html';
             return;
         }
+        
+        updateLoggedInUI(user);
     } else {
         if (protectedPages.includes(currentPage)) {
             const authOverlay = document.getElementById('authOverlay');
@@ -47,20 +48,64 @@ function checkAuthState() {
                 
                 const mainContent = document.querySelector('.app-content');
                 if (mainContent) {
-                    mainContent.style.filter = 'blur(5px)';
-                    mainContent.style.pointerEvents = 'none';
+                    mainContent.classList.add('blurred-content');
                 }
             } else {
                 window.location.href = 'login.html';
             }
         }
+        
+        updateLoggedOutUI();
     }
+}
+
+function updateLoggedInUI(user) {
+    try {
+        const profileNameElements = document.querySelectorAll('.user-name, #profileName');
+        profileNameElements.forEach(el => {
+            if (el) el.textContent = user.fullName || 'المستخدم';
+        });
+        
+        const profileEmailElements = document.querySelectorAll('.user-email, #profileEmail');
+        profileEmailElements.forEach(el => {
+            if (el) el.textContent = user.email || '';
+        });
+        
+        const profileAvatarElements = document.querySelectorAll('.user-avatar, #profileAvatar');
+        profileAvatarElements.forEach(el => {
+            if (el && user.avatarUrl) el.src = user.avatarUrl;
+        });
+        
+        const loginButtons = document.querySelectorAll('.login-btn, .register-btn');
+        loginButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        
+        const profileButtons = document.querySelectorAll('.profile-btn, .logout-btn');
+        profileButtons.forEach(btn => {
+            if (btn) btn.style.display = 'block';
+        });
+        
+        updateFavoriteButtonsState(user);
+    } catch (error) {
+        console.error("Error updating logged in UI:", error);
+    }
+}
+
+function updateLoggedOutUI() {
+    const loginButtons = document.querySelectorAll('.login-btn, .register-btn');
+    loginButtons.forEach(btn => {
+        if (btn) btn.style.display = 'block';
+    });
     
-    updateAuthUI();
+    const profileButtons = document.querySelectorAll('.profile-btn, .logout-btn');
+    profileButtons.forEach(btn => {
+        if (btn) btn.style.display = 'none';
+    });
 }
 
 function initLoginForm(form) {
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         const email = form.querySelector('#email').value;
@@ -95,7 +140,7 @@ function initLoginForm(form) {
 }
 
 function initRegisterForm(form) {
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         const fullName = form.querySelector('#fullName').value;
@@ -147,11 +192,9 @@ function showMessage(containerId, message, type) {
     }, 5000);
 }
 
-async function logoutUser() {
+function logoutUser() {
     try {
         localStorage.removeItem('aqar_user');
-        
-        window.location.href = 'login.html';
         return true;
     } catch (error) {
         console.error("Error signing out:", error);
@@ -179,6 +222,31 @@ function setCurrentUser(userData) {
     }
 }
 
+function updateFavoriteButtonsState(user) {
+    if (!user) return;
+    
+    const favorites = user.favorites || [];
+    const favoriteButtons = document.querySelectorAll('.property-card__favorite-btn, #favoriteBtn');
+    
+    favoriteButtons.forEach(btn => {
+        const propertyId = btn.dataset.propertyId;
+        if (!propertyId) return;
+        
+        const heartIcon = btn.querySelector('i');
+        if (!heartIcon) return;
+        
+        if (favorites.includes(propertyId)) {
+            heartIcon.classList.remove('far');
+            heartIcon.classList.add('fas');
+            heartIcon.style.color = '#ef4444';
+        } else {
+            heartIcon.classList.remove('fas');
+            heartIcon.classList.add('far');
+            heartIcon.style.color = '';
+        }
+    });
+}
+
 function showToast(message, type = 'info', duration = 3000) {
     const existingToast = document.querySelector('.toast');
     if (existingToast) {
@@ -204,34 +272,131 @@ function showToast(message, type = 'info', duration = 3000) {
     }, duration);
 }
 
-if (window.Aqar && window.Aqar.Auth) {
-    window.Aqar.Auth = {
-        ...window.Aqar.Auth,
-        isLoggedIn: () => !!getCurrentUser(),
-        getCurrentUser,
-        setCurrentUser,
-        logout: logoutUser,
-        requireAuth: (redirectUrl = 'login.html') => {
-            if (!getCurrentUser()) {
-                window.location.href = redirectUrl;
-            }
-        },
-        redirectIfAuth: (redirectUrl = 'index.html') => {
-            if (getCurrentUser()) {
-                window.location.href = redirectUrl;
-            }
-        },
-        getCurrentUserId: () => {
-            const user = getCurrentUser();
-            return user ? user.id : null;
+function addToFavorites(propertyId) {
+    const user = getCurrentUser();
+    if (!user) return false;
+    
+    try {
+        const favorites = user.favorites || [];
+        
+        if (!favorites.includes(propertyId)) {
+            favorites.push(propertyId);
+            
+            user.favorites = favorites;
+            setCurrentUser(user);
+            
+            updateFavoriteButtonsState(user);
         }
-    };
+        
+        return true;
+    } catch (error) {
+        console.error("Error adding to favorites:", error);
+        return false;
+    }
 }
+
+function removeFromFavorites(propertyId) {
+    const user = getCurrentUser();
+    if (!user) return false;
+    
+    try {
+        let favorites = user.favorites || [];
+        
+        favorites = favorites.filter(id => id !== propertyId);
+        
+        user.favorites = favorites;
+        setCurrentUser(user);
+        
+        updateFavoriteButtonsState(user);
+        
+        return true;
+    } catch (error) {
+        console.error("Error removing from favorites:", error);
+        return false;
+    }
+}
+
+function toggleFavorite(propertyId) {
+    const user = getCurrentUser();
+    if (!user) {
+        showLoginModal('يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة');
+        return false;
+    }
+    
+    const favorites = user.favorites || [];
+    
+    if (favorites.includes(propertyId)) {
+        removeFromFavorites(propertyId);
+        showToast('تمت إزالة العقار من المفضلة', 'info');
+        return false;
+    } else {
+        addToFavorites(propertyId);
+        showToast('تمت إضافة العقار إلى المفضلة', 'success');
+        return true;
+    }
+}
+
+function showLoginModal(message) {
+    const existingModal = document.getElementById('loginModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'auth-overlay';
+    modal.id = 'loginModal';
+    modal.style.display = 'flex';
+    
+    modal.innerHTML = `
+        <div class="auth-overlay__icon">
+            <i class="fas fa-heart"></i>
+        </div>
+        <h2 class="auth-overlay__title">تسجيل الدخول مطلوب</h2>
+        <p class="auth-overlay__description">
+            ${message || 'يجب تسجيل الدخول أو إنشاء حساب جديد لإضافة العقارات إلى المفضلة.'}
+        </p>
+        <div class="auth-overlay__buttons">
+            <a href="login.html" class="btn btn--primary">تسجيل الدخول</a>
+            <a href="register.html" class="btn btn--outline-primary">إنشاء حساب جديد</a>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeLoginModal();
+        }
+    });
+}
+
+function closeLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+window.Aqar = window.Aqar || {};
+window.Aqar.Auth = {
+    isLoggedIn: () => !!getCurrentUser(),
+    getCurrentUser,
+    setCurrentUser,
+    logout: logoutUser,
+    addToFavorites,
+    removeFromFavorites,
+    toggleFavorite,
+    showLoginModal,
+    showToast
+};
 
 export {
     getCurrentUser,
     setCurrentUser,
     logoutUser,
-    updateAuthUI,
+    addToFavorites,
+    removeFromFavorites,
+    toggleFavorite,
+    showLoginModal,
     showToast
 };
