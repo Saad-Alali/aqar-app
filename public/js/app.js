@@ -1,3 +1,5 @@
+import { updateAuthUI } from './auth-utilities.js';
+
 /**
  * Aqar - Real Estate Website
  * Core Application JavaScript
@@ -11,33 +13,21 @@ const Aqar = {
     DOM: {
         /**
          * Get element by ID
-         * @param {string} id - Element ID
-         * @returns {HTMLElement|null} - The DOM element or null
          */
         getById: (id) => document.getElementById(id),
         
         /**
          * Select elements using a CSS selector
-         * @param {string} selector - CSS selector
-         * @param {HTMLElement|Document} [parent=document] - Parent element
-         * @returns {NodeListOf<Element>} - List of matching elements
          */
         select: (selector, parent = document) => parent.querySelectorAll(selector),
         
         /**
          * Select the first element matching a CSS selector
-         * @param {string} selector - CSS selector
-         * @param {HTMLElement|Document} [parent=document] - Parent element
-         * @returns {HTMLElement|null} - The first matching element or null
          */
         selectOne: (selector, parent = document) => parent.querySelector(selector),
         
         /**
          * Create a new element with optional attributes and content
-         * @param {string} tag - HTML tag name
-         * @param {Object} [attributes={}] - Element attributes
-         * @param {string} [content=''] - Element content
-         * @returns {HTMLElement} - The created element
          */
         create: (tag, attributes = {}, content = '') => {
             const element = document.createElement(tag);
@@ -61,7 +51,6 @@ const Aqar = {
         
         /**
          * Show an element
-         * @param {HTMLElement} element - The element to show
          */
         show: (element) => {
             if (element) {
@@ -71,7 +60,6 @@ const Aqar = {
         
         /**
          * Hide an element
-         * @param {HTMLElement} element - The element to hide
          */
         hide: (element) => {
             if (element) {
@@ -81,7 +69,6 @@ const Aqar = {
         
         /**
          * Toggle element visibility
-         * @param {HTMLElement} element - The element to toggle
          */
         toggle: (element) => {
             if (element) {
@@ -94,9 +81,6 @@ const Aqar = {
     Events: {
         /**
          * Add event listener to element(s)
-         * @param {HTMLElement|NodeListOf<Element>|Array<HTMLElement>} elements - Element(s) to attach event
-         * @param {string} eventType - Event type (e.g., 'click')
-         * @param {Function} callback - Event handler function
          */
         on: (elements, eventType, callback) => {
             if (!elements) return;
@@ -110,9 +94,6 @@ const Aqar = {
         
         /**
          * Remove event listener from element(s)
-         * @param {HTMLElement|NodeListOf<Element>|Array<HTMLElement>} elements - Element(s) to remove event
-         * @param {string} eventType - Event type (e.g., 'click')
-         * @param {Function} callback - Event handler function
          */
         off: (elements, eventType, callback) => {
             if (!elements) return;
@@ -126,10 +107,6 @@ const Aqar = {
         
         /**
          * Delegate event to child elements matching selector
-         * @param {HTMLElement} parent - Parent element
-         * @param {string} selector - CSS selector for child elements
-         * @param {string} eventType - Event type (e.g., 'click')
-         * @param {Function} callback - Event handler function
          */
         delegate: (parent, selector, eventType, callback) => {
             if (!parent) return;
@@ -147,9 +124,6 @@ const Aqar = {
     Forms: {
         /**
          * Validate form inputs
-         * @param {HTMLFormElement} form - Form element
-         * @param {Object} validations - Validation rules for form fields
-         * @returns {boolean} - True if form is valid, false otherwise
          */
         validate: (form, validations) => {
             let isValid = true;
@@ -212,8 +186,6 @@ const Aqar = {
         
         /**
          * Get form data as an object
-         * @param {HTMLFormElement} form - Form element
-         * @returns {Object} - Form data as key-value pairs
          */
         getFormData: (form) => {
             const formData = new FormData(form);
@@ -228,8 +200,6 @@ const Aqar = {
         
         /**
          * Serialize form data to URL-encoded string
-         * @param {HTMLFormElement} form - Form element
-         * @returns {string} - URL-encoded form data
          */
         serialize: (form) => {
             const formData = new FormData(form);
@@ -244,8 +214,6 @@ const Aqar = {
         
         /**
          * Set form values from an object
-         * @param {HTMLFormElement} form - Form element
-         * @param {Object} data - Data to set in form
          */
         setFormValues: (form, data) => {
             Object.entries(data).forEach(([key, value]) => {
@@ -266,7 +234,6 @@ const Aqar = {
         
         /**
          * Reset form inputs and errors
-         * @param {HTMLFormElement} form - Form element
          */
         resetForm: (form) => {
             form.reset();
@@ -285,11 +252,6 @@ const Aqar = {
     UI: {
         /**
          * Create an alert message
-         * @param {string} type - Alert type ('success', 'danger', 'warning')
-         * @param {string} message - Alert message
-         * @param {HTMLElement} container - Container to append alert
-         * @param {boolean} [autoHide=true] - Whether to automatically hide the alert
-         * @param {number} [hideDelay=5000] - Delay in ms before hiding
          */
         showAlert: (type, message, container, autoHide = true, hideDelay = 5000) => {
             if (!container) return;
@@ -314,9 +276,6 @@ const Aqar = {
         
         /**
          * Toggle button loading state
-         * @param {HTMLButtonElement} button - Button element
-         * @param {boolean} [isLoading=true] - Whether button is in loading state
-         * @param {string} [originalText=null] - Original button text
          */
         toggleButtonLoading: (button, isLoading = true, originalText = null) => {
             if (!button) return;
@@ -345,9 +304,6 @@ const Aqar = {
         
         /**
          * Create a loading spinner
-         * @param {HTMLElement} container - Container to append spinner
-         * @param {string} [size='md'] - Spinner size ('sm', 'md', 'lg')
-         * @returns {HTMLElement} - The created spinner element
          */
         createSpinner: (container, size = 'md') => {
             if (!container) return null;
@@ -362,7 +318,6 @@ const Aqar = {
         
         /**
          * Remove loading spinner
-         * @param {HTMLElement} spinner - Spinner element to remove
          */
         removeSpinner: (spinner) => {
             if (spinner && spinner.parentNode) {
@@ -375,13 +330,6 @@ const Aqar = {
     HTTP: {
         /**
          * Simulated HTTP request
-         * @param {string} url - URL for the request
-         * @param {Object} options - Request options
-         * @param {string} options.method - HTTP method
-         * @param {Object} [options.data=null] - Request data
-         * @param {boolean} [options.simulateError=false] - Whether to simulate an error
-         * @param {number} [options.delay=1000] - Simulated response delay in ms
-         * @returns {Promise<Object>} - Promise resolving to response data
          */
         request: (url, { method = 'GET', data = null, simulateError = false, delay = 1000 } = {}) => {
             return new Promise((resolve, reject) => {
@@ -397,9 +345,6 @@ const Aqar = {
         
         /**
          * Simulated GET request
-         * @param {string} url - URL for the request
-         * @param {Object} [options={}] - Request options
-         * @returns {Promise<Object>} - Promise resolving to response data
          */
         get: (url, options = {}) => {
             return Aqar.HTTP.request(url, { ...options, method: 'GET' });
@@ -407,10 +352,6 @@ const Aqar = {
         
         /**
          * Simulated POST request
-         * @param {string} url - URL for the request
-         * @param {Object} data - Request data
-         * @param {Object} [options={}] - Request options
-         * @returns {Promise<Object>} - Promise resolving to response data
          */
         post: (url, data, options = {}) => {
             return Aqar.HTTP.request(url, { ...options, method: 'POST', data });
@@ -418,10 +359,6 @@ const Aqar = {
         
         /**
          * Simulated PUT request
-         * @param {string} url - URL for the request
-         * @param {Object} data - Request data
-         * @param {Object} [options={}] - Request options
-         * @returns {Promise<Object>} - Promise resolving to response data
          */
         put: (url, data, options = {}) => {
             return Aqar.HTTP.request(url, { ...options, method: 'PUT', data });
@@ -429,9 +366,6 @@ const Aqar = {
         
         /**
          * Simulated DELETE request
-         * @param {string} url - URL for the request
-         * @param {Object} [options={}] - Request options
-         * @returns {Promise<Object>} - Promise resolving to response data
          */
         delete: (url, options = {}) => {
             return Aqar.HTTP.request(url, { ...options, method: 'DELETE' });
@@ -442,9 +376,6 @@ const Aqar = {
     Storage: {
         /**
          * Get item from local storage
-         * @param {string} key - Storage key
-         * @param {boolean} [parse=true] - Whether to parse JSON
-         * @returns {*} - Storage value or null
          */
         get: (key, parse = true) => {
             try {
@@ -463,10 +394,6 @@ const Aqar = {
         
         /**
          * Set item in local storage
-         * @param {string} key - Storage key
-         * @param {*} value - Value to store
-         * @param {boolean} [stringify=true] - Whether to stringify value
-         * @returns {boolean} - Success status
          */
         set: (key, value, stringify = true) => {
             try {
@@ -481,8 +408,6 @@ const Aqar = {
         
         /**
          * Remove item from local storage
-         * @param {string} key - Storage key
-         * @returns {boolean} - Success status
          */
         remove: (key) => {
             try {
@@ -496,7 +421,6 @@ const Aqar = {
         
         /**
          * Clear all items from local storage
-         * @returns {boolean} - Success status
          */
         clear: () => {
             try {
@@ -518,7 +442,6 @@ const Aqar = {
         
         /**
          * Check if user is logged in
-         * @returns {boolean} - Whether user is logged in
          */
         isLoggedIn: () => {
             const user = Aqar.Storage.get(Aqar.Auth.USER_KEY);
@@ -527,7 +450,6 @@ const Aqar = {
         
         /**
          * Get current user data
-         * @returns {Object|null} - User data or null if not logged in
          */
         getCurrentUser: () => {
             return Aqar.Storage.get(Aqar.Auth.USER_KEY);
@@ -535,7 +457,6 @@ const Aqar = {
         
         /**
          * Set current user data
-         * @param {Object} userData - User data to store
          */
         setCurrentUser: (userData) => {
             Aqar.Storage.set(Aqar.Auth.USER_KEY, userData);
@@ -550,7 +471,6 @@ const Aqar = {
         
         /**
          * Redirect to login page if not logged in
-         * @param {string} [redirectUrl='login.html'] - URL to redirect to
          */
         requireAuth: (redirectUrl = 'login.html') => {
             if (!Aqar.Auth.isLoggedIn()) {
@@ -560,7 +480,6 @@ const Aqar = {
         
         /**
          * Redirect to main page if already logged in
-         * @param {string} [redirectUrl='index.html'] - URL to redirect to
          */
         redirectIfAuth: (redirectUrl = 'index.html') => {
             if (Aqar.Auth.isLoggedIn()) {
@@ -572,19 +491,6 @@ const Aqar = {
 
 /**
  * Document Ready Function
- * @param {Function} callback - Function to execute when DOM is ready
- */
-function domReady(callback) {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', callback);
-    } else {
-        callback();
-    }
-}
-
-/**
- * Document Ready Function
- * @param {Function} callback - Function to execute when DOM is ready
  */
 function domReady(callback) {
     if (document.readyState === 'loading') {
@@ -655,7 +561,11 @@ domReady(() => {
     initPullToRefresh();
     
     // Update UI based on authentication status
-    updateAuthUI();
+    try {
+        updateAuthUI();
+    } catch (error) {
+        console.warn("Could not update auth UI:", error);
+    }
 });
 
 /**
@@ -827,9 +737,6 @@ function initPullToRefresh() {
 
 /**
  * Show Toast Message
- * @param {string} message - Message to display
- * @param {string} type - Toast type (success, error, info)
- * @param {number} duration - Duration to show toast in ms
  */
 function showToast(message, type = 'info', duration = 3000) {
     // Remove any existing toast
@@ -861,3 +768,9 @@ function showToast(message, type = 'info', duration = 3000) {
         }, 300);
     }, duration);
 }
+
+// Make the Aqar object available globally
+window.Aqar = Aqar;
+
+// Export the Aqar object for module usage
+export { Aqar, showToast, updateAuthUI };

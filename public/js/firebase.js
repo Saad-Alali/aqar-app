@@ -1,23 +1,43 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
-import { getAnalytics } from "firebase/analytics";
+import { firebaseConfig } from './firebase-config.js';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB8KBTvSH8RZb97PXGg-D084g_vHiOx4PM",
-  authDomain: "real-estate-app2-b5a0e.firebaseapp.com",
-  projectId: "real-estate-app2-b5a0e",
-  storageBucket: "real-estate-app2-b5a0e.firebasestorage.app",
-  messagingSenderId: "820649708688",
-  appId: "1:820649708688:web:f957d0f196c765fcc2dc15",
-  measurementId: "G-JNHSBPXGJ6"
-};
+let app, db, auth, storage, analytics;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const analytics = getAnalytics(app);
+export async function initializeFirebase() {
+  try {
+    const { initializeApp } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app.js");
+    const { getFirestore } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore.js");
+    const { getAuth } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
+    const { getStorage } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-storage.js");
+    const { getAnalytics } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-analytics.js");
+
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+    analytics = getAnalytics(app);
+
+    window.firebaseApp = app;
+    window.firebaseDb = db;
+    window.firebaseAuth = auth;
+    window.firebaseStorage = storage;
+    window.firebaseAnalytics = analytics;
+
+    console.log("Firebase successfully initialized");
+    return { app, db, auth, storage, analytics };
+  } catch (error) {
+    console.error("Error initializing Firebase:", error);
+    throw error;
+  }
+}
+
+initializeFirebase().then(services => {
+  app = services.app;
+  db = services.db;
+  auth = services.auth;
+  storage = services.storage;
+  analytics = services.analytics;
+}).catch(error => {
+  console.error("Firebase initialization failed:", error);
+});
 
 export { app, db, auth, storage, analytics };

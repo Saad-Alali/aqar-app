@@ -37,27 +37,140 @@
         .profile-menu-arrow {
             color: var(--gray-color);
         }
+        
+        .auth-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 2rem;
+        }
+
+        .auth-overlay__icon {
+          font-size: 3rem;
+          color: var(--primary-color);
+          margin-bottom: 1.5rem;
+        }
+
+        .auth-overlay__title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+          color: var(--dark-color);
+        }
+
+        .auth-overlay__description {
+          margin-bottom: 2rem;
+          max-width: 400px;
+        }
+
+        .auth-overlay__buttons {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .auth-overlay .btn {
+          min-width: 140px;
+        }
+        
+        .language-switcher {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            z-index: 900;
+        }
+        
+        .language-switcher__button {
+            background-color: var(--white-color);
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .language-switcher__dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 5px;
+            background-color: var(--white-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            width: 120px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .language-switcher__option {
+            padding: 10px 15px;
+            display: block;
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: background-color 0.2s;
+        }
+        
+        .language-switcher__option:hover {
+            background-color: var(--lighter-gray);
+        }
+        
+        .language-switcher__option--active {
+            background-color: var(--primary-light);
+            color: var(--white-color);
+        }
+        
+        [dir="ltr"] .language-switcher {
+            left: 20px;
+            right: auto;
+        }
+        
+        [dir="rtl"] .language-switcher {
+            right: 20px;
+            left: auto;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- App Header -->
         <header class="app-header">
             <div class="app-header-action">
-                <!-- Empty space for layout balance -->
             </div>
-            <h1 class="app-title">حسابي</h1>
+            <h1 class="app-title" data-i18n="appTitle">حسابي</h1>
             <div class="app-header-action">
                 <i class="fas fa-cog" id="settingsBtn"></i>
             </div>
         </header>
 
-        <!-- App Content -->
+        <div class="language-switcher">
+            <button class="language-switcher__button" id="languageSwitcher">
+                <i class="fas fa-globe"></i>
+                <span class="language-switcher__current">العربية</span>
+            </button>
+            <div class="language-switcher__dropdown" id="languageDropdown">
+                <a href="#" class="language-switcher__option" data-lang="ar">العربية</a>
+                <a href="#" class="language-switcher__option" data-lang="en">English</a>
+            </div>
+        </div>
+
         <div class="app-content profile-container">
-            <!-- Alert container for messages -->
             <div id="profileAlerts"></div>
             
-            <!-- Profile Summary Card -->
             <div class="profile__card">
                 <div class="profile__header">
                     <div class="profile__avatar">
@@ -77,13 +190,12 @@
                 </div>
             </div>
             
-            <!-- Profile Menu -->
             <div class="profile__card" style="padding: 0;">
                 <a href="edit-profile.html" class="profile-menu-item">
                     <div class="profile-menu-icon">
                         <i class="fas fa-user"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.personalInfo">
                         المعلومات الشخصية
                     </div>
                     <div class="profile-menu-arrow">
@@ -95,7 +207,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-home"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.myProperties">
                         عقاراتي
                     </div>
                     <div class="profile-menu-arrow">
@@ -107,7 +219,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-heart"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.favorites">
                         المفضلة
                     </div>
                     <div class="profile-menu-arrow">
@@ -119,7 +231,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-bell"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.notifications">
                         الإشعارات
                         <span class="badge" style="background-color: var(--primary-color); color: white; border-radius: 50%; padding: 2px 8px; font-size: 0.75rem;">3</span>
                     </div>
@@ -132,7 +244,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-lock"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.changePassword">
                         تغيير كلمة المرور
                     </div>
                     <div class="profile-menu-arrow">
@@ -144,7 +256,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-headset"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.contactUs">
                         اتصل بنا
                     </div>
                     <div class="profile-menu-arrow">
@@ -156,46 +268,149 @@
                     <div class="profile-menu-icon" style="color: var(--danger-color);">
                         <i class="fas fa-sign-out-alt"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="profile.logout">
                         تسجيل الخروج
                     </div>
                 </a>
             </div>
             
-            <!-- App Version Info -->
             <div class="text-center mt-4" style="color: var(--gray-color); font-size: 0.875rem;">
-                <p>نسخة التطبيق: 1.0.0</p>
-                <p class="mt-1">&copy; 2025 عقار - جميع الحقوق محفوظة</p>
+                <p data-i18n="profile.appVersion">نسخة التطبيق: 1.0.0</p>
+                <p class="mt-1" data-i18n="profile.copyright">&copy; 2025 عقار - جميع الحقوق محفوظة</p>
             </div>
         </div>
 
-        <!-- Bottom Tab Bar -->
         <div class="tab-bar">
             <a href="index.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
-                <div class="tab-bar__label">الرئيسية</div>
+                <div class="tab-bar__label" data-i18n="tabBar.home">الرئيسية</div>
             </a>
             <a href="search.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
-                <div class="tab-bar__label">بحث</div>
+                <div class="tab-bar__label" data-i18n="tabBar.search">بحث</div>
             </a>
             <a href="favorites.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
-                <div class="tab-bar__label">المفضلة</div>
+                <div class="tab-bar__label" data-i18n="tabBar.favorites">المفضلة</div>
             </a>
             <a href="map.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-map-marker-alt"></i></div>
-                <div class="tab-bar__label">الخريطة</div>
+                <div class="tab-bar__label" data-i18n="tabBar.map">الخريطة</div>
             </a>
             <a href="profile.html" class="tab-bar__item tab-bar__item--active">
                 <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
-                <div class="tab-bar__label">حسابي</div>
+                <div class="tab-bar__label" data-i18n="tabBar.profile">حسابي</div>
             </a>
+        </div>
+        
+        <div class="auth-overlay" id="authOverlay" style="display: none;">
+            <div class="auth-overlay__icon">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <h2 class="auth-overlay__title" data-i18n="auth.loginRequired">تسجيل الدخول مطلوب</h2>
+            <p class="auth-overlay__description" data-i18n="auth.loginToViewProfile">
+                يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى صفحة الملف الشخصي وتخصيص تجربتك.
+            </p>
+            <div class="auth-overlay__buttons">
+                <a href="login.html" class="btn btn--primary" data-i18n="auth.login">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn--outline-primary" data-i18n="auth.createAccount">إنشاء حساب جديد</a>
+            </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="js/app.js"></script>
     <script src="js/profile.js"></script>
+    
+    <script type="module">
+        import { detectPreferredLanguage, setLanguage } from './js/language.js';
+        import { getCurrentUser } from './js/auth.js';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initLanguageSwitcher();
+            
+            const currentLang = detectPreferredLanguage();
+            applyLanguage(currentLang);
+            
+            const user = getCurrentUser();
+            const authOverlay = document.getElementById('authOverlay');
+            
+            if (!user && authOverlay) {
+                authOverlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        });
+        
+        function initLanguageSwitcher() {
+            const switcherButton = document.getElementById('languageSwitcher');
+            const languageDropdown = document.getElementById('languageDropdown');
+            const languageOptions = document.querySelectorAll('.language-switcher__option');
+            const currentLangSpan = document.querySelector('.language-switcher__current');
+            
+            if (!switcherButton || !languageDropdown) return;
+            
+            switcherButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isVisible = languageDropdown.style.display === 'block';
+                languageDropdown.style.display = isVisible ? 'none' : 'block';
+            });
+            
+            languageOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const lang = this.getAttribute('data-lang');
+                    
+                    applyLanguage(lang);
+                    
+                    if (currentLangSpan) {
+                        currentLangSpan.textContent = lang === 'ar' ? 'العربية' : 'English';
+                    }
+                    
+                    languageDropdown.style.display = 'none';
+                });
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
+                    languageDropdown.style.display = 'none';
+                }
+            });
+            
+            updateActiveLanguage(detectPreferredLanguage());
+        }
+        
+        function applyLanguage(lang) {
+            setLanguage(lang);
+            
+            updateActiveLanguage(lang);
+            
+            updateInterfaceForLanguage(lang);
+        }
+        
+        function updateActiveLanguage(lang) {
+            const options = document.querySelectorAll('.language-switcher__option');
+            const currentLangSpan = document.querySelector('.language-switcher__current');
+            
+            options.forEach(option => {
+                option.classList.remove('language-switcher__option--active');
+                
+                if (option.getAttribute('data-lang') === lang) {
+                    option.classList.add('language-switcher__option--active');
+                    
+                    if (currentLangSpan) {
+                        currentLangSpan.textContent = lang === 'ar' ? 'العربية' : 'English';
+                    }
+                }
+            });
+        }
+        
+        function updateInterfaceForLanguage(lang) {
+            const mainActionButton = document.querySelector('.action-button');
+            if (mainActionButton) {
+                const tooltip = lang === 'ar' ? 'تصفية' : 'Filter';
+                mainActionButton.setAttribute('title', tooltip);
+            }
+        }
+    </script>
 </body>
 </html>
