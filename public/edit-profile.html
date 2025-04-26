@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>تعديل الملف الشخصي - عقار</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .edit-profile-container {
+            padding-bottom: 70px;
+        }
+        .form__error {
+            display: none;
+        }
+        .form__input--error + .form__error {
+            display: block;
+        }
+        .blurred-content {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="app-header-action">
+                <a href="profile.html" class="back-button">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <h1 class="app-title">تعديل الملف الشخصي</h1>
+            <div class="app-header-action"></div>
+        </header>
+
+        <div class="app-content edit-profile-container" id="editProfileContent">
+            <div id="formAlerts"></div>
+            
+            <form class="form" id="editProfileForm">
+                <div class="form__group">
+                    <label for="fullName" class="form__label">الاسم الكامل</label>
+                    <input type="text" id="fullName" name="fullName" class="form__input" placeholder="أدخل اسمك الكامل" required>
+                    <small class="form__error" id="fullNameError">يجب أن يكون الاسم الكامل 3 أحرف على الأقل</small>
+                </div>
+                
+                <div class="form__group">
+                    <label for="email" class="form__label">البريد الإلكتروني</label>
+                    <input type="email" id="email" name="email" class="form__input" placeholder="أدخل بريدك الإلكتروني" required>
+                    <small class="form__error" id="emailError">يرجى إدخال بريد إلكتروني صحيح</small>
+                </div>
+                
+                <div class="form__group">
+                    <label for="phone" class="form__label">رقم الجوال</label>
+                    <input type="tel" id="phone" name="phone" class="form__input" placeholder="أدخل رقم الجوال">
+                    <small class="form__error" id="phoneError">يرجى إدخال رقم جوال صحيح</small>
+                </div>
+                
+                <div class="form__group">
+                    <label for="address" class="form__label">العنوان</label>
+                    <input type="text" id="address" name="address" class="form__input" placeholder="أدخل عنوانك">
+                    <small class="form__error" id="addressError">يرجى إدخال عنوان صحيح</small>
+                </div>
+                
+                <div class="form__group">
+                    <button type="submit" class="btn btn--primary btn--block" id="saveBtn">حفظ التغييرات</button>
+                    <a href="profile.html" class="btn btn--outline-primary btn--block mt-2">إلغاء</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="tab-bar">
+            <a href="index.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
+                <div class="tab-bar__label">الرئيسية</div>
+            </a>
+            <a href="search.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
+                <div class="tab-bar__label">بحث</div>
+            </a>
+            <a href="favorites.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
+                <div class="tab-bar__label">المفضلة</div>
+            </a>
+            <a href="map.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="tab-bar__label">الخريطة</div>
+            </a>
+            <a href="profile.html" class="tab-bar__item tab-bar__item--active">
+                <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
+                <div class="tab-bar__label">حسابي</div>
+            </a>
+        </div>
+        
+        <div class="auth-overlay" id="authOverlay" style="display: none;">
+            <div class="auth-overlay__icon">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <h2 class="auth-overlay__title">تسجيل الدخول مطلوب</h2>
+            <p class="auth-overlay__description">
+                يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى تعديل الملف الشخصي.
+            </p>
+            <div class="auth-overlay__buttons">
+                <a href="login.html" class="btn btn--primary">تسجيل الدخول</a>
+                <a href="register.html" class="btn btn--outline-primary">إنشاء حساب جديد</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const userData = localStorage.getItem('aqar_user');
+            if (!userData) {
+                // User is not logged in, show auth overlay and blur content
+                const authOverlay = document.getElementById('authOverlay');
+                const content = document.getElementById('editProfileContent');
+                
+                if (authOverlay) {
+                    authOverlay.style.display = 'flex';
+                }
+                
+                if (content) {
+                    content.classList.add('blurred-content');
+                }
+                
+                return;
+            }
+            
+            // Initialize form with user data
+            try {
+                const user = JSON.parse(userData);
+                const fullNameInput = document.getElementById('fullName');
+                const emailInput = document.getElementById('email');
+                const phoneInput = document.getElementById('phone');
+                const addressInput = document.getElementById('address');
+                
+                if (fullNameInput) fullNameInput.value = user.fullName || '';
+                if (emailInput) emailInput.value = user.email || '';
+                if (phoneInput) phoneInput.value = user.phone || '';
+                if (addressInput) addressInput.value = user.address || '';
+                
+                // Form validation and submission
+                const editProfileForm = document.getElementById('editProfileForm');
+                if (editProfileForm) {
+                    // Validate on input blur
+                    fullNameInput.addEventListener('blur', function() {
+                        validateFullName(this);
+                    });
+                    
+                    emailInput.addEventListener('blur', function() {
+                        validateEmail(this);
+                    });
+                    
+                    phoneInput.addEventListener('blur', function() {
+                        validatePhone(this);
+                    });
+                    
+                    // Form submission
+                    editProfileForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Validate all fields
+                        const isFullNameValid = validateFullName(fullNameInput);
+                        const isEmailValid = validateEmail(emailInput);
+                        const isPhoneValid = validatePhone(phoneInput);
+                        
+                        // Only proceed if all validations pass
+                        if (isFullNameValid && isEmailValid && isPhoneValid) {
+                            // Update user data
+                            user.fullName = fullNameInput.value;
+                            user.email = emailInput.value;
+                            user.phone = phoneInput.value;
+                            user.address = addressInput.value;
+                            
+                            // Save updated user
+                            localStorage.setItem('aqar_user', JSON.stringify(user));
+                            
+                            // Show success message
+                            const alertsContainer = document.getElementById('formAlerts');
+                            alertsContainer.innerHTML = '<div class="alert alert--success">تم تحديث الملف الشخصي بنجاح!</div>';
+                            
+                            // Redirect back to profile page after short delay
+                            setTimeout(() => {
+                                window.location.href = 'profile.html';
+                            }, 1500);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        });
+        
+        function validateFullName(input) {
+            const isValid = input.value.trim().length >= 3;
+            toggleError(input, isValid);
+            return isValid;
+        }
+        
+        function validateEmail(input) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isValid = emailRegex.test(input.value);
+            toggleError(input, isValid);
+            return isValid;
+        }
+        
+        function validatePhone(input) {
+            if (input.value.trim() === '') {
+                // Phone is optional
+                toggleError(input, true);
+                return true;
+            }
+            
+            const phoneRegex = /^[\d\s\+\-\(\)]{8,15}$/;
+            const isValid = phoneRegex.test(input.value);
+            toggleError(input, isValid);
+            return isValid;
+        }
+        
+        function toggleError(input, isValid) {
+            if (isValid) {
+                input.classList.remove('form__input--error');
+            } else {
+                input.classList.add('form__input--error');
+            }
+        }
+    </script>
+</body>
+</html>

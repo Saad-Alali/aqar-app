@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -33,22 +34,16 @@
             width: 100%;
             max-width: 400px;
         }
+        .form__error {
+            display: none;
+        }
+        .form__input--error + .form__error {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- App Header -->
-        <header class="app-header">
-            <div class="app-header-action">
-                <a href="index.html" class="back-button">
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            <h1 class="app-title">تسجيل الدخول</h1>
-            <div class="app-header-action"></div>
-        </header>
-
-        <!-- App Content -->
         <div class="app-content login-container">
             <div class="login-logo">عقار</div>
             
@@ -60,13 +55,13 @@
                     <div class="form__group">
                         <label for="email" class="form__label">البريد الإلكتروني</label>
                         <input type="email" id="email" name="email" class="form__input" placeholder="أدخل بريدك الإلكتروني" required>
-                        <small class="form__error hidden" id="emailError">يرجى إدخال بريد إلكتروني صحيح</small>
+                        <small class="form__error" id="emailError">يرجى إدخال بريد إلكتروني صحيح</small>
                     </div>
                     
                     <div class="form__group">
                         <label for="password" class="form__label">كلمة المرور</label>
                         <input type="password" id="password" name="password" class="form__input" placeholder="أدخل كلمة المرور" required>
-                        <small class="form__error hidden" id="passwordError">يرجى إدخال كلمة المرور</small>
+                        <small class="form__error" id="passwordError">يرجى إدخال كلمة المرور</small>
                     </div>
                     
                     <div class="form__group">
@@ -77,39 +72,89 @@
                     </div>
                     
                     <button type="submit" class="btn btn--primary btn--block" id="loginBtn">دخول</button>
-                    
-                    <div class="form__footer text-center mt-4">
-                        <a href="#" class="form__footer-link">نسيت كلمة المرور؟</a>
-                        <p class="mt-2">ليس لديك حساب؟ <a href="register.html" class="form__footer-link">سجل الآن</a></p>
-                    </div>
+                
 
-                    <!-- Social Login Options -->
-                    <div class="mt-4">
-                        <p class="text-center mb-3">أو تسجيل الدخول باستخدام</p>
-                        <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button type="button" class="btn btn--outline-primary" style="flex: 1;">
-                                <i class="fab fa-google"></i> Google
-                            </button>
-                            <button type="button" class="btn btn--outline-primary" style="flex: 1;">
-                                <i class="fab fa-apple"></i> Apple
-                            </button>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     <script>
-        // Hide tab bar on login page
         document.addEventListener('DOMContentLoaded', function() {
-            // If we had a tab bar on this page, we would hide it
-            const tabBar = document.querySelector('.tab-bar');
-            if (tabBar) {
-                tabBar.style.display = 'none';
+            const loginForm = document.getElementById('loginForm');
+            
+            if (loginForm) {
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                emailInput.addEventListener('blur', function() {
+                    validateEmail(this);
+                });
+                
+                passwordInput.addEventListener('blur', function() {
+                    validatePassword(this);
+                });
+                
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const isEmailValid = validateEmail(emailInput);
+                    const isPasswordValid = validatePassword(passwordInput);
+                    
+                    // Only proceed if both validations pass
+                    if (isEmailValid && isPasswordValid) {
+                        // Clear any previous alerts
+                        const alertsContainer = document.getElementById('formAlerts');
+                        alertsContainer.innerHTML = '';
+                        
+                        // Create a user object for demo
+                        const user = {
+                            id: 'user123',
+                            fullName: 'مستخدم تجريبي',
+                            email: emailInput.value,
+                            avatarUrl: 'img/placeholder.jpg',
+                            favorites: []
+                        };
+                        
+                        // Store in localStorage
+                        localStorage.setItem('aqar_user', JSON.stringify(user));
+                        
+                        // Show success message
+                        alertsContainer.innerHTML = '<div class="alert alert--success">تم تسجيل الدخول بنجاح! جاري التحويل...</div>';
+                        
+                        // Redirect to home page after short delay
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1500);
+                    }
+                });
+            }
+            
+            function validateEmail(input) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isValid = emailRegex.test(input.value);
+                
+                if (!isValid) {
+                    input.classList.add('form__input--error');
+                    return false;
+                } else {
+                    input.classList.remove('form__input--error');
+                    return true;
+                }
+            }
+            
+            function validatePassword(input) {
+                const isValid = input.value.length >= 4;
+                
+                if (!isValid) {
+                    input.classList.add('form__input--error');
+                    return false;
+                } else {
+                    input.classList.remove('form__input--error');
+                    return true;
+                }
             }
         });
     </script>

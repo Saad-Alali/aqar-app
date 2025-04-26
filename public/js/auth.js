@@ -27,29 +27,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function checkAuthState() {
     const user = getCurrentUser();
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    const protectedPages = ['profile.html', 'favorites.html', 'edit-profile.html', 
+                           'change-password.html', 'my-properties.html'];
+                           
+    const publicOnlyPages = ['login.html', 'register.html'];
+    
     if (user) {
-        if (isOnLoginPage() || isOnRegisterPage()) {
+        if (publicOnlyPages.includes(currentPage)) {
             window.location.href = 'index.html';
             return;
         }
     } else {
-        const protectedPages = ['profile.html', 'favorites.html'];
-        const currentPage = window.location.pathname.split('/').pop();
-        
         if (protectedPages.includes(currentPage)) {
-            window.location.href = 'login.html';
+            const authOverlay = document.getElementById('authOverlay');
+            if (authOverlay) {
+                authOverlay.style.display = 'flex';
+                
+                const mainContent = document.querySelector('.app-content');
+                if (mainContent) {
+                    mainContent.style.filter = 'blur(5px)';
+                    mainContent.style.pointerEvents = 'none';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
         }
     }
     
     updateAuthUI();
-}
-
-function isOnLoginPage() {
-    return window.location.pathname.includes('login.html');
-}
-
-function isOnRegisterPage() {
-    return window.location.pathname.includes('register.html');
 }
 
 function initLoginForm(form) {
@@ -60,28 +67,29 @@ function initLoginForm(form) {
         const password = form.querySelector('#password').value;
         
         if (!email || !password) {
-            showMessage('formAlerts', 'Please enter email and password', 'danger');
+            showMessage('formAlerts', 'يرجى إدخال البريد الإلكتروني وكلمة المرور', 'danger');
             return;
         }
         
         try {
             const user = {
                 id: 'user123',
-                fullName: 'Demo User',
+                fullName: 'مستخدم تجريبي',
                 email: email,
-                avatarUrl: 'img/placeholder.jpg'
+                avatarUrl: 'img/placeholder.jpg',
+                favorites: []
             };
             
             setCurrentUser(user);
             
-            showMessage('formAlerts', 'Login successful! Redirecting...', 'success');
+            showMessage('formAlerts', 'تم تسجيل الدخول بنجاح! جاري التحويل...', 'success');
             
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 1500);
             
         } catch (error) {
-            showMessage('formAlerts', 'Login failed. Please check your credentials.', 'danger');
+            showMessage('formAlerts', 'فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد الخاصة بك.', 'danger');
         }
     });
 }
@@ -96,12 +104,12 @@ function initRegisterForm(form) {
         const confirmPassword = form.querySelector('#confirmPassword').value;
         
         if (!fullName || !email || !password) {
-            showMessage('formAlerts', 'Please fill all required fields', 'danger');
+            showMessage('formAlerts', 'يرجى ملء جميع الحقول المطلوبة', 'danger');
             return;
         }
         
         if (password !== confirmPassword) {
-            showMessage('formAlerts', 'Passwords do not match', 'danger');
+            showMessage('formAlerts', 'كلمات المرور غير متطابقة', 'danger');
             return;
         }
         
@@ -110,19 +118,20 @@ function initRegisterForm(form) {
                 id: 'user' + Date.now(),
                 fullName: fullName,
                 email: email,
-                avatarUrl: 'img/placeholder.jpg'
+                avatarUrl: 'img/placeholder.jpg',
+                favorites: []
             };
             
             setCurrentUser(user);
             
-            showMessage('formAlerts', 'Registration successful! Redirecting...', 'success');
+            showMessage('formAlerts', 'تم التسجيل بنجاح! جاري التحويل...', 'success');
             
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 1500);
             
         } catch (error) {
-            showMessage('formAlerts', 'Registration failed. Please try again.', 'danger');
+            showMessage('formAlerts', 'فشل التسجيل. يرجى المحاولة مرة أخرى.', 'danger');
         }
     });
 }
@@ -170,6 +179,31 @@ function setCurrentUser(userData) {
     }
 }
 
+function showToast(message, type = 'info', duration = 3000) {
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('toast--visible');
+    }, 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('toast--visible');
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, duration);
+}
+
 if (window.Aqar && window.Aqar.Auth) {
     window.Aqar.Auth = {
         ...window.Aqar.Auth,
@@ -198,5 +232,6 @@ export {
     getCurrentUser,
     setCurrentUser,
     logoutUser,
-    updateAuthUI
+    updateAuthUI,
+    showToast
 };

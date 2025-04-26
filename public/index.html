@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -143,44 +144,188 @@
             </a>
         </div>
 
-        <!-- Admin Link (visible for admins only) -->
-        <a href="admin.html" id="adminLink" class="action-button" style="left: var(--spacing-md); display: none;">
-            <i class="fas fa-user-cog"></i>
+        <!-- Logout Button (visible when user is logged in) -->
+        <a href="#" id="logoutBtn" class="action-button" style="left: var(--spacing-md); display: none;">
+            <i class="fas fa-sign-out-alt"></i>
         </a>
     </div>
 
-    <!-- Firebase Initialization -->
-    <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/firebase.js"></script>
-    
-    <!-- Core Application Scripts -->
-    <script type="module" src="js/auth-utilities.js"></script>
-    <script type="module" src="js/app.js"></script>
-    
-    <!-- Feature-specific Scripts -->
-    <script type="module" src="js/properties.js"></script>
-    <script type="module" src="js/favorites.js"></script>
-    <script type="module" src="js/db-utils.js"></script>
-    
-    <script type="module">
-      import { initializeFirebase } from './js/firebase.js';
-      import { updateAuthUI } from './js/auth-utilities.js';
-      
-      document.addEventListener('DOMContentLoaded', async () => {
-        try {
-          await initializeFirebase();
-          console.log("Firebase initialized in index.html");
-          
-          const user = localStorage.getItem('aqar_user');
-          if (user) {
-            document.getElementById('adminLink')?.style.display = 'flex';
-          }
-          
-          updateAuthUI();
-        } catch (error) {
-          console.error("Error initializing app:", error);
+    <script src="js/app.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in, if not redirect to login page
+            const userData = localStorage.getItem('aqar_user');
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Initialize properties grid
+            initProperties();
+            
+            // Initialize search toggle
+            const searchToggle = document.getElementById('searchToggle');
+            const searchPanel = document.getElementById('searchPanel');
+            
+            if (searchToggle && searchPanel) {
+                searchToggle.addEventListener('click', function() {
+                    const isHidden = searchPanel.style.display === 'none' || !searchPanel.style.display;
+                    searchPanel.style.display = isHidden ? 'block' : 'none';
+                });
+            }
+            
+            // Initialize filter button
+            const filterBtn = document.getElementById('filterBtn');
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (searchPanel) {
+                        const isHidden = searchPanel.style.display === 'none' || !searchPanel.style.display;
+                        searchPanel.style.display = isHidden ? 'block' : 'none';
+                    }
+                });
+            }
+            
+            // Initialize logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.style.display = 'flex';
+                
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                        localStorage.removeItem('aqar_user');
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+        });
+        
+        function initProperties() {
+            const propertiesGrid = document.getElementById('propertiesGrid');
+            if (!propertiesGrid) return;
+            
+            // Sample properties data (for demo purposes)
+            const sampleProperties = [
+                {
+                    id: 'prop1',
+                    title: "شقة حديثة",
+                    location: "وسط المدينة",
+                    price: 350000,
+                    priceFormatted: "$350,000",
+                    features: {
+                        bedrooms: 2,
+                        bathrooms: 2,
+                        area: 1200
+                    },
+                    description: "شقة حديثة في قلب المدينة مع إطلالات رائعة وسهولة الوصول إلى جميع المرافق",
+                    imageUrl: "img/placeholder.jpg"
+                },
+                {
+                    id: 'prop2',
+                    title: "فيلا فاخرة",
+                    location: "الواجهة البحرية",
+                    price: 1250000,
+                    priceFormatted: "$1,250,000",
+                    features: {
+                        bedrooms: 5,
+                        bathrooms: 4,
+                        area: 3500
+                    },
+                    description: "فيلا فاخرة مع إطلالات بانورامية على البحر وحمام سباحة خاص",
+                    imageUrl: "img/placeholder.jpg"
+                },
+                {
+                    id: 'prop3',
+                    title: "منزل عائلي",
+                    location: "الضواحي",
+                    price: 580000,
+                    priceFormatted: "$580,000",
+                    features: {
+                        bedrooms: 4,
+                        bathrooms: 3,
+                        area: 2400
+                    },
+                    description: "منزل عائلي واسع في حي هادئ مع حديقة كبيرة ومطبخ حديث وقريب من المدارس",
+                    imageUrl: "img/placeholder.jpg"
+                }
+            ];
+            
+            // Delay to simulate loading
+            setTimeout(() => {
+                // Clear loading indicator
+                propertiesGrid.innerHTML = '';
+                
+                // Create property cards
+                sampleProperties.forEach(property => {
+                    const card = createPropertyCard(property);
+                    propertiesGrid.appendChild(card);
+                });
+                
+                // Initialize pagination
+                initPagination();
+            }, 1000);
         }
-      });
+        
+        function createPropertyCard(property) {
+            const card = document.createElement('div');
+            card.className = 'property-card';
+            
+            card.innerHTML = `
+                <div class="property-card__image">
+                    <img src="${property.imageUrl}" alt="${property.title}" class="property-card__img">
+                </div>
+                <div class="property-card__content">
+                    <h3 class="property-card__title">${property.title}</h3>
+                    <div class="property-card__location">
+                        <i class="fas fa-map-marker-alt property-card__location-icon"></i>
+                        ${property.location}
+                    </div>
+                    <div class="property-card__price">${property.priceFormatted}</div>
+                    <div class="property-card__features">
+                        <div class="property-card__feature">
+                            <i class="fas fa-bed property-card__feature-icon"></i> ${property.features.bedrooms} غرف
+                        </div>
+                        <div class="property-card__feature">
+                            <i class="fas fa-bath property-card__feature-icon"></i> ${property.features.bathrooms} حمامات
+                        </div>
+                        <div class="property-card__feature">
+                            <i class="fas fa-ruler-combined property-card__feature-icon"></i> ${property.features.area} قدم²
+                        </div>
+                    </div>
+                    <p class="property-card__description">
+                        ${property.description}
+                    </p>
+                    <a href="property-details.html?id=${property.id}" class="btn btn--primary property-card__btn">عرض التفاصيل</a>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function initPagination() {
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+            
+            pagination.innerHTML = `
+                <li class="pagination__item">
+                    <a href="#" class="pagination__link pagination__link--active">1</a>
+                </li>
+                <li class="pagination__item">
+                    <a href="#" class="pagination__link">2</a>
+                </li>
+                <li class="pagination__item">
+                    <a href="#" class="pagination__link">3</a>
+                </li>
+                <li class="pagination__item">
+                    <a href="#" class="pagination__link">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+        }
     </script>
 </body>
 </html>

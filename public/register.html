@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -34,11 +35,16 @@
             width: 100%;
             max-width: 400px;
         }
+        .form__error {
+            display: none;
+        }
+        .form__input--error + .form__error {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- App Header -->
         <header class="app-header">
             <div class="app-header-action">
                 <a href="login.html" class="back-button">
@@ -49,87 +55,164 @@
             <div class="app-header-action"></div>
         </header>
 
-        <!-- App Content -->
         <div class="app-content register-container">
             <div class="register-logo">عقار</div>
             
             <div class="register-form">
                 <form class="form" id="registerForm">
-                    <!-- Alert container for form messages -->
                     <div id="formAlerts"></div>
                     
                     <div class="form__group">
                         <label for="fullName" class="form__label">الاسم الكامل</label>
                         <input type="text" id="fullName" name="fullName" class="form__input" placeholder="أدخل اسمك الكامل" required>
-                        <small class="form__error hidden" id="fullNameError">يجب أن يكون الاسم الكامل 3 أحرف على الأقل</small>
+                        <small class="form__error" id="fullNameError">يجب أن يكون الاسم الكامل 3 أحرف على الأقل</small>
                     </div>
                     
                     <div class="form__group">
                         <label for="email" class="form__label">البريد الإلكتروني</label>
                         <input type="email" id="email" name="email" class="form__input" placeholder="أدخل بريدك الإلكتروني" required>
-                        <small class="form__error hidden" id="emailError">يرجى إدخال بريد إلكتروني صحيح</small>
+                        <small class="form__error" id="emailError">يرجى إدخال بريد إلكتروني صحيح</small>
                     </div>
                     
                     <div class="form__group">
                         <label for="phone" class="form__label">رقم الجوال</label>
                         <input type="tel" id="phone" name="phone" class="form__input" placeholder="أدخل رقم الجوال" required>
-                        <small class="form__error hidden" id="phoneError">يرجى إدخال رقم جوال صحيح</small>
+                        <small class="form__error" id="phoneError">يرجى إدخال رقم جوال صحيح</small>
                     </div>
                     
                     <div class="form__group">
                         <label for="password" class="form__label">كلمة المرور</label>
                         <input type="password" id="password" name="password" class="form__input" placeholder="أنشئ كلمة مرور" required>
-                        <small class="form__error hidden" id="passwordError">يجب أن تكون كلمة المرور 8 أحرف على الأقل وتتضمن أرقامًا وأحرفًا خاصة</small>
+                        <small class="form__error" id="passwordError">يجب أن تكون كلمة المرور 8 أحرف على الأقل</small>
                     </div>
                     
                     <div class="form__group">
                         <label for="confirmPassword" class="form__label">تأكيد كلمة المرور</label>
                         <input type="password" id="confirmPassword" name="confirmPassword" class="form__input" placeholder="أكد كلمة المرور" required>
-                        <small class="form__error hidden" id="confirmPasswordError">كلمات المرور غير متطابقة</small>
+                        <small class="form__error" id="confirmPasswordError">كلمات المرور غير متطابقة</small>
                     </div>
-                    
-                    <div class="form__group mt-3">
-                        <div class="form__checkbox">
-                            <input type="checkbox" id="termsAccept" name="termsAccept" class="form__checkbox-input" required>
-                            <label for="termsAccept" class="form__checkbox-label">
-                                أوافق على <a href="#" class="form__footer-link">الشروط والأحكام</a> و <a href="#" class="form__footer-link">سياسة الخصوصية</a>
-                            </label>
-                        </div>
-                    </div>
+                
                     
                     <button type="submit" class="btn btn--primary btn--block mt-4" id="registerBtn">إنشاء حساب</button>
                     
                     <div class="form__footer text-center mt-4">
                         <p>لديك حساب بالفعل؟ <a href="login.html" class="form__footer-link">تسجيل الدخول</a></p>
                     </div>
-
-                    <!-- Social Register Options -->
-                    <div class="mt-4">
-                        <p class="text-center mb-3">أو التسجيل باستخدام</p>
-                        <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button type="button" class="btn btn--outline-primary" style="flex: 1;">
-                                <i class="fab fa-google"></i> Google
-                            </button>
-                            <button type="button" class="btn btn--outline-primary" style="flex: 1;">
-                                <i class="fab fa-apple"></i> Apple
-                            </button>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="js/app.js"></script>
-    <script src="js/auth.js"></script>
     <script>
-        // Hide tab bar on register page
         document.addEventListener('DOMContentLoaded', function() {
-            // If we had a tab bar on this page, we would hide it
-            const tabBar = document.querySelector('.tab-bar');
-            if (tabBar) {
-                tabBar.style.display = 'none';
+            const registerForm = document.getElementById('registerForm');
+            
+            if (registerForm) {
+                const inputs = {
+                    fullName: document.getElementById('fullName'),
+                    email: document.getElementById('email'),
+                    phone: document.getElementById('phone'),
+                    password: document.getElementById('password'),
+                    confirmPassword: document.getElementById('confirmPassword'),
+                    termsAccept: document.getElementById('termsAccept')
+                };
+                
+                // Add validation on blur for each input
+                inputs.fullName.addEventListener('blur', () => validateFullName(inputs.fullName));
+                inputs.email.addEventListener('blur', () => validateEmail(inputs.email));
+                inputs.phone.addEventListener('blur', () => validatePhone(inputs.phone));
+                inputs.password.addEventListener('blur', () => validatePassword(inputs.password));
+                inputs.confirmPassword.addEventListener('blur', () => validateConfirmPassword(inputs.confirmPassword, inputs.password));
+                
+                // Form submission
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Validate all fields
+                    const isFullNameValid = validateFullName(inputs.fullName);
+                    const isEmailValid = validateEmail(inputs.email);
+                    const isPhoneValid = validatePhone(inputs.phone);
+                    const isPasswordValid = validatePassword(inputs.password);
+                    const isConfirmPasswordValid = validateConfirmPassword(inputs.confirmPassword, inputs.password);
+                    const isTermsAccepted = validateTerms(inputs.termsAccept);
+                    
+                    // Only proceed if all validations pass
+                    if (isFullNameValid && isEmailValid && isPhoneValid && 
+                        isPasswordValid && isConfirmPasswordValid && isTermsAccepted) {
+                        
+                        // Clear any previous alerts
+                        const alertsContainer = document.getElementById('formAlerts');
+                        alertsContainer.innerHTML = '';
+                        
+                        // Create a user object
+                        const user = {
+                            id: 'user' + Date.now(),
+                            fullName: inputs.fullName.value,
+                            email: inputs.email.value,
+                            phone: inputs.phone.value,
+                            avatarUrl: 'img/placeholder.jpg',
+                            favorites: []
+                        };
+                        
+                        // Store in localStorage
+                        localStorage.setItem('aqar_user', JSON.stringify(user));
+                        
+                        // Show success message
+                        alertsContainer.innerHTML = '<div class="alert alert--success">تم إنشاء الحساب بنجاح! جاري التحويل...</div>';
+                        
+                        // Redirect to home page after short delay
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1500);
+                    }
+                });
+            }
+            
+            function validateFullName(input) {
+                const isValid = input.value.trim().length >= 3;
+                toggleError(input, isValid);
+                return isValid;
+            }
+            
+            function validateEmail(input) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isValid = emailRegex.test(input.value);
+                toggleError(input, isValid);
+                return isValid;
+            }
+            
+            function validatePhone(input) {
+                const phoneRegex = /^[\d\s\+\-\(\)]{8,15}$/;
+                const isValid = phoneRegex.test(input.value);
+                toggleError(input, isValid);
+                return isValid;
+            }
+            
+            function validatePassword(input) {
+                const isValid = input.value.length >= 6;
+                toggleError(input, isValid);
+                return isValid;
+            }
+            
+            function validateConfirmPassword(input, passwordInput) {
+                const isValid = input.value === passwordInput.value && input.value.length > 0;
+                toggleError(input, isValid);
+                return isValid;
+            }
+            
+            function validateTerms(input) {
+                const isValid = input.checked;
+                document.getElementById('termsError').style.display = isValid ? 'none' : 'block';
+                return isValid;
+            }
+            
+            function toggleError(input, isValid) {
+                if (isValid) {
+                    input.classList.remove('form__input--error');
+                } else {
+                    input.classList.add('form__input--error');
+                }
             }
         });
     </script>
