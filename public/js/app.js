@@ -1,20 +1,131 @@
+// public/js/app.js
 import { initializeFirebase } from './firebase.js';
 import { getCurrentUser } from './auth-service.js';
 
+const MAX_RETRIES = 3;
+let initRetries = 0;
+let isInitializing = false;
+let isInitialized = false;
+
+let isOfflineMode = false;
+
 document.addEventListener('DOMContentLoaded', async function() {
-  try {
-    await initializeFirebase();
-    await initApp();
-  } catch (error) {
-    console.error("Error initializing app:", error);
-    showToast("حدث خطأ في تهيئة التطبيق", "error");
-  }
+  await initApp();
 });
 
-async function initApp() {
-  const user = await getCurrentUser();
-  updateAuthUI(user);
+function detectAdBlocker() {
+  return new Promise(resolve => {
+    const testElement = document.createElement('div');
+    testElement.className = 'adsbox';
+    testElement.innerHTML = '&nbsp;';
+    document.body.appendChild(testElement);
+    
+    setTimeout(() => {
+      const isBlocked = testElement.offsetHeight === 0;
+      document.body.removeChild(testElement);
+      
+      if (isBlocked) {
+        showAdBlockerWarning();
+      }
+      
+      resolve(isBlocked);
+    }, 100);
+  });
+}
+
+function showAdBlockerWarning() {
+  const warning = document.createElement('div');
+  warning.style.cssText = `
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #FFECA9;
+    color: #734900;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    z-index: 9998;
+    border-top: 1px solid #E2D7AA;
+  `;
+  warning.innerHTML = `
+    <p>تم اكتشاف مانع إعلانات. قد يؤثر هذا على بعض وظائف التطبيق. يعمل الموقع حاليًا في وضع عدم الاتصال.</p>
+    <button style="background: #FFC107; border: none; padding: 5px 10px; margin-top: 5px; border-radius: 4px; cursor: pointer;">تجاهل</button>
+  `;
   
+  document.body.appendChild(warning);
+  
+  warning.querySelector('button').addEventListener('click', function() {
+    warning.remove();
+  });
+}
+
+async function initApp() {
+  if (isInitializing) return;
+  if (isInitialized) return;
+  
+  isInitializing = true;
+  
+  try {
+    await detectAdBlocker();
+    
+    await initializeFirebaseWithRetry();
+    
+    const user = await getCurrentUser();
+    updateAuthUI(user);
+    
+    initNavigation();
+    initSwipeActions();
+    initPullToRefresh();
+    
+    setupOfflineDetection();
+    
+    isInitialized = true;
+    console.log("App initialized successfully");
+  } catch (error) {
+    console.error("Error initializing app:", error);
+    
+    if (initRetries < MAX_RETRIES) {
+      initRetries++;
+      const delay = Math.pow(2, initRetries) * 1000;
+      
+      console.log(`Retrying initialization (${initRetries}/${MAX_RETRIES}) in ${delay}ms...`);
+      setTimeout(initApp, delay);
+    } else {
+      showToast("حدث خطأ في تهيئة التطبيق، سيتم العمل في وضع عدم الاتصال", "error");
+      
+      enterOfflineMode();
+      updateAuthUI(null);
+      isInitialized = true;
+    }
+  } finally {
+    isInitializing = false;
+  }
+}
+
+async function initializeFirebaseWithRetry() {
+  let retries = 0;
+  const maxRetries = 3;
+  
+  while (retries < maxRetries) {
+    try {
+      await initializeFirebase();
+      return;
+    } catch (error) {
+      console.error(`Firebase initialization attempt ${retries + 1} failed:`, error);
+      retries++;
+      
+      if (retries < maxRetries) {
+        const delay = Math.pow(2, retries) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
+function initNavigation() {
   const navToggle = document.getElementById('navToggle');
   const navMenu = document.getElementById('navMenu');
   
@@ -63,10 +174,6 @@ async function initApp() {
       }
     });
   }
-  
-  initSwipeActions();
-  
-  initPullToRefresh();
 }
 
 function initSwipeActions() {
@@ -193,7 +300,11 @@ function initPullToRefresh() {
         appContent.style.transform = 'translateY(0)';
         pullIndicator.style.display = 'none';
         
-        location.reload();
+        if (navigator.onLine) {
+          location.reload();
+        } else {
+          showToast("لا يمكن التحديث، أنت غير متصل بالإنترنت", "error");
+        }
       }, 1500);
     } else {
       appContent.style.transform = 'translateY(0)';
@@ -202,6 +313,82 @@ function initPullToRefresh() {
     
     deltaY = 0;
   });
+}
+
+function setupOfflineDetection() {
+  window.addEventListener('online', handleOnline);
+  window.addEventListener('offline', handleOffline);
+  
+  if (!navigator.onLine) {
+    enterOfflineMode();
+  }
+}
+
+function handleOnline() {
+  if (isOfflineMode) {
+    isOfflineMode = false;
+    showToast("تم استعادة الاتصال بالإنترنت", "success");
+    
+    if (!window.firebaseApp) {
+      initializeFirebase()
+        .then(() => {
+          console.log("Firebase reinitialized successfully after reconnection");
+        })
+        .catch(error => {
+          console.error("Failed to reinitialize Firebase after reconnection:", error);
+        });
+    }
+  }
+}
+
+function handleOffline() {
+  enterOfflineMode();
+}
+
+function enterOfflineMode() {
+  isOfflineMode = true;
+  showToast("أنت غير متصل بالإنترنت، سيتم العمل في وضع عدم الاتصال", "warning", 5000);
+  
+  addOfflineIndicator();
+}
+
+function addOfflineIndicator() {
+  removeOfflineIndicator();
+  
+  const indicator = document.createElement('div');
+  indicator.id = 'offlineIndicator';
+  indicator.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #f59e0b;
+    color: white;
+    text-align: center;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    z-index: 9999;
+  `;
+  indicator.textContent = "أنت غير متصل بالإنترنت";
+  
+  document.body.appendChild(indicator);
+  
+  const appContent = document.querySelector('.app-content');
+  if (appContent) {
+    appContent.style.paddingTop = '28px';
+  }
+}
+
+function removeOfflineIndicator() {
+  const indicator = document.getElementById('offlineIndicator');
+  if (indicator) {
+    indicator.remove();
+    
+    const appContent = document.querySelector('.app-content');
+    if (appContent) {
+      appContent.style.paddingTop = '';
+    }
+  }
 }
 
 function showToast(message, type = 'info', duration = 3000) {

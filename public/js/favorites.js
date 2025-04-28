@@ -1,232 +1,184 @@
-import { getCurrentUser, setCurrentUser } from './auth.js';
-import { showToast } from './auth.js';
+// public/js/firebase.js
+import { firebaseConfig } from './firebase-config.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-  initFavoriteButtons();
-  
-  const favoritesPage = document.querySelector('.favorites-container');
-  if (favoritesPage) {
-    initFavoritesPage();
-  }
-});
+let app, db, auth, storage, analytics;
+let firebaseInitialized = false;
 
-async function initFavoritesPage() {
-  const user = getCurrentUser();
-  
-  if (!user) {
-    return;
+export async function initializeFirebase() {
+  if (firebaseInitialized) {
+    return { app, db, auth, storage, analytics };
   }
   
   try {
-    await loadFavorites();
+    // Import Firebase modules
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js");
+    const { getFirestore, collection, getDocs, addDoc, setDoc, doc, getDoc, updateDoc, arrayUnion, arrayRemove } = 
+      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js");
+    const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } = 
+      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js");
+    const { getStorage, ref, uploadBytes, getDownloadURL } = 
+      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js");
+    const { getAnalytics } = 
+      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js");
+
+    // Initialize Firebase
+    app = initializeApp(firebaseConfig);
     
-    const favoriteTabs = document.querySelectorAll('.favorites-tab');
-    favoriteTabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        favoriteTabs.forEach(t => t.classList.remove('favorites-tab--active'));
-        this.classList.add('favorites-tab--active');
-        
-        const category = this.textContent.trim();
-        filterFavorites(category);
-      });
-    });
+    // Initialize services
+    auth = getAuth(app);
+    
+    try {
+      db = getFirestore(app);
+    } catch (dbError) {
+      console.error("Error initializing Firestore:", dbError);
+      // Continue with other services, even if Firestore fails
+    }
+    
+    try {
+      storage = getStorage(app);
+    } catch (storageError) {
+      console.error("Error initializing Storage:", storageError);
+      // Continue with other services, even if Storage fails
+    }
+    
+    try {
+      analytics = getAnalytics(app);
+    } catch (analyticsError) {
+      console.error("Error initializing Analytics:", analyticsError);
+      // Analytics is not critical, continue without it
+    }
+
+    // Attach to window for global access
+    window.firebaseApp = app;
+    window.firebaseAuth = auth;
+    
+    if (db) window.firebaseDb = db;
+    if (storage) window.firebaseStorage = storage;
+    if (analytics) window.firebaseAnalytics = analytics;
+    
+    // Make Firestore functions available globally
+    window.firebaseFirestore = {
+      collection, getDocs, addDoc, setDoc, doc, getDoc, updateDoc, arrayUnion, arrayRemove
+    };
+
+    console.log("Firebase successfully initialized");
+    
+    // Set flag to avoid multiple initializations
+    firebaseInitialized = true;
+    
+    // Initialize database with sample data
+    try {
+      await initializeDatabaseWithRetry();
+    } catch (dbInitError) {
+      console.warn("Could not initialize database with sample data:", dbInitError);
+      // Not critical, app can still function
+    }
+    
+    return { app, db, auth, storage, analytics };
   } catch (error) {
-    console.error("Error initializing favorites page:", error);
+    console.error("Error initializing Firebase:", error);
+    // Return partial initialization if possible
+    return { app, db, auth, storage, analytics };
   }
 }
 
-async function loadFavorites() {
-  const user = getCurrentUser();
-  if (!user) return;
+async function initializeDatabaseWithRetry(maxRetries = 3) {
+  if (!db) return false;
   
-  const favorites = user.favorites || [];
-  const favoritesContainer = document.getElementById('favoritesWithItems');
-  const emptyFavorites = document.getElementById('favoritesEmpty');
+  let retries = 0;
   
-  if (!favoritesContainer || !emptyFavorites) return;
-  
-  if (favorites.length === 0) {
-    favoritesContainer.style.display = 'none';
-    emptyFavorites.style.display = 'block';
-    return;
-  }
-  
-  favoritesContainer.style.display = 'block';
-  emptyFavorites.style.display = 'none';
-}
-
-function filterFavorites(category) {
-  const favoritesWithItems = document.getElementById('favoritesWithItems');
-  const emptyFavorites = document.getElementById('favoritesEmpty');
-  
-  if (category === 'شقق') {
-    favoritesWithItems.style.display = 'none';
-    emptyFavorites.style.display = 'block';
-  } else {
-    favoritesWithItems.style.display = 'block';
-    emptyFavorites.style.display = 'none';
-  }
-}
-
-function initFavoriteButtons() {
-  const favoriteButtons = document.querySelectorAll('.property-card__favorite-btn, #favoriteBtn');
-  
-  favoriteButtons.forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-      e.preventDefault();
+  while (retries < maxRetries) {
+    try {
+      const { collection, getDocs, addDoc, query, limit } = window.firebaseFirestore;
       
-      const propertyId = this.dataset.propertyId;
-      if (!propertyId) return;
+      // Check if properties collection already has data
+      const propertiesRef = collection(db, "properties");
+      const propertiesSnapshot = await getDocs(query(propertiesRef, limit(1)));
       
-      const user = getCurrentUser();
-      if (!user) {
-        showLoginModal('يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة');
-        return;
-      }
-      
-      try {
-        const favorites = user.favorites || [];
-        const heartIcon = this.querySelector('i');
+      if (propertiesSnapshot.empty) {
+        console.log("Initializing database with sample properties...");
         
-        if (favorites.includes(propertyId)) {
-          await removeFromFavorites(propertyId);
-          
-          if (heartIcon) {
-            heartIcon.classList.remove('fas');
-            heartIcon.classList.add('far');
-            heartIcon.style.color = '';
+        const sampleProperties = [
+          {
+            title: "شقة حديثة",
+            location: "وسط المدينة",
+            price: 350000,
+            priceFormatted: "$350,000",
+            propertyType: "apartment",
+            transactionType: "للبيع",
+            features: {
+              bedrooms: 2,
+              bathrooms: 2,
+              area: 1200
+            },
+            description: "شقة حديثة في قلب المدينة مع إطلالات رائعة وسهولة الوصول إلى جميع المرافق",
+            imageUrl: "img/placeholder.jpg",
+            dateAdded: new Date().toISOString()
+          },
+          {
+            title: "فيلا فاخرة",
+            location: "الواجهة البحرية",
+            price: 1250000,
+            priceFormatted: "$1,250,000",
+            propertyType: "villa",
+            transactionType: "للبيع",
+            features: {
+              bedrooms: 5,
+              bathrooms: 4,
+              area: 3500
+            },
+            description: "فيلا فاخرة مع إطلالات بانورامية على البحر وحمام سباحة خاص",
+            imageUrl: "img/placeholder.jpg",
+            dateAdded: new Date().toISOString()
+          },
+          {
+            title: "منزل عائلي",
+            location: "الضواحي",
+            price: 580000,
+            priceFormatted: "$580,000",
+            propertyType: "house",
+            transactionType: "للبيع",
+            features: {
+              bedrooms: 4,
+              bathrooms: 3,
+              area: 2400
+            },
+            description: "منزل عائلي واسع في حي هادئ مع حديقة كبيرة ومطبخ حديث وقريب من المدارس",
+            imageUrl: "img/placeholder.jpg",
+            dateAdded: new Date().toISOString()
           }
-          
-          showToast('تمت إزالة العقار من المفضلة', 'info');
-        } else {
-          await addToFavorites(propertyId);
-          
-          if (heartIcon) {
-            heartIcon.classList.remove('far');
-            heartIcon.classList.add('fas');
-            heartIcon.style.color = '#ef4444';
+        ];
+        
+        // Add properties one by one with error handling
+        for (const property of sampleProperties) {
+          try {
+            await addDoc(propertiesRef, property);
+          } catch (addError) {
+            console.error("Error adding property:", addError);
+            // Continue with other properties
           }
-          
-          showToast('تمت إضافة العقار إلى المفضلة', 'success');
         }
-      } catch (error) {
-        console.error("Error toggling favorite:", error);
-        showToast('حدث خطأ، يرجى المحاولة مرة أخرى', 'error');
+        
+        console.log("Sample properties added successfully!");
+      } else {
+        console.log("Database already contains properties. Skipping initialization.");
       }
-    });
-  });
-  
-  updateFavoriteButtonsState();
-}
-
-function updateFavoriteButtonsState() {
-  const user = getCurrentUser();
-  if (!user) return;
-  
-  const favorites = user.favorites || [];
-  const favoriteButtons = document.querySelectorAll('.property-card__favorite-btn, #favoriteBtn');
-  
-  favoriteButtons.forEach(btn => {
-    const propertyId = btn.dataset.propertyId;
-    if (!propertyId) return;
-    
-    const heartIcon = btn.querySelector('i');
-    if (!heartIcon) return;
-    
-    if (favorites.includes(propertyId)) {
-      heartIcon.classList.remove('far');
-      heartIcon.classList.add('fas');
-      heartIcon.style.color = '#ef4444';
-    } else {
-      heartIcon.classList.remove('fas');
-      heartIcon.classList.add('far');
-      heartIcon.style.color = '';
-    }
-  });
-}
-
-function showLoginModal(message) {
-  const modal = document.createElement('div');
-  modal.className = 'auth-overlay';
-  modal.id = 'loginModal';
-  modal.style.display = 'flex';
-  
-  modal.innerHTML = `
-    <div class="auth-overlay__icon">
-      <i class="fas fa-heart"></i>
-    </div>
-    <h2 class="auth-overlay__title">تسجيل الدخول مطلوب</h2>
-    <p class="auth-overlay__description">
-      ${message || 'يجب تسجيل الدخول أو إنشاء حساب جديد لإضافة العقارات إلى المفضلة.'}
-    </p>
-    <div class="auth-overlay__buttons">
-      <a href="login.html" class="btn btn--primary">تسجيل الدخول</a>
-      <a href="register.html" class="btn btn--outline-primary">إنشاء حساب جديد</a>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-  
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeLoginModal();
-    }
-  });
-}
-
-function closeLoginModal() {
-  const modal = document.getElementById('loginModal');
-  if (modal) {
-    modal.remove();
-  }
-}
-
-async function addToFavorites(propertyId) {
-  const user = getCurrentUser();
-  if (!user) return false;
-  
-  try {
-    const favorites = user.favorites || [];
-    
-    if (!favorites.includes(propertyId)) {
-      favorites.push(propertyId);
       
-      user.favorites = favorites;
-      setCurrentUser(user);
+      return true;
+    } catch (error) {
+      console.error(`Database initialization attempt ${retries + 1} failed:`, error);
+      retries++;
       
-      updateFavoriteButtonsState();
+      if (retries < maxRetries) {
+        // Wait before retrying (exponential backoff)
+        const delay = Math.pow(2, retries) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
-    
-    return true;
-  } catch (error) {
-    console.error("Error adding to favorites:", error);
-    throw error;
   }
-}
-
-async function removeFromFavorites(propertyId) {
-  const user = getCurrentUser();
-  if (!user) return false;
   
-  try {
-    let favorites = user.favorites || [];
-    
-    favorites = favorites.filter(id => id !== propertyId);
-    
-    user.favorites = favorites;
-    setCurrentUser(user);
-    
-    updateFavoriteButtonsState();
-    
-    return true;
-  } catch (error) {
-    console.error("Error removing from favorites:", error);
-    throw error;
-  }
+  console.error(`Failed to initialize database after ${maxRetries} attempts`);
+  return false;
 }
 
-export {
-  addToFavorites,
-  removeFromFavorites,
-  showLoginModal
-};
+export { app, db, auth, storage, analytics };
