@@ -3,15 +3,19 @@
 // In-memory user cache
 let currentUserCache = null;
 
+// Local storage key for offline user data
+const LOCAL_STORAGE_USER_KEY = 'aqar_user';
+
 export async function registerUser(email, password, fullName, phone) {
   try {
     // Check if Firebase Auth is available
     if (!window.firebaseAuth) {
-      throw new Error("Firebase Auth not initialized");
+      console.warn("Firebase Auth not initialized, using offline mode");
+      return registerUserOffline(email, fullName, phone);
     }
     
     const { createUserWithEmailAndPassword, updateProfile } = 
-      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js");
+      await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
     
     // Create user with email and password
     const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
@@ -56,9 +60,19 @@ export async function registerUser(email, password, fullName, phone) {
     // Cache the user
     currentUserCache = userData;
     
+    // Also store in localStorage for offline access
+    saveUserToLocalStorage(userData);
+    
     return userData;
   } catch (error) {
     console.error("Error registering user:", error);
+    
+    // If the error is related to network or Firebase initialization, fall back to offline mode
+    if (error.code === 'auth/network-request-failed' || !window.firebaseAuth) {
+      console.warn("Falling back to offline registration mode");
+      return registerUserOffline(email, fullName, phone);
+    }
+    
     throw error;
   }
 }
@@ -67,11 +81,12 @@ export async function loginUser(email, password) {
   try {
     // Check if Firebase Auth is available
     if (!window.firebaseAuth) {
-      throw new Error("Firebase Auth not initialized");
+      console.warn("Firebase Auth not initialized, using offline mode");
+      return loginUserOffline(email, password);
     }
     
     const { signInWithEmailAndPassword } = 
-      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js");
+      await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
     
     // Sign in
     const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
@@ -119,34 +134,48 @@ export async function loginUser(email, password) {
     // Cache the user
     currentUserCache = userData;
     
+    // Also store in localStorage for offline access
+    saveUserToLocalStorage(userData);
+    
     return userData;
   } catch (error) {
     console.error("Error logging in:", error);
+    
+    // If the error is related to network or Firebase initialization, fall back to offline mode
+    if (error.code === 'auth/network-request-failed' || !window.firebaseAuth) {
+      console.warn("Falling back to offline login mode");
+      return loginUserOffline(email, password);
+    }
+    
     throw error;
   }
 }
 
 export async function logoutUser() {
   try {
-    // Check if Firebase Auth is available
+    // Clear cache and localStorage regardless of Firebase status
+    currentUserCache = null;
+    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+    
+    // If Firebase Auth is not available, just return success
     if (!window.firebaseAuth) {
-      // Clear cache and return if no Firebase
-      currentUserCache = null;
       return true;
     }
     
-    const { signOut } = await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js");
+    const { signOut } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
     
     // Sign out
     await signOut(window.firebaseAuth);
     
-    // Clear cache
-    currentUserCache = null;
-    
     return true;
   } catch (error) {
     console.error("Error logging out:", error);
-    throw error;
+    
+    // Even if Firebase logout fails, still clear local data
+    currentUserCache = null;
+    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+    
+    return true;
   }
 }
 
@@ -156,7 +185,14 @@ export async function getCurrentUser() {
     return currentUserCache;
   }
   
-  // Check if Firebase Auth is available
+  // Try to get from localStorage first
+  const localUser = getUserFromLocalStorage();
+  if (localUser) {
+    currentUserCache = localUser;
+    return localUser;
+  }
+  
+  // If Firebase Auth is not available, return null
   if (!window.firebaseAuth) {
     return null;
   }
@@ -213,168 +249,38 @@ export async function getCurrentUser() {
         // Cache the user
         currentUserCache = userData;
         
+        // Also store in localStorage for offline access
+        saveUserToLocalStorage(userData);
+        
         resolve(userData);
       }, reject);
       
       // Set a timeout to prevent hanging
       setTimeout(() => {
         unsubscribe();
-        resolve(null);
+        
+        // If we time out, try to get from localStorage
+        const localUser = getUserFromLocalStorage();
+        if (localUser) {
+          currentUserCache = localUser;
+          resolve(localUser);
+        } else {
+          resolve(null);
+        }
       }, 5000);
     } catch (error) {
       console.error("Error getting current user:", error);
-      resolve(null);
+      
+      // If there's an error, try to get from localStorage
+      const localUser = getUserFromLocalStorage();
+      if (localUser) {
+        currentUserCache = localUser;
+        resolve(localUser);
+      } else {
+        resolve(null);
+      }
     }
   });
-}
-
-export async function updateUserProfile(userId, userData) {
-  try {
-    // For offline support, update cache first
-    if (currentUserCache && currentUserCache.id === userId) {
-      currentUserCache = {
-        ...currentUserCache,
-        ...userData
-      };
-    }
-    
-    // Check if Firebase Auth is available
-    if (!window.firebaseAuth) {
-      throw new Error("Firebase Auth not initialized");
-    }
-    
-    const user = window.firebaseAuth.currentUser;
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
-    
-    const { updateProfile } = await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js");
-    
-    // Update auth profile
-    await updateProfile(user, {
-      displayName: userData.fullName,
-      photoURL: userData.avatarUrl
-    });
-    
-    // Try to update Firestore document
-    try {
-      if (window.firebaseDb && window.firebaseFirestore) {
-        const { doc, updateDoc } = window.firebaseFirestore;
-        
-        await updateDoc(doc(window.firebaseDb, "users", userId), {
-          fullName: userData.fullName,
-          phone: userData.phone || "",
-          avatarUrl: userData.avatarUrl || "img/placeholder.jpg",
-          updatedAt: new Date().toISOString()
-        });
-      }
-    } catch (firestoreError) {
-      console.error("Error updating user profile in Firestore:", firestoreError);
-      // Continue without Firestore update
-    }
-    
-    return {
-      id: userId,
-      fullName: userData.fullName,
-      email: user.email,
-      phone: userData.phone || "",
-      avatarUrl: userData.avatarUrl || "img/placeholder.jpg",
-      favorites: userData.favorites || []
-    };
-  } catch (error) {
-    console.error("Error updating user profile:", error);
-    throw error;
-  }
-}
-
-export async function updateUserAvatar(userId, file) {
-  try {
-    // Check if user is authenticated
-    const user = await getCurrentUser();
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
-    
-    // For simplicity in a disconnected environment, use a placeholder
-    if (!window.firebaseStorage || !window.firebaseAuth) {
-      // Update cache
-      if (currentUserCache) {
-        currentUserCache.avatarUrl = "img/placeholder.jpg";
-      }
-      
-      return {
-        ...user,
-        avatarUrl: "img/placeholder.jpg"
-      };
-    }
-    
-    const { ref, uploadBytes, getDownloadURL } = 
-      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js");
-    const { updateProfile } = 
-      await import("https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js");
-    
-    // Upload file to Storage
-    const storageRef = ref(window.firebaseStorage, `avatars/${userId}`);
-    await uploadBytes(storageRef, file);
-    
-    // Get download URL
-    const downloadURL = await getDownloadURL(storageRef);
-    
-    // Update auth profile
-    await updateProfile(window.firebaseAuth.currentUser, {
-      photoURL: downloadURL
-    });
-    
-    // Update Firestore document
-    try {
-      if (window.firebaseDb && window.firebaseFirestore) {
-        const { doc, updateDoc, getDoc } = window.firebaseFirestore;
-        
-        await updateDoc(doc(window.firebaseDb, "users", userId), {
-          avatarUrl: downloadURL,
-          updatedAt: new Date().toISOString()
-        });
-        
-        const userDoc = await getDoc(doc(window.firebaseDb, "users", userId));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          
-          // Update cache
-          if (currentUserCache) {
-            currentUserCache = {
-              ...currentUserCache,
-              avatarUrl: downloadURL
-            };
-          }
-          
-          return {
-            id: userId,
-            fullName: userData.fullName,
-            email: userData.email,
-            phone: userData.phone,
-            avatarUrl: downloadURL,
-            favorites: userData.favorites || []
-          };
-        }
-      }
-    } catch (firestoreError) {
-      console.error("Error updating user avatar in Firestore:", firestoreError);
-      // Continue without Firestore update
-    }
-    
-    // Update cache
-    if (currentUserCache) {
-      currentUserCache.avatarUrl = downloadURL;
-    }
-    
-    return {
-      ...user,
-      avatarUrl: downloadURL
-    };
-  } catch (error) {
-    console.error("Error updating user avatar:", error);
-    throw error;
-  }
 }
 
 export async function toggleFavorite(userId, propertyId) {
@@ -398,12 +304,18 @@ export async function toggleFavorite(userId, propertyId) {
       updatedFavorites = [...favorites, propertyId];
     }
     
-    // Update cache
+    // Update in-memory cache and localStorage immediately for responsive UI
     if (currentUserCache) {
       currentUserCache.favorites = updatedFavorites;
     }
     
-    // Try to update Firestore
+    const localUser = getUserFromLocalStorage();
+    if (localUser) {
+      localUser.favorites = updatedFavorites;
+      saveUserToLocalStorage(localUser);
+    }
+    
+    // Try to update Firestore if available
     try {
       if (window.firebaseDb && window.firebaseFirestore) {
         const { doc, updateDoc, arrayUnion, arrayRemove } = window.firebaseFirestore;
@@ -424,12 +336,69 @@ export async function toggleFavorite(userId, propertyId) {
       }
     } catch (firestoreError) {
       console.error("Error updating favorites in Firestore:", firestoreError);
-      // Continue without Firestore update
+      // Continue without Firestore update - we've already updated the local state
     }
     
     return !isFavorite; // Return whether it was added (true) or removed (false)
   } catch (error) {
     console.error("Error toggling favorite:", error);
     throw error;
+  }
+}
+
+// ======== Offline Mode Helpers ========
+
+function registerUserOffline(email, fullName, phone) {
+  // Create a mock user
+  const userData = {
+    id: 'offline_' + Date.now(), // Generate a unique offline ID
+    fullName: fullName,
+    email: email,
+    phone: phone || "",
+    avatarUrl: "img/placeholder.jpg",
+    favorites: [],
+    isOfflineUser: true
+  };
+  
+  // Store in localStorage
+  saveUserToLocalStorage(userData);
+  
+  // Update cache
+  currentUserCache = userData;
+  
+  return userData;
+}
+
+function loginUserOffline(email, password) {
+  // Check if we have any users in localStorage
+  const localUser = getUserFromLocalStorage();
+  
+  if (localUser && localUser.email === email) {
+    // Update cache
+    currentUserCache = localUser;
+    return localUser;
+  }
+  
+  // If no match found, throw an error
+  throw new Error("Invalid email or password for offline login");
+}
+
+function saveUserToLocalStorage(userData) {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(userData));
+    return true;
+  } catch (error) {
+    console.error("Error saving user to localStorage:", error);
+    return false;
+  }
+}
+
+function getUserFromLocalStorage() {
+  try {
+    const userData = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+    return userData ? JSON.parse(userData) : null;
+  } catch (error) {
+    console.error("Error getting user from localStorage:", error);
+    return null;
   }
 }

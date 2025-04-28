@@ -67,9 +67,27 @@ async function initApp() {
   isInitializing = true;
   
   try {
+    // Check if we're online first
+    const isOnline = navigator.onLine;
+    if (!isOnline) {
+      console.log("Device is offline, entering offline mode");
+      enterOfflineMode();
+      updateAuthUI(await getCurrentUser()); // This will use localStorage
+      isInitialized = true;
+      isInitializing = false;
+      return;
+    }
+    
     await detectAdBlocker();
     
-    await initializeFirebaseWithRetry();
+    // Try to initialize Firebase
+    try {
+      await initializeFirebaseWithRetry();
+    } catch (firebaseError) {
+      console.error("Failed to initialize Firebase after retries:", firebaseError);
+      // Continue with offline mode
+      enterOfflineMode();
+    }
     
     const user = await getCurrentUser();
     updateAuthUI(user);
@@ -95,7 +113,7 @@ async function initApp() {
       showToast("حدث خطأ في تهيئة التطبيق، سيتم العمل في وضع عدم الاتصال", "error");
       
       enterOfflineMode();
-      updateAuthUI(null);
+      updateAuthUI(await getCurrentUser()); // This will use localStorage
       isInitialized = true;
     }
   } finally {
@@ -301,7 +319,20 @@ function initPullToRefresh() {
         pullIndicator.style.display = 'none';
         
         if (navigator.onLine) {
-          location.reload();
+          // Try to reinitialize Firebase before reloading
+          if (!window.firebaseApp) {
+            initializeFirebase()
+              .then(() => {
+                location.reload();
+              })
+              .catch(() => {
+                showToast("فشل الاتصال بالخدمة، جاري التحديث محلياً", "warning");
+                // Perform a local refresh without full page reload
+                refreshLocalContent();
+              });
+          } else {
+            location.reload();
+          }
         } else {
           showToast("لا يمكن التحديث، أنت غير متصل بالإنترنت", "error");
         }
@@ -313,6 +344,18 @@ function initPullToRefresh() {
     
     deltaY = 0;
   });
+}
+
+function refreshLocalContent() {
+  // A function to refresh content without reloading the page
+  // This would update UI based on local storage data
+  
+  // Refresh user info
+  getCurrentUser().then(user => {
+    updateAuthUI(user);
+  });
+  
+  // Other local content refreshes would go here
 }
 
 function setupOfflineDetection() {
@@ -333,12 +376,26 @@ function handleOnline() {
       initializeFirebase()
         .then(() => {
           console.log("Firebase reinitialized successfully after reconnection");
+          
+          // Try to sync any offline changes
+          syncOfflineChanges();
         })
         .catch(error => {
           console.error("Failed to reinitialize Firebase after reconnection:", error);
         });
+    } else {
+      // Try to sync any offline changes
+      syncOfflineChanges();
     }
+    
+    removeOfflineIndicator();
   }
+}
+
+function syncOfflineChanges() {
+  // This function would sync any changes made while offline
+  // For now, just a placeholder
+  console.log("Syncing offline changes...");
 }
 
 function handleOffline() {
@@ -442,6 +499,27 @@ function updateAuthUI(user) {
     profileButtons.forEach(btn => {
       if (btn) btn.style.display = 'block';
     });
+    
+    // Add offline indicator if it's an offline user
+    if (user.isOfflineUser) {
+      const offlineUserIndicators = document.querySelectorAll('.user-name, #profileName');
+      offlineUserIndicators.forEach(el => {
+        // Add a small offline indicator next to the name
+        const indicator = document.createElement('small');
+        indicator.style.cssText = `
+          font-size: 0.7rem;
+          color: #f59e0b;
+          margin-right: 5px;
+          vertical-align: middle;
+        `;
+        indicator.textContent = " (وضع عدم الاتصال)";
+        
+        // Only add if it doesn't already exist
+        if (!el.querySelector('small')) {
+          el.appendChild(indicator);
+        }
+      });
+    }
   } else {
     const loginButtons = document.querySelectorAll('.login-btn, .register-btn');
     loginButtons.forEach(btn => {
