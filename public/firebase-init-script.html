@@ -1,30 +1,69 @@
-<!-- Firebase SDK -->
+<!-- Firebase SDK with single bundle approach -->
 <script type="module">
-  import { initializeApp } from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app.js";
-  import { getFirestore } from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore.js";
-  import { getAuth } from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js";
-  import { getStorage } from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-storage.js";
-  import { getAnalytics } from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-analytics.js";
-
+  // Import the Firebase bundle which has all services registered properly
+  import { initializeApp, getFirestore, getAuth, getStorage, getAnalytics } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-bundle.js';
+  
   const firebaseConfig = {
     apiKey: "AIzaSyB8KBTvSH8RZb97PXGg-D084g_vHiOx4PM",
-    authDomain: "real-estate-app2-b5a0e.firebaseapp.com",
-    projectId: "real-estate-app2-b5a0e",
-    storageBucket: "real-estate-app2-b5a0e.firebasestorage.app",
+    authDomain: "sciphr-b39ac.firebaseapp.com",
+    projectId: "sciphr-b39ac",
+    storageBucket: "sciphr-b39ac.appspot.com",
     messagingSenderId: "820649708688",
     appId: "1:820649708688:web:f957d0f196c765fcc2dc15",
     measurementId: "G-JNHSBPXGJ6"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const storage = getStorage(app);
-  const analytics = getAnalytics(app);
-
-  window.firebaseApp = app;
-  window.firebaseDb = db;
-  window.firebaseAuth = auth;
-  window.firebaseStorage = storage;
-  window.firebaseAnalytics = analytics;
+  try {
+    // Initialize Firebase with the config
+    const app = initializeApp(firebaseConfig);
+    console.log("Firebase core initialized successfully");
+    
+    // Initialize services after app is initialized
+    try {
+      const auth = getAuth(app);
+      window.firebaseAuth = auth;
+      console.log("Firebase Auth initialized successfully");
+    } catch (e) {
+      console.error("Auth initialization failed:", e);
+      window.firebaseAuth = null;
+    }
+    
+    try {
+      const db = getFirestore(app);
+      window.firebaseDb = db;
+      console.log("Firebase Firestore initialized successfully");
+    } catch (e) {
+      console.error("Firestore initialization failed:", e);
+      window.firebaseDb = null;
+    }
+    
+    try {
+      const storage = getStorage(app);
+      window.firebaseStorage = storage;
+      console.log("Firebase Storage initialized successfully");
+    } catch (e) {
+      console.error("Storage initialization failed:", e);
+      window.firebaseStorage = null;
+    }
+    
+    try {
+      const analytics = getAnalytics(app);
+      window.firebaseAnalytics = analytics;
+      console.log("Firebase Analytics initialized successfully");
+    } catch (e) {
+      console.error("Analytics initialization failed:", e);
+      window.firebaseAnalytics = null;
+    }
+    
+    // Save the app instance globally
+    window.firebaseApp = app;
+  } catch (error) {
+    console.error("Failed to initialize Firebase:", error);
+    // Set all Firebase components to null
+    window.firebaseApp = null;
+    window.firebaseAuth = null;
+    window.firebaseDb = null;
+    window.firebaseStorage = null;
+    window.firebaseAnalytics = null;
+  }
 </script>

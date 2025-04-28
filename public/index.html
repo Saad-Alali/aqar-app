@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2563eb">
@@ -42,10 +42,65 @@
             color: #ef4444;
         }
     </style>
+    
+    <script type="module">
+      import { initializeApp, getFirestore, getAuth, getStorage, getAnalytics } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-bundle.js';
+      import { collection, getDocs, addDoc, setDoc, doc, getDoc, updateDoc, arrayUnion, arrayRemove, query, limit, where } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+      
+      const firebaseConfig = {
+        apiKey: "AIzaSyB8KBTvSH8RZb97PXGg-D084g_vHiOx4PM",
+        authDomain: "sciphr-b39ac.firebaseapp.com",
+        projectId: "sciphr-b39ac",
+        storageBucket: "sciphr-b39ac.appspot.com",
+        messagingSenderId: "820649708688",
+        appId: "1:820649708688:web:f957d0f196c765fcc2dc15",
+        measurementId: "G-JNHSBPXGJ6"
+      };
+    
+      try {
+        const app = initializeApp(firebaseConfig);
+        window.firebaseApp = app;
+        
+        try {
+          const auth = getAuth(app);
+          window.firebaseAuth = auth;
+        } catch (e) {
+          window.firebaseAuth = null;
+        }
+        
+        try {
+          const db = getFirestore(app);
+          window.firebaseDb = db;
+          
+          window.firebaseFirestore = {
+            collection, getDocs, addDoc, setDoc, doc, getDoc, 
+            updateDoc, arrayUnion, arrayRemove, query, limit, where
+          };
+        } catch (e) {
+          window.firebaseDb = null;
+          window.firebaseFirestore = null;
+        }
+        
+        try {
+          const storage = getStorage(app);
+          window.firebaseStorage = storage;
+        } catch (e) {
+          window.firebaseStorage = null;
+        }
+        
+        try {
+          const analytics = getAnalytics(app);
+          window.firebaseAnalytics = analytics;
+        } catch (e) {
+          window.firebaseAnalytics = null;
+        }
+      } catch (error) {
+        window.firebaseApp = null;
+      }
+    </script>
 </head>
 <body>
     <div class="app-container">
-        <!-- App Header -->
         <header class="app-header">
             <div class="app-header-action">
                 <i class="fas fa-search" id="searchToggle"></i>
@@ -56,7 +111,6 @@
             </div>
         </header>
 
-        <!-- Search Panel (Hidden by default) -->
         <div class="search" id="searchPanel" style="display: none;">
             <form class="search__form" id="searchForm">
                 <div class="search__group">
@@ -100,15 +154,12 @@
             </form>
         </div>
 
-        <!-- App Content -->
         <div class="app-content">
-            <!-- Pull to Refresh Indicator -->
             <div class="pull-indicator" id="pullIndicator" style="display: none;">
                 <div class="pull-indicator__spinner"></div>
                 <span>جاري التحديث...</span>
             </div>
 
-            <!-- Properties Section -->
             <section class="properties">
                 <div class="container">
                     <div class="properties__header">
@@ -124,29 +175,23 @@
                         </div>
                     </div>
 
-                    <!-- Property Listings Grid -->
                     <div class="properties__grid" id="propertiesGrid">
-                        <!-- Property cards will be dynamically generated here -->
                         <div class="text-center py-5">
                             <i class="fas fa-spinner fa-spin fa-2x"></i>
                             <p class="mt-3">جاري تحميل العقارات...</p>
                         </div>
                     </div>
 
-                    <!-- Pagination -->
                     <ul class="pagination" id="pagination">
-                        <!-- Pagination will be dynamically generated here -->
                     </ul>
                 </div>
             </section>
         </div>
 
-        <!-- Floating Action Button -->
         <a href="#" class="action-button" id="filterBtn">
             <i class="fas fa-filter"></i>
         </a>
 
-        <!-- Bottom Tab Bar -->
         <div class="tab-bar">
             <a href="index.html" class="tab-bar__item tab-bar__item--active">
                 <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
@@ -172,7 +217,6 @@
     </div>
 
     <script type="module">
-        import { initializeFirebase } from './js/firebase.js';
         import { getCurrentUser } from './js/auth-service.js';
         import { getAllProperties } from './js/property-service.js';
         import { toggleFavorite } from './js/auth-service.js';
@@ -180,16 +224,11 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initializeFirebase();
-                
-                // Initialize app
                 const user = await getCurrentUser();
                 initializeUI(user);
                 
-                // Load properties
                 loadProperties();
                 
-                // Initialize search toggle
                 const searchToggle = document.getElementById('searchToggle');
                 const searchPanel = document.getElementById('searchPanel');
                 
@@ -200,7 +239,6 @@
                     });
                 }
                 
-                // Initialize filter button
                 const filterBtn = document.getElementById('filterBtn');
                 if (filterBtn) {
                     filterBtn.addEventListener('click', function(e) {
@@ -212,7 +250,6 @@
                     });
                 }
                 
-                // Initialize search form
                 const searchForm = document.getElementById('searchForm');
                 if (searchForm) {
                     searchForm.addEventListener('submit', function(e) {
@@ -232,7 +269,6 @@
                     });
                 }
                 
-                // Initialize sort dropdown
                 const sortDropdown = document.getElementById('sortProperties');
                 if (sortDropdown) {
                     sortDropdown.addEventListener('change', function() {
@@ -247,7 +283,6 @@
         });
         
         function initializeUI(user) {
-            // Update UI elements based on auth state
             if (user) {
                 document.querySelectorAll('.login-btn, .register-btn').forEach(btn => {
                     if (btn) btn.style.display = 'none';
@@ -274,7 +309,6 @@
             try {
                 const properties = await getAllProperties();
                 
-                // Clear loading indicator
                 propertiesGrid.innerHTML = '';
                 
                 if (properties.length === 0) {
@@ -287,16 +321,13 @@
                     return;
                 }
                 
-                // Create property cards
                 properties.forEach(property => {
                     const card = createPropertyCard(property);
                     propertiesGrid.appendChild(card);
                 });
                 
-                // Initialize pagination
                 initPagination(properties.length);
                 
-                // Initialize favorite buttons
                 initFavoriteButtons();
             } catch (error) {
                 console.error("Error loading properties:", error);
@@ -363,7 +394,6 @@
             
             pagination.innerHTML = '';
             
-            // Add previous button if not on first page
             if (currentPage > 1) {
                 const prevItem = document.createElement('li');
                 prevItem.className = 'pagination__item';
@@ -371,7 +401,6 @@
                 pagination.appendChild(prevItem);
             }
             
-            // Add page numbers
             for (let i = 1; i <= totalPages; i++) {
                 const item = document.createElement('li');
                 item.className = 'pagination__item';
@@ -382,7 +411,6 @@
                 pagination.appendChild(item);
             }
             
-            // Add next button if not on last page
             if (currentPage < totalPages) {
                 const nextItem = document.createElement('li');
                 nextItem.className = 'pagination__item';
@@ -390,7 +418,6 @@
                 pagination.appendChild(nextItem);
             }
             
-            // Add event listeners
             pagination.querySelectorAll('.pagination__link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -416,7 +443,6 @@
             const user = await getCurrentUser();
             const favoriteButtons = document.querySelectorAll('.property-card__favorite-btn');
             
-            // Update initial state
             if (user) {
                 const favorites = user.favorites || [];
                 
@@ -432,7 +458,6 @@
                 });
             }
             
-            // Add click handlers
             favoriteButtons.forEach(btn => {
                 btn.addEventListener('click', async function(e) {
                     e.preventDefault();
@@ -470,15 +495,11 @@
         }
         
         async function searchProperties(filters) {
-            // Implementation will depend on your backend
-            // For now, just reload properties
             showToast('جاري البحث...', 'info');
             loadProperties();
         }
         
         function sortProperties(sortValue) {
-            // Implementation will depend on your backend
-            // For now, just reload properties
             showToast('جاري الترتيب...', 'info');
             loadProperties();
         }
