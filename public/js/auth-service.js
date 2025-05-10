@@ -1,404 +1,227 @@
-// public/js/auth-service.js
+import { initializeJsonService, dataCache, saveToLocalStorage } from './json-service.js';
 
-// In-memory user cache
+const LOCAL_STORAGE_USER_KEY = 'aqar_current_user';
 let currentUserCache = null;
-
-// Local storage key for offline user data
-const LOCAL_STORAGE_USER_KEY = 'aqar_user';
 
 export async function registerUser(email, password, fullName, phone) {
   try {
-    // Check if Firebase Auth is available
-    if (!window.firebaseAuth) {
-      console.warn("Firebase Auth not initialized, using offline mode");
-      return registerUserOffline(email, fullName, phone);
+    await initializeJsonService();
+    
+    // Check if email already exists
+    const existingUser = dataCache.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (existingUser) {
+      throw new Error('البريد الإلكتروني مستخدم بالفعل');
     }
     
-    const { createUserWithEmailAndPassword, updateProfile } = 
-      await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
-    
-    // Create user with email and password
-    const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-    const user = userCredential.user;
-    
-    // Update profile
-    await updateProfile(user, {
-      displayName: fullName,
-      photoURL: "img/placeholder.jpg"
-    });
-    
-    // Try to create user document in Firestore
-    try {
-      if (window.firebaseDb && window.firebaseFirestore) {
-        const { doc, setDoc } = window.firebaseFirestore;
-        
-        await setDoc(doc(window.firebaseDb, "users", user.uid), {
-          fullName: fullName,
-          email: email,
-          phone: phone || "",
-          avatarUrl: "img/placeholder.jpg",
-          favorites: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-      }
-    } catch (firestoreError) {
-      console.error("Error creating user document in Firestore:", firestoreError);
-      // Continue without Firestore document - the auth user was created
-    }
-    
-    // Create user object
-    const userData = {
-      id: user.uid,
-      fullName: fullName,
+    // Create new user
+    const newUser = {
+      id: 'user' + Date.now(),
       email: email,
-      phone: phone || "",
-      avatarUrl: "img/placeholder.jpg",
-      favorites: []
+      password: password, // In a real app, this should be hashed
+      fullName: fullName,
+      phone: phone || '',
+      avatarUrl: 'img/placeholder.jpg',
+      favorites: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     
-    // Cache the user
-    currentUserCache = userData;
+    // Add to users array
+    dataCache.users.push(newUser);
     
-    // Also store in localStorage for offline access
-    saveUserToLocalStorage(userData);
+    // Save to localStorage
+    saveToLocalStorage();
     
-    return userData;
+    // Set as current user
+    setCurrentUser(newUser);
+    
+    return { ...newUser, password: undefined };
   } catch (error) {
-    console.error("Error registering user:", error);
-    
-    // If the error is related to network or Firebase initialization, fall back to offline mode
-    if (error.code === 'auth/network-request-failed' || !window.firebaseAuth) {
-      console.warn("Falling back to offline registration mode");
-      return registerUserOffline(email, fullName, phone);
-    }
-    
+    console.error('Error registering user:', error);
     throw error;
   }
 }
 
 export async function loginUser(email, password) {
   try {
-    // Check if Firebase Auth is available
-    if (!window.firebaseAuth) {
-      console.warn("Firebase Auth not initialized, using offline mode");
-      return loginUserOffline(email, password);
+    await initializeJsonService();
+    
+    // Find user by email and password
+    const user = dataCache.users.find(
+      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
+    
+    if (!user) {
+      throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
     
-    const { signInWithEmailAndPassword } = 
-      await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
+    // Set as current user
+    setCurrentUser(user);
     
-    // Sign in
-    const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-    const user = userCredential.user;
-    
-    let userData;
-    
-    // Try to get user data from Firestore
-    try {
-      if (window.firebaseDb && window.firebaseFirestore) {
-        const { doc, getDoc } = window.firebaseFirestore;
-        
-        const userDoc = await getDoc(doc(window.firebaseDb, "users", user.uid));
-        
-        if (userDoc.exists()) {
-          const firestoreData = userDoc.data();
-          
-          userData = {
-            id: user.uid,
-            fullName: firestoreData.fullName || user.displayName,
-            email: firestoreData.email || user.email,
-            phone: firestoreData.phone || "",
-            avatarUrl: firestoreData.avatarUrl || user.photoURL || "img/placeholder.jpg",
-            favorites: firestoreData.favorites || []
-          };
-        }
-      }
-    } catch (firestoreError) {
-      console.error("Error getting user data from Firestore:", firestoreError);
-      // Continue without Firestore data - we'll use auth data instead
-    }
-    
-    // If we couldn't get Firestore data, use auth data
-    if (!userData) {
-      userData = {
-        id: user.uid,
-        fullName: user.displayName || "",
-        email: user.email,
-        phone: "",
-        avatarUrl: user.photoURL || "img/placeholder.jpg",
-        favorites: []
-      };
-    }
-    
-    // Cache the user
-    currentUserCache = userData;
-    
-    // Also store in localStorage for offline access
-    saveUserToLocalStorage(userData);
-    
-    return userData;
+    return { ...user, password: undefined };
   } catch (error) {
-    console.error("Error logging in:", error);
-    
-    // If the error is related to network or Firebase initialization, fall back to offline mode
-    if (error.code === 'auth/network-request-failed' || !window.firebaseAuth) {
-      console.warn("Falling back to offline login mode");
-      return loginUserOffline(email, password);
-    }
-    
+    console.error('Error logging in:', error);
     throw error;
   }
 }
 
 export async function logoutUser() {
   try {
-    // Clear cache and localStorage regardless of Firebase status
+    // Clear current user
     currentUserCache = null;
     localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-    
-    // If Firebase Auth is not available, just return success
-    if (!window.firebaseAuth) {
-      return true;
-    }
-    
-    const { signOut } = await import("https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-auth.js");
-    
-    // Sign out
-    await signOut(window.firebaseAuth);
-    
     return true;
   } catch (error) {
-    console.error("Error logging out:", error);
-    
-    // Even if Firebase logout fails, still clear local data
-    currentUserCache = null;
-    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-    
-    return true;
+    console.error('Error logging out:', error);
+    return false;
   }
 }
 
 export async function getCurrentUser() {
   // Return from cache if available
   if (currentUserCache) {
-    return currentUserCache;
+    return { ...currentUserCache, password: undefined };
   }
   
-  // Try to get from localStorage first
-  const localUser = getUserFromLocalStorage();
-  if (localUser) {
-    currentUserCache = localUser;
-    return localUser;
-  }
-  
-  // If Firebase Auth is not available, return null
-  if (!window.firebaseAuth) {
-    return null;
-  }
-  
-  return new Promise((resolve, reject) => {
-    try {
-      const unsubscribe = window.firebaseAuth.onAuthStateChanged(async (user) => {
-        unsubscribe();
-        
-        if (!user) {
-          resolve(null);
-          return;
-        }
-        
-        let userData;
-        
-        // Try to get user data from Firestore
-        try {
-          if (window.firebaseDb && window.firebaseFirestore) {
-            const { doc, getDoc } = window.firebaseFirestore;
-            
-            const userDoc = await getDoc(doc(window.firebaseDb, "users", user.uid));
-            
-            if (userDoc.exists()) {
-              const firestoreData = userDoc.data();
-              
-              userData = {
-                id: user.uid,
-                fullName: firestoreData.fullName || user.displayName,
-                email: firestoreData.email || user.email,
-                phone: firestoreData.phone || "",
-                avatarUrl: firestoreData.avatarUrl || user.photoURL || "img/placeholder.jpg",
-                favorites: firestoreData.favorites || []
-              };
-            }
-          }
-        } catch (firestoreError) {
-          console.error("Error getting user data from Firestore:", firestoreError);
-          // Continue without Firestore data
-        }
-        
-        // If we couldn't get Firestore data, use auth data
-        if (!userData) {
-          userData = {
-            id: user.uid,
-            fullName: user.displayName || "",
-            email: user.email,
-            phone: "",
-            avatarUrl: user.photoURL || "img/placeholder.jpg",
-            favorites: []
-          };
-        }
-        
-        // Cache the user
-        currentUserCache = userData;
-        
-        // Also store in localStorage for offline access
-        saveUserToLocalStorage(userData);
-        
-        resolve(userData);
-      }, reject);
-      
-      // Set a timeout to prevent hanging
-      setTimeout(() => {
-        unsubscribe();
-        
-        // If we time out, try to get from localStorage
-        const localUser = getUserFromLocalStorage();
-        if (localUser) {
-          currentUserCache = localUser;
-          resolve(localUser);
-        } else {
-          resolve(null);
-        }
-      }, 5000);
-    } catch (error) {
-      console.error("Error getting current user:", error);
-      
-      // If there's an error, try to get from localStorage
-      const localUser = getUserFromLocalStorage();
-      if (localUser) {
-        currentUserCache = localUser;
-        resolve(localUser);
-      } else {
-        resolve(null);
-      }
+  // Try to get from localStorage
+  try {
+    const userData = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+    if (userData) {
+      const user = JSON.parse(userData);
+      currentUserCache = user;
+      return { ...user, password: undefined };
     }
-  });
+  } catch (error) {
+    console.error('Error getting current user from localStorage:', error);
+  }
+  
+  return null;
 }
 
-export async function toggleFavorite(userId, propertyId) {
+export async function updateUserProfile(userId, updatedData) {
   try {
-    // Get current user
-    const user = await getCurrentUser();
-    if (!user) {
-      throw new Error("User not authenticated");
+    await initializeJsonService();
+    
+    const userIndex = dataCache.users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) {
+      throw new Error('المستخدم غير موجود');
     }
     
-    const favorites = user.favorites || [];
-    const isFavorite = favorites.includes(propertyId);
+    // Update user data
+    const user = dataCache.users[userIndex];
+    const updatedUser = {
+      ...user,
+      ...updatedData,
+      updatedAt: new Date().toISOString()
+    };
     
-    let updatedFavorites;
+    // Replace in array
+    dataCache.users[userIndex] = updatedUser;
     
-    if (isFavorite) {
-      // Remove from favorites
-      updatedFavorites = favorites.filter(id => id !== propertyId);
-    } else {
-      // Add to favorites
-      updatedFavorites = [...favorites, propertyId];
+    // Save to localStorage
+    saveToLocalStorage();
+    
+    // Update current user if it's the logged in user
+    if (currentUserCache && currentUserCache.id === userId) {
+      setCurrentUser(updatedUser);
     }
     
-    // Update in-memory cache and localStorage immediately for responsive UI
-    if (currentUserCache) {
-      currentUserCache.favorites = updatedFavorites;
-    }
-    
-    const localUser = getUserFromLocalStorage();
-    if (localUser) {
-      localUser.favorites = updatedFavorites;
-      saveUserToLocalStorage(localUser);
-    }
-    
-    // Try to update Firestore if available
-    try {
-      if (window.firebaseDb && window.firebaseFirestore) {
-        const { doc, updateDoc, arrayUnion, arrayRemove } = window.firebaseFirestore;
-        
-        const userDocRef = doc(window.firebaseDb, "users", userId);
-        
-        if (isFavorite) {
-          await updateDoc(userDocRef, {
-            favorites: arrayRemove(propertyId),
-            updatedAt: new Date().toISOString()
-          });
-        } else {
-          await updateDoc(userDocRef, {
-            favorites: arrayUnion(propertyId),
-            updatedAt: new Date().toISOString()
-          });
-        }
-      }
-    } catch (firestoreError) {
-      console.error("Error updating favorites in Firestore:", firestoreError);
-      // Continue without Firestore update - we've already updated the local state
-    }
-    
-    return !isFavorite; // Return whether it was added (true) or removed (false)
+    return { ...updatedUser, password: undefined };
   } catch (error) {
-    console.error("Error toggling favorite:", error);
+    console.error('Error updating user profile:', error);
     throw error;
   }
 }
 
-// ======== Offline Mode Helpers ========
-
-function registerUserOffline(email, fullName, phone) {
-  // Create a mock user
-  const userData = {
-    id: 'offline_' + Date.now(), // Generate a unique offline ID
-    fullName: fullName,
-    email: email,
-    phone: phone || "",
-    avatarUrl: "img/placeholder.jpg",
-    favorites: [],
-    isOfflineUser: true
-  };
-  
-  // Store in localStorage
-  saveUserToLocalStorage(userData);
-  
-  // Update cache
-  currentUserCache = userData;
-  
-  return userData;
-}
-
-function loginUserOffline(email, password) {
-  // Check if we have any users in localStorage
-  const localUser = getUserFromLocalStorage();
-  
-  if (localUser && localUser.email === email) {
-    // Update cache
-    currentUserCache = localUser;
-    return localUser;
-  }
-  
-  // If no match found, throw an error
-  throw new Error("Invalid email or password for offline login");
-}
-
-function saveUserToLocalStorage(userData) {
+export async function updateUserAvatar(userId, avatarFile) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(userData));
-    return true;
+    await initializeJsonService();
+    
+    // In a real implementation, we would upload the file to a server
+    // For now, we'll just pretend we updated the avatar
+    
+    const userIndex = dataCache.users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) {
+      throw new Error('المستخدم غير موجود');
+    }
+    
+    // Update user data
+    const user = dataCache.users[userIndex];
+    const updatedUser = {
+      ...user,
+      avatarUrl: 'img/placeholder.jpg', // In a real app, this would be the uploaded image URL
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Replace in array
+    dataCache.users[userIndex] = updatedUser;
+    
+    // Save to localStorage
+    saveToLocalStorage();
+    
+    // Update current user if it's the logged in user
+    if (currentUserCache && currentUserCache.id === userId) {
+      setCurrentUser(updatedUser);
+    }
+    
+    return { ...updatedUser, password: undefined };
   } catch (error) {
-    console.error("Error saving user to localStorage:", error);
-    return false;
+    console.error('Error updating user avatar:', error);
+    throw error;
   }
 }
 
-function getUserFromLocalStorage() {
+export async function toggleFavorite(userId, propertyId) {
   try {
-    const userData = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-    return userData ? JSON.parse(userData) : null;
+    await initializeJsonService();
+    
+    const userIndex = dataCache.users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) {
+      throw new Error('المستخدم غير موجود');
+    }
+    
+    const user = dataCache.users[userIndex];
+    const favorites = [...(user.favorites || [])];
+    const isFavorite = favorites.includes(propertyId);
+    
+    if (isFavorite) {
+      // Remove from favorites
+      const index = favorites.indexOf(propertyId);
+      favorites.splice(index, 1);
+    } else {
+      // Add to favorites
+      favorites.push(propertyId);
+    }
+    
+    // Update user data
+    const updatedUser = {
+      ...user,
+      favorites,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Replace in array
+    dataCache.users[userIndex] = updatedUser;
+    
+    // Save to localStorage
+    saveToLocalStorage();
+    
+    // Update current user if it's the logged in user
+    if (currentUserCache && currentUserCache.id === userId) {
+      setCurrentUser(updatedUser);
+    }
+    
+    return !isFavorite; // Return whether it was added (true) or removed (false)
   } catch (error) {
-    console.error("Error getting user from localStorage:", error);
-    return null;
+    console.error('Error toggling favorite:', error);
+    throw error;
   }
+}
+
+function setCurrentUser(user) {
+  currentUserCache = user;
+  localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
 }

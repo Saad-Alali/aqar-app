@@ -1,64 +1,13 @@
-// public/js/app.js
-import { initializeFirebase } from './firebase.js';
+import { initializeJsonService } from './json-service.js';
 import { getCurrentUser } from './auth-service.js';
 
-const MAX_RETRIES = 3;
-let initRetries = 0;
 let isInitializing = false;
 let isInitialized = false;
-
 let isOfflineMode = false;
 
 document.addEventListener('DOMContentLoaded', async function() {
   await initApp();
 });
-
-function detectAdBlocker() {
-  return new Promise(resolve => {
-    const testElement = document.createElement('div');
-    testElement.className = 'adsbox';
-    testElement.innerHTML = '&nbsp;';
-    document.body.appendChild(testElement);
-    
-    setTimeout(() => {
-      const isBlocked = testElement.offsetHeight === 0;
-      document.body.removeChild(testElement);
-      
-      if (isBlocked) {
-        showAdBlockerWarning();
-      }
-      
-      resolve(isBlocked);
-    }, 100);
-  });
-}
-
-function showAdBlockerWarning() {
-  const warning = document.createElement('div');
-  warning.style.cssText = `
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #FFECA9;
-    color: #734900;
-    text-align: center;
-    padding: 10px;
-    font-size: 14px;
-    z-index: 9998;
-    border-top: 1px solid #E2D7AA;
-  `;
-  warning.innerHTML = `
-    <p>تم اكتشاف مانع إعلانات. قد يؤثر هذا على بعض وظائف التطبيق. يعمل الموقع حاليًا في وضع عدم الاتصال.</p>
-    <button style="background: #FFC107; border: none; padding: 5px 10px; margin-top: 5px; border-radius: 4px; cursor: pointer;">تجاهل</button>
-  `;
-  
-  document.body.appendChild(warning);
-  
-  warning.querySelector('button').addEventListener('click', function() {
-    warning.remove();
-  });
-}
 
 async function initApp() {
   if (isInitializing) return;
@@ -67,27 +16,13 @@ async function initApp() {
   isInitializing = true;
   
   try {
-    // Check if we're online first
     const isOnline = navigator.onLine;
     if (!isOnline) {
       console.log("Device is offline, entering offline mode");
       enterOfflineMode();
-      updateAuthUI(await getCurrentUser()); // This will use localStorage
-      isInitialized = true;
-      isInitializing = false;
-      return;
     }
     
-    await detectAdBlocker();
-    
-    // Try to initialize Firebase
-    try {
-      await initializeFirebaseWithRetry();
-    } catch (firebaseError) {
-      console.error("Failed to initialize Firebase after retries:", firebaseError);
-      // Continue with offline mode
-      enterOfflineMode();
-    }
+    await initializeJsonService();
     
     const user = await getCurrentUser();
     updateAuthUI(user);
@@ -102,44 +37,11 @@ async function initApp() {
     console.log("App initialized successfully");
   } catch (error) {
     console.error("Error initializing app:", error);
-    
-    if (initRetries < MAX_RETRIES) {
-      initRetries++;
-      const delay = Math.pow(2, initRetries) * 1000;
-      
-      console.log(`Retrying initialization (${initRetries}/${MAX_RETRIES}) in ${delay}ms...`);
-      setTimeout(initApp, delay);
-    } else {
-      showToast("حدث خطأ في تهيئة التطبيق، سيتم العمل في وضع عدم الاتصال", "error");
-      
-      enterOfflineMode();
-      updateAuthUI(await getCurrentUser()); // This will use localStorage
-      isInitialized = true;
-    }
+    enterOfflineMode();
+    updateAuthUI(await getCurrentUser());
+    isInitialized = true;
   } finally {
     isInitializing = false;
-  }
-}
-
-async function initializeFirebaseWithRetry() {
-  let retries = 0;
-  const maxRetries = 3;
-  
-  while (retries < maxRetries) {
-    try {
-      await initializeFirebase();
-      return;
-    } catch (error) {
-      console.error(`Firebase initialization attempt ${retries + 1} failed:`, error);
-      retries++;
-      
-      if (retries < maxRetries) {
-        const delay = Math.pow(2, retries) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-      } else {
-        throw error;
-      }
-    }
   }
 }
 
@@ -231,41 +133,6 @@ function initSwipeActions() {
       
       deltaX = 0;
     });
-    
-    item.addEventListener('mousedown', (e) => {
-      startX = e.clientX;
-      isSwiping = true;
-      
-      item.style.transition = 'none';
-      
-      e.preventDefault();
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-      if (!isSwiping) return;
-      
-      moveX = e.clientX;
-      deltaX = moveX - startX;
-      
-      if (deltaX < 0 && deltaX > -150) {
-        item.style.transform = `translateX(${deltaX}px)`;
-      }
-    });
-    
-    document.addEventListener('mouseup', () => {
-      if (!isSwiping) return;
-      
-      isSwiping = false;
-      item.style.transition = 'transform 0.3s ease';
-      
-      if (deltaX < -50) {
-        item.style.transform = 'translateX(-80px)';
-      } else {
-        item.style.transform = 'translateX(0)';
-      }
-      
-      deltaX = 0;
-    });
   });
 }
 
@@ -319,22 +186,10 @@ function initPullToRefresh() {
         pullIndicator.style.display = 'none';
         
         if (navigator.onLine) {
-          // Try to reinitialize Firebase before reloading
-          if (!window.firebaseApp) {
-            initializeFirebase()
-              .then(() => {
-                location.reload();
-              })
-              .catch(() => {
-                showToast("فشل الاتصال بالخدمة، جاري التحديث محلياً", "warning");
-                // Perform a local refresh without full page reload
-                refreshLocalContent();
-              });
-          } else {
-            location.reload();
-          }
+          location.reload();
         } else {
           showToast("لا يمكن التحديث، أنت غير متصل بالإنترنت", "error");
+          refreshLocalContent();
         }
       }, 1500);
     } else {
@@ -347,15 +202,9 @@ function initPullToRefresh() {
 }
 
 function refreshLocalContent() {
-  // A function to refresh content without reloading the page
-  // This would update UI based on local storage data
-  
-  // Refresh user info
   getCurrentUser().then(user => {
     updateAuthUI(user);
   });
-  
-  // Other local content refreshes would go here
 }
 
 function setupOfflineDetection() {
@@ -371,31 +220,8 @@ function handleOnline() {
   if (isOfflineMode) {
     isOfflineMode = false;
     showToast("تم استعادة الاتصال بالإنترنت", "success");
-    
-    if (!window.firebaseApp) {
-      initializeFirebase()
-        .then(() => {
-          console.log("Firebase reinitialized successfully after reconnection");
-          
-          // Try to sync any offline changes
-          syncOfflineChanges();
-        })
-        .catch(error => {
-          console.error("Failed to reinitialize Firebase after reconnection:", error);
-        });
-    } else {
-      // Try to sync any offline changes
-      syncOfflineChanges();
-    }
-    
     removeOfflineIndicator();
   }
-}
-
-function syncOfflineChanges() {
-  // This function would sync any changes made while offline
-  // For now, just a placeholder
-  console.log("Syncing offline changes...");
 }
 
 function handleOffline() {
@@ -405,7 +231,6 @@ function handleOffline() {
 function enterOfflineMode() {
   isOfflineMode = true;
   showToast("أنت غير متصل بالإنترنت، سيتم العمل في وضع عدم الاتصال", "warning", 5000);
-  
   addOfflineIndicator();
 }
 
@@ -499,27 +324,6 @@ function updateAuthUI(user) {
     profileButtons.forEach(btn => {
       if (btn) btn.style.display = 'block';
     });
-    
-    // Add offline indicator if it's an offline user
-    if (user.isOfflineUser) {
-      const offlineUserIndicators = document.querySelectorAll('.user-name, #profileName');
-      offlineUserIndicators.forEach(el => {
-        // Add a small offline indicator next to the name
-        const indicator = document.createElement('small');
-        indicator.style.cssText = `
-          font-size: 0.7rem;
-          color: #f59e0b;
-          margin-right: 5px;
-          vertical-align: middle;
-        `;
-        indicator.textContent = " (وضع عدم الاتصال)";
-        
-        // Only add if it doesn't already exist
-        if (!el.querySelector('small')) {
-          el.appendChild(indicator);
-        }
-      });
-    }
   } else {
     const loginButtons = document.querySelectorAll('.login-btn, .register-btn');
     loginButtons.forEach(btn => {

@@ -1,19 +1,8 @@
 import { initializeJsonService, dataCache } from './json-service.js';
 
-const favoriteCache = {
-  userFavorites: {},
-  timestamp: null
-};
-
 export async function getUserFavorites(userId) {
   try {
     await initializeJsonService();
-    
-    if (favoriteCache.userFavorites[userId] && 
-        favoriteCache.timestamp && 
-        (Date.now() - favoriteCache.timestamp < 300000)) {
-      return favoriteCache.userFavorites[userId];
-    }
     
     const user = dataCache.users.find(u => u.id === userId);
     
@@ -27,10 +16,7 @@ export async function getUserFavorites(userId) {
       return [];
     }
     
-    const properties = await getPropertiesByIds(favoriteIds);
-    
-    favoriteCache.userFavorites[userId] = properties;
-    favoriteCache.timestamp = Date.now();
+    const properties = dataCache.properties.filter(p => favoriteIds.includes(p.id));
     
     return properties;
   } catch (error) {
@@ -50,14 +36,12 @@ export async function addToFavorites(userId, propertyId) {
     }
     
     const user = dataCache.users[userIndex];
-    const favorites = user.favorites || [];
+    const favorites = [...(user.favorites || [])];
     
     if (!favorites.includes(propertyId)) {
       favorites.push(propertyId);
       
       dataCache.users[userIndex].favorites = favorites;
-      
-      favoriteCache.timestamp = null; // Invalidate cache
     }
     
     return true;
@@ -78,13 +62,11 @@ export async function removeFromFavorites(userId, propertyId) {
     }
     
     const user = dataCache.users[userIndex];
-    let favorites = user.favorites || [];
+    let favorites = [...(user.favorites || [])];
     
     favorites = favorites.filter(id => id !== propertyId);
     
     dataCache.users[userIndex].favorites = favorites;
-    
-    favoriteCache.timestamp = null; // Invalidate cache
     
     return true;
   } catch (error) {
@@ -95,10 +77,6 @@ export async function removeFromFavorites(userId, propertyId) {
 
 export async function isFavorite(userId, propertyId) {
   try {
-    if (favoriteCache.userFavorites[userId]) {
-      return favoriteCache.userFavorites[userId].some(p => p.id === propertyId);
-    }
-    
     await initializeJsonService();
     
     const user = dataCache.users.find(u => u.id === userId);
@@ -113,14 +91,4 @@ export async function isFavorite(userId, propertyId) {
     console.error("Error checking if property is favorite:", error);
     return false;
   }
-}
-
-async function getPropertiesByIds(propertyIds) {
-  if (!propertyIds || propertyIds.length === 0) {
-    return [];
-  }
-  
-  const properties = dataCache.properties.filter(p => propertyIds.includes(p.id));
-  
-  return properties;
 }

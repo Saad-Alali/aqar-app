@@ -43,61 +43,6 @@
         }
     </style>
     
-    <script type="module">
-        import { initializeApp, getFirestore, getAuth, getStorage, getAnalytics } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-bundle.js';
-        import { collection, getDocs, addDoc, setDoc, doc, getDoc, updateDoc, arrayUnion, arrayRemove, query, limit, where } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
-        
-        const firebaseConfig = {
-          apiKey: "AIzaSyB8KBTvSH8RZb97PXGg-D084g_vHiOx4PM",
-          authDomain: "sciphr-b39ac.firebaseapp.com",
-          projectId: "sciphr-b39ac",
-          storageBucket: "sciphr-b39ac.appspot.com",
-          messagingSenderId: "820649708688",
-          appId: "1:820649708688:web:f957d0f196c765fcc2dc15",
-          measurementId: "G-JNHSBPXGJ6"
-        };
-      
-        try {
-          const app = initializeApp(firebaseConfig);
-          window.firebaseApp = app;
-          
-          try {
-            const auth = getAuth(app);
-            window.firebaseAuth = auth;
-          } catch (e) {
-            window.firebaseAuth = null;
-          }
-          
-          try {
-            const db = getFirestore(app);
-            window.firebaseDb = db;
-            
-            window.firebaseFirestore = {
-              collection, getDocs, addDoc, setDoc, doc, getDoc, 
-              updateDoc, arrayUnion, arrayRemove, query, limit, where
-            };
-          } catch (e) {
-            window.firebaseDb = null;
-            window.firebaseFirestore = null;
-          }
-          
-          try {
-            const storage = getStorage(app);
-            window.firebaseStorage = storage;
-          } catch (e) {
-            window.firebaseStorage = null;
-          }
-          
-          try {
-            const analytics = getAnalytics(app);
-            window.firebaseAnalytics = analytics;
-          } catch (e) {
-            window.firebaseAnalytics = null;
-          }
-        } catch (error) {
-          window.firebaseApp = null;
-        }
-      </script>
 </head>
 <body>
     <div class="app-container">
