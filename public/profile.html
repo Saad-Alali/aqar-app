@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2563eb">
@@ -13,51 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-        }
-        .profile-container {
-            padding-bottom: 80px;
-        }
-        .profile-menu-item {
-            display: flex;
-            align-items: center;
-            padding: var(--spacing-md);
-            border-bottom: 1px solid var(--light-gray);
-            text-decoration: none;
-            color: var(--dark-color);
-        }
-        .profile-menu-icon {
-            width: 24px;
-            margin-left: var(--spacing-md);
-            color: var(--primary-color);
-            text-align: center;
-        }
-        .profile-menu-text {
-            flex: 1;
-        }
-        .profile-menu-arrow {
-            color: var(--gray-color);
-        }
-        .form__error {
-            display: none;
-        }
-        .form__input--error + .form__error {
-            display: block;
-        }
-        .blurred-content {
-            filter: blur(5px);
-            pointer-events: none;
-            user-select: none;
-        }
-        .profile-menu-item--danger {
-            color: var(--danger-color);
-        }
-        .profile-menu-icon--danger {
-            color: var(--danger-color);
-        }
-    </style>
+    <link rel="stylesheet" href="css/profile.css">
 </head>
 <body>
     <div class="app-container">
@@ -102,6 +58,10 @@
                                 <i class="fas fa-camera"></i> تغيير الصورة
                             </label>
                         </div>
+                        
+                        <button id="deleteAvatarBtn" class="profile__upload-label" style="margin-right: 8px;">
+                            <i class="fas fa-trash"></i> حذف الصورة
+                        </button>
                     </div>
                 </div>
             </div>
@@ -128,6 +88,27 @@
                     </div>
                     <div class="profile-menu-arrow">
                         <i class="fas fa-chevron-left"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="profile-menu-item" id="clearFavoritesBtn">
+                    <div class="profile-menu-icon">
+                        <i class="fas fa-trash"></i>
+                    </div>
+                    <div class="profile-menu-text">
+                        حذف جميع المفضلات
+                    </div>
+                    <div class="profile-menu-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="profile-menu-item profile-menu-item--danger" id="deleteAccountBtn">
+                    <div class="profile-menu-icon profile-menu-icon--danger">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                    <div class="profile-menu-text">
+                        حذف الحساب
                     </div>
                 </a>
                 
@@ -160,10 +141,6 @@
                 <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
                 <div class="tab-bar__label" data-i18n="tabBar.favorites">المفضلة</div>
             </a>
-            <a href="map.html" class="tab-bar__item">
-                <div class="tab-bar__icon"><i class="fas fa-map-marker-alt"></i></div>
-                <div class="tab-bar__label" data-i18n="tabBar.map">الخريطة</div>
-            </a>
             <a href="profile.html" class="tab-bar__item tab-bar__item--active">
                 <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
                 <div class="tab-bar__label" data-i18n="tabBar.profile">حسابي</div>
@@ -187,8 +164,10 @@
 
     <script type="module">
         import { initializeJsonService } from './js/json-service.js';
-        import { getCurrentUser, logoutUser, updateUserAvatar } from './js/auth-service.js';
+        import { getCurrentUser, logoutUser, updateUserAvatar, deleteUserAvatar, deleteUserAccount } from './js/auth-service.js';
+        import { clearAllFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
+        import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -203,6 +182,10 @@
                 
                 updateProfileUI(user);
                 initializeInteractions(user);
+                
+                // Apply language
+                const currentLang = detectPreferredLanguage();
+                applyLanguage(currentLang);
                 
             } catch (error) {
                 console.error("Error initializing profile page:", error);
@@ -262,6 +245,9 @@
                         
                         // Store selected language
                         localStorage.setItem('aqar_language', lang);
+                        
+                        // Apply language
+                        applyLanguage(lang);
                         
                         // Update UI
                         languageOptions.forEach(opt => {
@@ -330,6 +316,68 @@
                     } catch (error) {
                         console.error("Error uploading avatar:", error);
                         showToast('فشل تحديث الصورة الشخصية', 'error');
+                    }
+                });
+            }
+            
+            // Initialize delete avatar button
+            const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
+            if (deleteAvatarBtn) {
+                deleteAvatarBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('هل أنت متأكد من حذف الصورة الشخصية؟')) {
+                        try {
+                            const updatedUser = await deleteUserAvatar(user.id);
+                            
+                            // Update UI
+                            updateProfileUI(updatedUser);
+                            
+                            showToast('تم حذف الصورة الشخصية بنجاح', 'success');
+                        } catch (error) {
+                            console.error("Error deleting avatar:", error);
+                            showToast('فشل حذف الصورة الشخصية', 'error');
+                        }
+                    }
+                });
+            }
+            
+            // Initialize clear favorites button
+            const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
+            if (clearFavoritesBtn) {
+                clearFavoritesBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
+                        try {
+                            await clearAllFavorites(user.id);
+                            showToast('تم حذف جميع المفضلات بنجاح', 'success');
+                        } catch (error) {
+                            console.error("Error clearing favorites:", error);
+                            showToast('فشل حذف المفضلات', 'error');
+                        }
+                    }
+                });
+            }
+            
+            // Initialize delete account button
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            if (deleteAccountBtn) {
+                deleteAccountBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('هل أنت متأكد من حذف الحساب؟ لا يمكن التراجع عن هذه العملية.')) {
+                        try {
+                            await deleteUserAccount(user.id);
+                            showToast('تم حذف الحساب بنجاح', 'success');
+                            
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1500);
+                        } catch (error) {
+                            console.error("Error deleting account:", error);
+                            showToast('فشل حذف الحساب', 'error');
+                        }
                     }
                 });
             }
