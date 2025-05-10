@@ -103,12 +103,12 @@
     </div>
 
     <script type="module">
-        import { initializeFirebase } from './js/firebase.js';
+        import { initializeJsonService } from './js/json-service.js';
         import { registerUser } from './js/auth-service.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initializeFirebase();
+                await initializeJsonService();
                 
                 const registerForm = document.getElementById('registerForm');
                 

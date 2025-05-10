@@ -319,7 +319,7 @@
     </div>
 
     <script type="module">
-        import { initializeFirebase } from './js/firebase.js';
+        import { initializeJsonService } from './js/json-service.js';
         import { getCurrentUser } from './js/auth-service.js';
         import { getProperty } from './js/property-service.js';
         import { toggleFavorite } from './js/auth-service.js';
@@ -334,7 +334,7 @@
                     tabBar.style.display = 'none';
                 }
                 
-                await initializeFirebase();
+                await initializeJsonService();
                 
                 // Get current user
                 const user = await getCurrentUser();

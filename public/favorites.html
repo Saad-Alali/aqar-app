@@ -225,14 +225,14 @@
     </div>
 
     <script type="module">
-        import { initializeFirebase } from './js/firebase.js';
+        import { initializeJsonService } from './js/json-service.js';
         import { getCurrentUser } from './js/auth-service.js';
         import { getUserFavorites, removeFromFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initializeFirebase();
+                await initializeJsonService();
                 
                 const user = await getCurrentUser();
                 

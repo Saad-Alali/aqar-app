@@ -119,13 +119,13 @@
     </div>
 
     <script type="module">
-        import { initializeFirebase } from './js/firebase.js';
+        import { initializeJsonService } from './js/json-service.js';
         import { getCurrentUser, updateUserProfile } from './js/auth-service.js';
         import { showToast } from './js/app.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initializeFirebase();
+                await initializeJsonService();
                 
                 const user = await getCurrentUser();
                 

@@ -95,12 +95,12 @@
     </div>
 
     <script type="module">
-        import { initializeFirebase } from './js/firebase.js';
+        import { initializeJsonService } from './js/json-service.js';
         import { loginUser } from './js/auth-service.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initializeFirebase();
+                await initializeJsonService();
                 
                 const loginForm = document.getElementById('loginForm');
                 
