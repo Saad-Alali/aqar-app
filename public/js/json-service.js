@@ -338,8 +338,3 @@ export async function deleteProperty(propertyId) {
   
   return true;
 }
-
-/**
- * This is the main data cache export
- */
-export { dataCache };
