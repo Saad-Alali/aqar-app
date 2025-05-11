@@ -30,7 +30,7 @@
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن عقار، منطقة، أو حي...">
-                    <i class="fas fa-microphone search-mic" id="voiceSearchBtn"></i>
+                    <!-- Voice search removed -->
                 </div>
                 <div class="filter-button" id="filterButton">
                     <i class="fas fa-sliders-h"></i>
@@ -341,11 +341,9 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                // Initialize services
                 await initializeJsonService();
                 const user = await getCurrentUser();
                 
-                // Initialize UI elements
                 initSearchInput();
                 initFilterChips();
                 initRecentSearches();
@@ -358,7 +356,6 @@
             }
         });
         
-        // Store search state
         const searchState = {
             query: '',
             filters: {
@@ -374,20 +371,14 @@
             sort: 'default'
         };
         
-        // Save recent searches in localStorage
         function saveRecentSearch(searchText) {
             if (!searchText) return;
             
             try {
                 let recentSearches = JSON.parse(localStorage.getItem('aqar_recent_searches') || '[]');
                 
-                // Remove if exists already (to move it to the top)
                 recentSearches = recentSearches.filter(search => search !== searchText);
-                
-                // Add to beginning of array
                 recentSearches.unshift(searchText);
-                
-                // Keep only last 5 searches
                 recentSearches = recentSearches.slice(0, 5);
                 
                 localStorage.setItem('aqar_recent_searches', JSON.stringify(recentSearches));
@@ -416,7 +407,6 @@
             
             if (!container) return;
             
-            // Show/hide section based on if there are searches
             if (recentSearches.length === 0) {
                 container.style.display = 'none';
                 return;
@@ -424,17 +414,14 @@
                 container.style.display = 'block';
             }
             
-            // Get header elements
             const headerElements = container.querySelectorAll('.section-header, .section-title, .section-action');
             
-            // Remove all child elements except the header
             Array.from(container.children).forEach(child => {
                 if (!Array.from(headerElements).includes(child)) {
                     container.removeChild(child);
                 }
             });
             
-            // Add recent search items
             recentSearches.forEach(search => {
                 const searchItem = document.createElement('div');
                 searchItem.className = 'recent-search-item';
@@ -450,7 +437,6 @@
                 container.appendChild(searchItem);
             });
             
-            // Add click handlers to new items
             initRecentSearchItems();
         }
         
@@ -474,40 +460,15 @@
             const searchInput = document.getElementById('searchInput');
             
             if (searchInput) {
-                // Focus the search input on page load
                 setTimeout(() => {
                     searchInput.focus();
                 }, 500);
                 
-                // Handle search on enter
                 searchInput.addEventListener('keyup', function(e) {
                     if (e.key === 'Enter') {
                         performSearch(this.value.trim());
                     }
                 });
-                
-                // Voice search button
-                const voiceSearchBtn = document.getElementById('voiceSearchBtn');
-                if (voiceSearchBtn) {
-                    voiceSearchBtn.addEventListener('click', function() {
-                        // Check if Speech Recognition API is available
-                        if ('webkitSpeechRecognition' in window) {
-                            const recognition = new webkitSpeechRecognition();
-                            recognition.lang = 'ar-SA';
-                            
-                            recognition.onresult = function(event) {
-                                const transcript = event.results[0][0].transcript;
-                                searchInput.value = transcript;
-                                performSearch(transcript);
-                            };
-                            
-                            recognition.start();
-                            showToast('تحدث الآن...', 'info');
-                        } else {
-                            showToast('البحث الصوتي غير مدعوم في متصفحك', 'error');
-                        }
-                    });
-                }
             }
         }
         
@@ -516,14 +477,11 @@
             
             filterChips.forEach(chip => {
                 chip.addEventListener('click', function() {
-                    // Update active state visually
                     filterChips.forEach(c => c.classList.remove('search-filter-chip--active'));
                     this.classList.add('search-filter-chip--active');
                     
-                    // Update search state
                     const filter = this.dataset.filter;
                     
-                    // Apply filter
                     if (filter === 'all') {
                         searchState.filters.type = 'all';
                         searchState.filters.transaction = 'all';
@@ -533,7 +491,6 @@
                         searchState.filters.type = filter;
                     }
                     
-                    // If we already have results, filter them
                     if (document.getElementById('searchResultsView').style.display === 'block') {
                         applyFilters();
                     }
@@ -544,7 +501,6 @@
         function initRecentSearches() {
             updateRecentSearchesUI();
             
-            // Clear all recent searches button
             const clearSearchesBtn = document.getElementById('clearSearchesBtn');
             if (clearSearchesBtn) {
                 clearSearchesBtn.addEventListener('click', function(e) {
@@ -562,35 +518,30 @@
             const applyFiltersBtn = document.getElementById('applyFiltersBtn');
             const resetFiltersBtn = document.getElementById('resetFiltersBtn');
             
-            // Open filters panel
             if (filterButton && filtersPanel) {
                 filterButton.addEventListener('click', function() {
                     openFiltersPanel();
                 });
             }
             
-            // Close on overlay click
             if (filtersOverlay) {
                 filtersOverlay.addEventListener('click', function() {
                     closeFiltersPanel();
                 });
             }
             
-            // Close button
             if (closeFiltersBtn) {
                 closeFiltersBtn.addEventListener('click', function() {
                     closeFiltersPanel();
                 });
             }
             
-            // Reset filters
             if (resetFiltersBtn) {
                 resetFiltersBtn.addEventListener('click', function() {
                     resetFilters();
                 });
             }
             
-            // Apply filters
             if (applyFiltersBtn) {
                 applyFiltersBtn.addEventListener('click', function() {
                     applyFilters();
@@ -598,22 +549,18 @@
                 });
             }
             
-            // Filter options
             const filterOptions = document.querySelectorAll('.filter-option');
             filterOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     const filterSection = this.closest('.filter-section');
                     const filterTitle = filterSection.querySelector('.filter-section__title').textContent;
                     
-                    // Handle selection based on section
                     if (['نوع العقار', 'نوع المعاملة', 'غرف النوم', 'الحمامات', 'المساحة'].includes(filterTitle)) {
-                        // Single selection sections
                         filterSection.querySelectorAll('.filter-option').forEach(opt => {
                             opt.classList.remove('filter-option--selected');
                         });
                         this.classList.add('filter-option--selected');
                     } else {
-                        // Multiple selection sections (like amenities)
                         this.classList.toggle('filter-option--selected');
                     }
                 });
@@ -645,26 +592,21 @@
         function resetFilters() {
             const filterOptions = document.querySelectorAll('.filter-option');
             
-            // Reset all filter options
             filterOptions.forEach(option => {
                 const filterSection = option.closest('.filter-section');
                 const filterTitle = filterSection.querySelector('.filter-section__title').textContent;
                 
-                // Reset based on section type
                 if (['نوع العقار', 'نوع المعاملة', 'غرف النوم', 'الحمامات', 'المساحة'].includes(filterTitle)) {
-                    // For single selection sections, only select "all" option
                     if (option.dataset.filter === 'all') {
                         option.classList.add('filter-option--selected');
                     } else {
                         option.classList.remove('filter-option--selected');
                     }
                 } else {
-                    // For multiple selection sections, deselect all
                     option.classList.remove('filter-option--selected');
                 }
             });
             
-            // Reset search state
             searchState.filters = {
                 type: 'all',
                 transaction: 'all',
@@ -680,16 +622,12 @@
         }
         
         function applyFilters() {
-            // Update search state from UI
             collectFiltersFromUI();
             
-            // Show loading
             toggleLoading(true);
             
-            // Hide initial view
             document.getElementById('initialSearchView').style.display = 'none';
             
-            // Simulate API call
             setTimeout(() => {
                 displaySearchResults([
                     {
@@ -742,28 +680,22 @@
         }
         
         function collectFiltersFromUI() {
-            // This would collect all filter values from the UI
             // For now, we'll just use default values
         }
         
         async function performSearch(query) {
             if (!query) return;
             
-            // Save to recent searches
             saveRecentSearch(query);
             updateRecentSearchesUI();
             
-            // Update search state
             searchState.query = query;
             
-            // Show loading
             toggleLoading(true);
             
-            // Hide initial view
             document.getElementById('initialSearchView').style.display = 'none';
             
             try {
-                // Perform search (this is a simulated API call)
                 setTimeout(() => {
                     displaySearchResults([
                         {
@@ -802,10 +734,8 @@
                 console.error('Error performing search:', error);
                 showToast('حدث خطأ أثناء البحث', 'error');
                 
-                // Hide loading
                 toggleLoading(false);
                 
-                // Show initial view
                 document.getElementById('initialSearchView').style.display = 'block';
             }
         }
@@ -829,7 +759,6 @@
         }
         
         function displaySearchResults(results) {
-            // Hide loading
             toggleLoading(false);
             
             const resultsContainer = document.getElementById('resultsContainer');
@@ -839,31 +768,25 @@
             
             if (!resultsContainer || !resultsView || !noResults) return;
             
-            // Check if we have results
             if (!results || results.length === 0) {
                 resultsView.style.display = 'none';
                 noResults.style.display = 'block';
                 return;
             }
             
-            // Update results count
             if (resultsCount) {
                 resultsCount.textContent = `${results.length} عقار`;
             }
             
-            // Clear previous results
             resultsContainer.innerHTML = '';
             
-            // Add result items
             results.forEach(property => {
                 const propertyCard = createPropertyCard(property);
                 resultsContainer.appendChild(propertyCard);
             });
             
-            // Show results view
             resultsView.style.display = 'block';
             
-            // Initialize favorite buttons for new cards
             initFavoriteButtons();
         }
         
