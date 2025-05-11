@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -23,22 +22,22 @@
         }
     </style>
 </head>
-
 <body>
     <div class="app-container">
+        <!-- Search Header -->
         <div class="search-header">
             <div class="search-input-container">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" id="searchInput"
-                        placeholder="ابحث عن عقار، منطقة، أو حي...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن عقار، منطقة، أو حي...">
                     <i class="fas fa-microphone search-mic" id="voiceSearchBtn"></i>
                 </div>
                 <div class="filter-button" id="filterButton">
                     <i class="fas fa-sliders-h"></i>
                 </div>
             </div>
-
+            
+            <!-- Filter Chips -->
             <div class="search-filter-chips">
                 <div class="search-filter-chip search-filter-chip--active" data-filter="all">الكل</div>
                 <div class="search-filter-chip" data-filter="للبيع">للبيع</div>
@@ -50,29 +49,32 @@
                 <div class="search-filter-chip" data-filter="land">أراضي</div>
             </div>
         </div>
-
+        
+        <!-- Main Content -->
         <div class="app-content search-container">
+            <!-- Initial View (Recent Searches and Suggestions) -->
             <div id="initialSearchView">
+                <!-- Recent Searches Section -->
                 <div class="recent-searches" id="recentSearches">
                     <div class="section-header">
                         <h3 class="section-title">عمليات البحث الأخيرة</h3>
                         <a href="#" class="section-action" id="clearSearchesBtn">مسح الكل</a>
                     </div>
-
+                    
                     <div class="recent-search-item" data-search="فيلا في الواجهة البحرية">
                         <div class="recent-search-icon">
                             <i class="fas fa-history"></i>
                         </div>
                         <div class="recent-search-text">فيلا في الواجهة البحرية</div>
                     </div>
-
+                    
                     <div class="recent-search-item" data-search="شقة في وسط المدينة">
                         <div class="recent-search-icon">
                             <i class="fas fa-history"></i>
                         </div>
                         <div class="recent-search-text">شقة في وسط المدينة</div>
                     </div>
-
+                    
                     <div class="recent-search-item" data-search="منازل في الضواحي">
                         <div class="recent-search-icon">
                             <i class="fas fa-history"></i>
@@ -80,13 +82,15 @@
                         <div class="recent-search-text">منازل في الضواحي</div>
                     </div>
                 </div>
-
+                
+                <!-- Property Suggestions -->
                 <div class="property-suggestions">
                     <div class="section-header">
                         <h3 class="section-title">اقتراحات عقارية</h3>
                         <a href="#" class="section-action">عرض الكل</a>
                     </div>
-
+                    
+                    <!-- Property Card -->
                     <div class="property-card">
                         <div class="property-card__image">
                             <img src="img/placeholder.jpg" class="property-card__img" alt="فيلا فاخرة">
@@ -115,11 +119,11 @@
                                     3,500 قدم²
                                 </div>
                             </div>
-                            <a href="property-details.html?id=prop1" class="btn btn--primary btn--block">عرض
-                                التفاصيل</a>
+                            <a href="property-details.html?id=prop1" class="btn btn--primary btn--block">عرض التفاصيل</a>
                         </div>
                     </div>
-
+                    
+                    <!-- Property Card -->
                     <div class="property-card">
                         <div class="property-card__image">
                             <img src="img/placeholder.jpg" class="property-card__img" alt="شقة حديثة">
@@ -148,13 +152,13 @@
                                     1,200 قدم²
                                 </div>
                             </div>
-                            <a href="property-details.html?id=prop2" class="btn btn--primary btn--block">عرض
-                                التفاصيل</a>
+                            <a href="property-details.html?id=prop2" class="btn btn--primary btn--block">عرض التفاصيل</a>
                         </div>
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Search Results View (hidden initially) -->
             <div id="searchResultsView" class="search-results">
                 <div class="results-header">
                     <div class="results-count" id="resultsCount">24 عقار</div>
@@ -163,16 +167,19 @@
                         ترتيب حسب
                     </div>
                 </div>
-
+                
                 <div id="resultsContainer">
+                    <!-- Results will be dynamically added here -->
                 </div>
             </div>
-
+            
+            <!-- Loading Indicator -->
             <div class="search-loading" id="searchLoading">
                 <div class="loading-spinner"></div>
                 <div>جاري البحث...</div>
             </div>
-
+            
+            <!-- No Results State -->
             <div class="no-results" id="noResults">
                 <div class="no-results-icon">
                     <i class="fas fa-search"></i>
@@ -184,9 +191,11 @@
                 <button class="btn btn--primary" id="resetSearchBtn">إعادة ضبط البحث</button>
             </div>
         </div>
-
+        
+        <!-- Filters Overlay -->
         <div class="search-filters-overlay" id="filtersOverlay"></div>
-
+        
+        <!-- Filters Panel -->
         <div class="search-filters-panel" id="filtersPanel">
             <div class="filters-header">
                 <button class="filters-close" id="closeFiltersBtn">
@@ -195,8 +204,9 @@
                 <div class="filters-title">خيارات البحث</div>
                 <button class="filters-reset" id="resetFiltersBtn">إعادة تعيين</button>
             </div>
-
+            
             <div class="filters-content">
+                <!-- Property Type Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">نوع العقار</h3>
                     <div class="filter-options">
@@ -208,7 +218,8 @@
                         <div class="filter-option" data-filter="land">أراضي</div>
                     </div>
                 </div>
-
+                
+                <!-- Transaction Type Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">نوع المعاملة</h3>
                     <div class="filter-options" style="grid-template-columns: repeat(2, 1fr);">
@@ -216,7 +227,8 @@
                         <div class="filter-option" data-filter="للإيجار">للإيجار</div>
                     </div>
                 </div>
-
+                
+                <!-- Price Range Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">نطاق السعر</h3>
                     <div class="filter-range-slider">
@@ -229,7 +241,8 @@
                         <div>$5,000,000</div>
                     </div>
                 </div>
-
+                
+                <!-- Bedrooms Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">غرف النوم</h3>
                     <div class="filter-options">
@@ -241,7 +254,8 @@
                         <div class="filter-option" data-filter="5+">5+</div>
                     </div>
                 </div>
-
+                
+                <!-- Bathrooms Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">الحمامات</h3>
                     <div class="filter-options">
@@ -253,388 +267,503 @@
                         <div class="filter-option" data-filter="5+">5+</div>
                     </div>
                 </div>
-
+                
+                <!-- Area Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">المساحة</h3>
                     <div class="filter-options">
                         <div class="filter-option filter-option--selected" data-filter="all">الكل</div>
-                        <div class="filter-option" data-filter="<1000">
-                            <1000< /div>
-                                <div class="filter-option" data-filter="1000-2000">1000-2000</div>
-                                <div class="filter-option" data-filter="2000-3000">2000-3000</div>
-                                <div class="filter-option" data-filter="3000-4000">3000-4000</div>
-                                <div class="filter-option" data-filter=">4000">أكثر من 4000</div>
-                        </div>
-                    </div>
-
-                    <div class="filter-section">
-                        <h3 class="filter-section__title">المميزات</h3>
-                        <div class="filter-options">
-                            <div class="filter-option" data-filter="pool">حمام سباحة</div>
-                            <div class="filter-option" data-filter="garage">مواقف سيارات</div>
-                            <div class="filter-option" data-filter="garden">حديقة</div>
-                            <div class="filter-option" data-filter="elevator">مصعد</div>
-                            <div class="filter-option" data-filter="ac">تكييف</div>
-                            <div class="filter-option" data-filter="security">أمن</div>
-                        </div>
-                    </div>
-
-                    <div class="filter-section">
-                        <h3 class="filter-section__title">كلمات مفتاحية</h3>
-                        <input type="text" class="search-input" placeholder="أضف كلمات مفتاحية للبحث..."
-                            style="margin-bottom: 10px;">
-                        <div class="filter-options">
-                            <div class="filter-option" data-filter="modern">حديث</div>
-                            <div class="filter-option" data-filter="renovated">مجدد</div>
-                            <div class="filter-option" data-filter="furnished">مفروش</div>
-                        </div>
+                        <div class="filter-option" data-filter="<1000"><1000</div>
+                        <div class="filter-option" data-filter="1000-2000">1000-2000</div>
+                        <div class="filter-option" data-filter="2000-3000">2000-3000</div>
+                        <div class="filter-option" data-filter="3000-4000">3000-4000</div>
+                        <div class="filter-option" data-filter=">4000">أكثر من 4000</div>
                     </div>
                 </div>
-
-                <div class="filters-footer">
-                    <button class="apply-filters-btn" id="applyFiltersBtn">تطبيق الفلاتر</button>
+                
+                <!-- Amenities Filter -->
+                <div class="filter-section">
+                    <h3 class="filter-section__title">المميزات</h3>
+                    <div class="filter-options">
+                        <div class="filter-option" data-filter="pool">حمام سباحة</div>
+                        <div class="filter-option" data-filter="garage">مواقف سيارات</div>
+                        <div class="filter-option" data-filter="garden">حديقة</div>
+                        <div class="filter-option" data-filter="elevator">مصعد</div>
+                        <div class="filter-option" data-filter="ac">تكييف</div>
+                        <div class="filter-option" data-filter="security">أمن</div>
+                    </div>
+                </div>
+                
+                <!-- Keywords Filter -->
+                <div class="filter-section">
+                    <h3 class="filter-section__title">كلمات مفتاحية</h3>
+                    <input type="text" class="search-input" placeholder="أضف كلمات مفتاحية للبحث..." style="margin-bottom: 10px;">
+                    <div class="filter-options">
+                        <div class="filter-option" data-filter="modern">حديث</div>
+                        <div class="filter-option" data-filter="renovated">مجدد</div>
+                        <div class="filter-option" data-filter="furnished">مفروش</div>
+                    </div>
                 </div>
             </div>
-
-            <div class="tab-bar">
-                <a href="index.html" class="tab-bar__item">
-                    <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
-                    <div class="tab-bar__label">الرئيسية</div>
-                </a>
-                <a href="search.html" class="tab-bar__item tab-bar__item--active">
-                    <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
-                    <div class="tab-bar__label">بحث</div>
-                </a>
-                <a href="favorites.html" class="tab-bar__item">
-                    <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
-                    <div class="tab-bar__label">المفضلة</div>
-                </a>
-                <a href="profile.html" class="tab-bar__item">
-                    <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
-                    <div class="tab-bar__label">حسابي</div>
-                </a>
+            
+            <div class="filters-footer">
+                <button class="apply-filters-btn" id="applyFiltersBtn">تطبيق الفلاتر</button>
             </div>
         </div>
-
-        <script type="module">
-            import { initializeJsonService } from './js/json-service.js';
-            import { getCurrentUser } from './js/auth-service.js';
-            import { searchProperties, filterProperties } from './js/property-service.js';
-            import { toggleFavorite } from './js/auth-service.js';
-            import { showToast, showLoginModal } from './js/app.js';
-
-            document.addEventListener('DOMContentLoaded', async function () {
-                try {
-                    await initializeJsonService();
-                    const user = await getCurrentUser();
-
-                    initSearchInput();
-                    initFilterChips();
-                    initRecentSearches();
-                    initFilterPanel();
-                    initFavoriteButtons();
-
-                } catch (error) {
-                    console.error('Error initializing search page:', error);
-                    showToast('حدث خطأ في تهيئة الصفحة', 'error');
+        
+        <!-- Updated Tab Bar -->
+        <div class="tab-bar">
+            <a href="index.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
+                <div class="tab-bar__label">الرئيسية</div>
+            </a>
+            <a href="search.html" class="tab-bar__item tab-bar__item--active">
+                <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
+                <div class="tab-bar__label">بحث</div>
+            </a>
+            <a href="favorites.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
+                <div class="tab-bar__label">المفضلة</div>
+            </a>
+            <a href="profile.html" class="tab-bar__item">
+                <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
+                <div class="tab-bar__label">حسابي</div>
+            </a>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeJsonService } from './js/json-service.js';
+        import { getCurrentUser } from './js/auth-service.js';
+        import { searchProperties, filterProperties } from './js/property-service.js';
+        import { toggleFavorite } from './js/auth-service.js';
+        import { showToast, showLoginModal } from './js/app.js';
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Initialize services
+                await initializeJsonService();
+                const user = await getCurrentUser();
+                
+                // Initialize UI elements
+                initSearchInput();
+                initFilterChips();
+                initRecentSearches();
+                initFilterPanel();
+                initFavoriteButtons();
+                
+            } catch (error) {
+                console.error('Error initializing search page:', error);
+                showToast('حدث خطأ في تهيئة الصفحة', 'error');
+            }
+        });
+        
+        // Store search state
+        const searchState = {
+            query: '',
+            filters: {
+                type: 'all',
+                transaction: 'all',
+                minPrice: 0,
+                maxPrice: 5000000,
+                bedrooms: 'all',
+                bathrooms: 'all',
+                area: 'all',
+                amenities: []
+            },
+            sort: 'default'
+        };
+        
+        // Save recent searches in localStorage
+        function saveRecentSearch(searchText) {
+            if (!searchText) return;
+            
+            try {
+                let recentSearches = JSON.parse(localStorage.getItem('aqar_recent_searches') || '[]');
+                
+                // Remove if exists already (to move it to the top)
+                recentSearches = recentSearches.filter(search => search !== searchText);
+                
+                // Add to beginning of array
+                recentSearches.unshift(searchText);
+                
+                // Keep only last 5 searches
+                recentSearches = recentSearches.slice(0, 5);
+                
+                localStorage.setItem('aqar_recent_searches', JSON.stringify(recentSearches));
+            } catch (error) {
+                console.error('Error saving recent search:', error);
+            }
+        }
+        
+        function loadRecentSearches() {
+            try {
+                return JSON.parse(localStorage.getItem('aqar_recent_searches') || '[]');
+            } catch (error) {
+                console.error('Error loading recent searches:', error);
+                return [];
+            }
+        }
+        
+        function clearRecentSearches() {
+            localStorage.removeItem('aqar_recent_searches');
+            updateRecentSearchesUI();
+        }
+        
+        function updateRecentSearchesUI() {
+            const recentSearches = loadRecentSearches();
+            const container = document.getElementById('recentSearches');
+            
+            if (!container) return;
+            
+            // Show/hide section based on if there are searches
+            if (recentSearches.length === 0) {
+                container.style.display = 'none';
+                return;
+            } else {
+                container.style.display = 'block';
+            }
+            
+            // Get header elements
+            const headerElements = container.querySelectorAll('.section-header, .section-title, .section-action');
+            
+            // Remove all child elements except the header
+            Array.from(container.children).forEach(child => {
+                if (!Array.from(headerElements).includes(child)) {
+                    container.removeChild(child);
                 }
             });
-
-            const searchState = {
-                query: '',
-                filters: {
-                    type: 'all',
-                    transaction: 'all',
-                    minPrice: 0,
-                    maxPrice: 5000000,
-                    bedrooms: 'all',
-                    bathrooms: 'all',
-                    area: 'all',
-                    amenities: []
-                },
-                sort: 'default'
-            };
-
-            function saveRecentSearch(searchText) {
-                if (!searchText) return;
-
-                try {
-                    let recentSearches = JSON.parse(localStorage.getItem('aqar_recent_searches') || '[]');
-
-                    recentSearches = recentSearches.filter(search => search !== searchText);
-
-                    recentSearches.unshift(searchText);
-
-                    recentSearches = recentSearches.slice(0, 5);
-
-                    localStorage.setItem('aqar_recent_searches', JSON.stringify(recentSearches));
-                } catch (error) {
-                    console.error('Error saving recent search:', error);
-                }
-            }
-
-            function loadRecentSearches() {
-                try {
-                    return JSON.parse(localStorage.getItem('aqar_recent_searches') || '[]');
-                } catch (error) {
-                    console.error('Error loading recent searches:', error);
-                    return [];
-                }
-            }
-
-            function clearRecentSearches() {
-                localStorage.removeItem('aqar_recent_searches');
-                updateRecentSearchesUI();
-            }
-
-            function updateRecentSearchesUI() {
-                const recentSearches = loadRecentSearches();
-                const container = document.getElementById('recentSearches');
-
-                if (!container) return;
-
-                if (recentSearches.length === 0) {
-                    container.style.display = 'none';
-                    return;
-                } else {
-                    container.style.display = 'block';
-                }
-
-                const headerElements = container.querySelectorAll('.section-header, .section-title, .section-action');
-
-                Array.from(container.children).forEach(child => {
-                    if (!Array.from(headerElements).includes(child)) {
-                        container.removeChild(child);
-                    }
-                });
-
-                recentSearches.forEach(search => {
-                    const searchItem = document.createElement('div');
-                    searchItem.className = 'recent-search-item';
-                    searchItem.dataset.search = search;
-
-                    searchItem.innerHTML = `
+            
+            // Add recent search items
+            recentSearches.forEach(search => {
+                const searchItem = document.createElement('div');
+                searchItem.className = 'recent-search-item';
+                searchItem.dataset.search = search;
+                
+                searchItem.innerHTML = `
                     <div class="recent-search-icon">
                         <i class="fas fa-history"></i>
                     </div>
                     <div class="recent-search-text">${search}</div>
                 `;
-
-                    container.appendChild(searchItem);
-                });
-
-                initRecentSearchItems();
-            }
-
-            function initRecentSearchItems() {
-                const recentSearchItems = document.querySelectorAll('.recent-search-item');
-
-                recentSearchItems.forEach(item => {
-                    item.addEventListener('click', function () {
-                        const searchText = this.dataset.search;
-                        const searchInput = document.getElementById('searchInput');
-
-                        if (searchInput) {
-                            searchInput.value = searchText;
-                            performSearch(searchText);
-                        }
-                    });
-                });
-            }
-
-            function initSearchInput() {
-                const searchInput = document.getElementById('searchInput');
-
-                if (searchInput) {
-                    setTimeout(() => {
-                        searchInput.focus();
-                    }, 500);
-
-                    searchInput.addEventListener('keyup', function (e) {
-                        if (e.key === 'Enter') {
-                            performSearch(this.value.trim());
-                        }
-                    });
-
-                    const voiceSearchBtn = document.getElementById('voiceSearchBtn');
-                    if (voiceSearchBtn) {
-                        voiceSearchBtn.addEventListener('click', function () {
-                            if ('webkitSpeechRecognition' in window) {
-                                const recognition = new webkitSpeechRecognition();
-                                recognition.lang = 'ar-SA';
-
-                                recognition.onresult = function (event) {
-                                    const transcript = event.results[0][0].transcript;
-                                    searchInput.value = transcript;
-                                    performSearch(transcript);
-                                };
-
-                                recognition.start();
-                                showToast('تحدث الآن...', 'info');
-                            } else {
-                                showToast('البحث الصوتي غير مدعوم في متصفحك', 'error');
-                            }
-                        });
+                
+                container.appendChild(searchItem);
+            });
+            
+            // Add click handlers to new items
+            initRecentSearchItems();
+        }
+        
+        function initRecentSearchItems() {
+            const recentSearchItems = document.querySelectorAll('.recent-search-item');
+            
+            recentSearchItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const searchText = this.dataset.search;
+                    const searchInput = document.getElementById('searchInput');
+                    
+                    if (searchInput) {
+                        searchInput.value = searchText;
+                        performSearch(searchText);
                     }
-                }
-            }
-
-            function initFilterChips() {
-                const filterChips = document.querySelectorAll('.search-filter-chip');
-
-                filterChips.forEach(chip => {
-                    chip.addEventListener('click', function () {
-                        filterChips.forEach(c => c.classList.remove('search-filter-chip--active'));
-                        this.classList.add('search-filter-chip--active');
-
-                        const filter = this.dataset.filter;
-
-                        if (filter === 'all') {
-                            searchState.filters.type = 'all';
-                            searchState.filters.transaction = 'all';
-                        } else if (['للبيع', 'للإيجار'].includes(filter)) {
-                            searchState.filters.transaction = filter;
-                        } else {
-                            searchState.filters.type = filter;
-                        }
-
-                        if (document.getElementById('searchResultsView').style.display === 'block') {
-                            applyFilters();
-                        }
-                    });
                 });
-            }
-
-            function initRecentSearches() {
-                updateRecentSearchesUI();
-
-                const clearSearchesBtn = document.getElementById('clearSearchesBtn');
-                if (clearSearchesBtn) {
-                    clearSearchesBtn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        clearRecentSearches();
+            });
+        }
+        
+        function initSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            
+            if (searchInput) {
+                // Focus the search input on page load
+                setTimeout(() => {
+                    searchInput.focus();
+                }, 500);
+                
+                // Handle search on enter
+                searchInput.addEventListener('keyup', function(e) {
+                    if (e.key === 'Enter') {
+                        performSearch(this.value.trim());
+                    }
+                });
+                
+                // Voice search button
+                const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+                if (voiceSearchBtn) {
+                    voiceSearchBtn.addEventListener('click', function() {
+                        // Check if Speech Recognition API is available
+                        if ('webkitSpeechRecognition' in window) {
+                            const recognition = new webkitSpeechRecognition();
+                            recognition.lang = 'ar-SA';
+                            
+                            recognition.onresult = function(event) {
+                                const transcript = event.results[0][0].transcript;
+                                searchInput.value = transcript;
+                                performSearch(transcript);
+                            };
+                            
+                            recognition.start();
+                            showToast('تحدث الآن...', 'info');
+                        } else {
+                            showToast('البحث الصوتي غير مدعوم في متصفحك', 'error');
+                        }
                     });
                 }
             }
-
-            function initFilterPanel() {
-                const filterButton = document.getElementById('filterButton');
-                const filtersPanel = document.getElementById('filtersPanel');
-                const filtersOverlay = document.getElementById('filtersOverlay');
-                const closeFiltersBtn = document.getElementById('closeFiltersBtn');
-                const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-                const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-
-                if (filterButton && filtersPanel) {
-                    filterButton.addEventListener('click', function () {
-                        openFiltersPanel();
-                    });
-                }
-
-                if (filtersOverlay) {
-                    filtersOverlay.addEventListener('click', function () {
-                        closeFiltersPanel();
-                    });
-                }
-
-                if (closeFiltersBtn) {
-                    closeFiltersBtn.addEventListener('click', function () {
-                        closeFiltersPanel();
-                    });
-                }
-
-                if (resetFiltersBtn) {
-                    resetFiltersBtn.addEventListener('click', function () {
-                        resetFilters();
-                    });
-                }
-
-                if (applyFiltersBtn) {
-                    applyFiltersBtn.addEventListener('click', function () {
+        }
+        
+        function initFilterChips() {
+            const filterChips = document.querySelectorAll('.search-filter-chip');
+            
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    // Update active state visually
+                    filterChips.forEach(c => c.classList.remove('search-filter-chip--active'));
+                    this.classList.add('search-filter-chip--active');
+                    
+                    // Update search state
+                    const filter = this.dataset.filter;
+                    
+                    // Apply filter
+                    if (filter === 'all') {
+                        searchState.filters.type = 'all';
+                        searchState.filters.transaction = 'all';
+                    } else if (['للبيع', 'للإيجار'].includes(filter)) {
+                        searchState.filters.transaction = filter;
+                    } else {
+                        searchState.filters.type = filter;
+                    }
+                    
+                    // If we already have results, filter them
+                    if (document.getElementById('searchResultsView').style.display === 'block') {
                         applyFilters();
-                        closeFiltersPanel();
-                    });
-                }
-
-                const filterOptions = document.querySelectorAll('.filter-option');
-                filterOptions.forEach(option => {
-                    option.addEventListener('click', function () {
-                        const filterSection = this.closest('.filter-section');
-                        const filterTitle = filterSection.querySelector('.filter-section__title').textContent;
-
-                        if (['نوع العقار', 'نوع المعاملة', 'غرف النوم', 'الحمامات', 'المساحة'].includes(filterTitle)) {
-                            filterSection.querySelectorAll('.filter-option').forEach(opt => {
-                                opt.classList.remove('filter-option--selected');
-                            });
-                            this.classList.add('filter-option--selected');
-                        } else {
-                            this.classList.toggle('filter-option--selected');
-                        }
-                    });
+                    }
+                });
+            });
+        }
+        
+        function initRecentSearches() {
+            updateRecentSearchesUI();
+            
+            // Clear all recent searches button
+            const clearSearchesBtn = document.getElementById('clearSearchesBtn');
+            if (clearSearchesBtn) {
+                clearSearchesBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clearRecentSearches();
                 });
             }
-
-            function openFiltersPanel() {
-                const filtersPanel = document.getElementById('filtersPanel');
-                const filtersOverlay = document.getElementById('filtersOverlay');
-
-                if (filtersPanel && filtersOverlay) {
-                    filtersPanel.classList.add('search-filters-panel--visible');
-                    filtersOverlay.classList.add('search-filters-overlay--visible');
-                    document.body.style.overflow = 'hidden';
-                }
+        }
+        
+        function initFilterPanel() {
+            const filterButton = document.getElementById('filterButton');
+            const filtersPanel = document.getElementById('filtersPanel');
+            const filtersOverlay = document.getElementById('filtersOverlay');
+            const closeFiltersBtn = document.getElementById('closeFiltersBtn');
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            
+            // Open filters panel
+            if (filterButton && filtersPanel) {
+                filterButton.addEventListener('click', function() {
+                    openFiltersPanel();
+                });
             }
-
-            function closeFiltersPanel() {
-                const filtersPanel = document.getElementById('filtersPanel');
-                const filtersOverlay = document.getElementById('filtersOverlay');
-
-                if (filtersPanel && filtersOverlay) {
-                    filtersPanel.classList.remove('search-filters-panel--visible');
-                    filtersOverlay.classList.remove('search-filters-overlay--visible');
-                    document.body.style.overflow = '';
-                }
+            
+            // Close on overlay click
+            if (filtersOverlay) {
+                filtersOverlay.addEventListener('click', function() {
+                    closeFiltersPanel();
+                });
             }
-
-            function resetFilters() {
-                const filterOptions = document.querySelectorAll('.filter-option');
-
-                filterOptions.forEach(option => {
-                    const filterSection = option.closest('.filter-section');
+            
+            // Close button
+            if (closeFiltersBtn) {
+                closeFiltersBtn.addEventListener('click', function() {
+                    closeFiltersPanel();
+                });
+            }
+            
+            // Reset filters
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function() {
+                    resetFilters();
+                });
+            }
+            
+            // Apply filters
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function() {
+                    applyFilters();
+                    closeFiltersPanel();
+                });
+            }
+            
+            // Filter options
+            const filterOptions = document.querySelectorAll('.filter-option');
+            filterOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const filterSection = this.closest('.filter-section');
                     const filterTitle = filterSection.querySelector('.filter-section__title').textContent;
-
+                    
+                    // Handle selection based on section
                     if (['نوع العقار', 'نوع المعاملة', 'غرف النوم', 'الحمامات', 'المساحة'].includes(filterTitle)) {
-                        if (option.dataset.filter === 'all') {
-                            option.classList.add('filter-option--selected');
-                        } else {
-                            option.classList.remove('filter-option--selected');
-                        }
+                        // Single selection sections
+                        filterSection.querySelectorAll('.filter-option').forEach(opt => {
+                            opt.classList.remove('filter-option--selected');
+                        });
+                        this.classList.add('filter-option--selected');
+                    } else {
+                        // Multiple selection sections (like amenities)
+                        this.classList.toggle('filter-option--selected');
+                    }
+                });
+            });
+        }
+        
+        function openFiltersPanel() {
+            const filtersPanel = document.getElementById('filtersPanel');
+            const filtersOverlay = document.getElementById('filtersOverlay');
+            
+            if (filtersPanel && filtersOverlay) {
+                filtersPanel.classList.add('search-filters-panel--visible');
+                filtersOverlay.classList.add('search-filters-overlay--visible');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeFiltersPanel() {
+            const filtersPanel = document.getElementById('filtersPanel');
+            const filtersOverlay = document.getElementById('filtersOverlay');
+            
+            if (filtersPanel && filtersOverlay) {
+                filtersPanel.classList.remove('search-filters-panel--visible');
+                filtersOverlay.classList.remove('search-filters-overlay--visible');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function resetFilters() {
+            const filterOptions = document.querySelectorAll('.filter-option');
+            
+            // Reset all filter options
+            filterOptions.forEach(option => {
+                const filterSection = option.closest('.filter-section');
+                const filterTitle = filterSection.querySelector('.filter-section__title').textContent;
+                
+                // Reset based on section type
+                if (['نوع العقار', 'نوع المعاملة', 'غرف النوم', 'الحمامات', 'المساحة'].includes(filterTitle)) {
+                    // For single selection sections, only select "all" option
+                    if (option.dataset.filter === 'all') {
+                        option.classList.add('filter-option--selected');
                     } else {
                         option.classList.remove('filter-option--selected');
                     }
-                });
-
-                searchState.filters = {
-                    type: 'all',
-                    transaction: 'all',
-                    minPrice: 0,
-                    maxPrice: 5000000,
-                    bedrooms: 'all',
-                    bathrooms: 'all',
-                    area: 'all',
-                    amenities: []
-                };
-
-                showToast('تم إعادة تعيين الفلاتر', 'success');
-            }
-
-            function applyFilters() {
-                collectFiltersFromUI();
-
-                toggleLoading(true);
-
-                document.getElementById('initialSearchView').style.display = 'none';
-
+                } else {
+                    // For multiple selection sections, deselect all
+                    option.classList.remove('filter-option--selected');
+                }
+            });
+            
+            // Reset search state
+            searchState.filters = {
+                type: 'all',
+                transaction: 'all',
+                minPrice: 0,
+                maxPrice: 5000000,
+                bedrooms: 'all',
+                bathrooms: 'all',
+                area: 'all',
+                amenities: []
+            };
+            
+            showToast('تم إعادة تعيين الفلاتر', 'success');
+        }
+        
+        function applyFilters() {
+            // Update search state from UI
+            collectFiltersFromUI();
+            
+            // Show loading
+            toggleLoading(true);
+            
+            // Hide initial view
+            document.getElementById('initialSearchView').style.display = 'none';
+            
+            // Simulate API call
+            setTimeout(() => {
+                displaySearchResults([
+                    {
+                        id: 'prop1',
+                        title: "فيلا فاخرة",
+                        location: "الواجهة البحرية",
+                        price: 1250000,
+                        priceFormatted: "$1,250,000",
+                        propertyType: "villa",
+                        transactionType: "للبيع",
+                        features: {
+                            bedrooms: 5,
+                            bathrooms: 4,
+                            area: 3500
+                        },
+                        imageUrl: "img/placeholder.jpg"
+                    },
+                    {
+                        id: 'prop2',
+                        title: "شقة حديثة",
+                        location: "وسط المدينة",
+                        price: 350000,
+                        priceFormatted: "$350,000",
+                        propertyType: "apartment",
+                        transactionType: "للبيع",
+                        features: {
+                            bedrooms: 2,
+                            bathrooms: 2,
+                            area: 1200
+                        },
+                        imageUrl: "img/placeholder.jpg"
+                    },
+                    {
+                        id: 'prop3',
+                        title: "منزل عائلي",
+                        location: "الضواحي",
+                        price: 580000,
+                        priceFormatted: "$580,000",
+                        propertyType: "house",
+                        transactionType: "للبيع",
+                        features: {
+                            bedrooms: 4,
+                            bathrooms: 3,
+                            area: 2400
+                        },
+                        imageUrl: "img/placeholder.jpg"
+                    }
+                ]);
+            }, 1000);
+        }
+        
+        function collectFiltersFromUI() {
+            // This would collect all filter values from the UI
+            // For now, we'll just use default values
+        }
+        
+        async function performSearch(query) {
+            if (!query) return;
+            
+            // Save to recent searches
+            saveRecentSearch(query);
+            updateRecentSearchesUI();
+            
+            // Update search state
+            searchState.query = query;
+            
+            // Show loading
+            toggleLoading(true);
+            
+            // Hide initial view
+            document.getElementById('initialSearchView').style.display = 'none';
+            
+            try {
+                // Perform search (this is a simulated API call)
                 setTimeout(() => {
                     displaySearchResults([
                         {
@@ -666,141 +795,83 @@
                                 area: 1200
                             },
                             imageUrl: "img/placeholder.jpg"
-                        },
-                        {
-                            id: 'prop3',
-                            title: "منزل عائلي",
-                            location: "الضواحي",
-                            price: 580000,
-                            priceFormatted: "$580,000",
-                            propertyType: "house",
-                            transactionType: "للبيع",
-                            features: {
-                                bedrooms: 4,
-                                bathrooms: 3,
-                                area: 2400
-                            },
-                            imageUrl: "img/placeholder.jpg"
                         }
                     ]);
                 }, 1000);
-            }
-
-            function collectFiltersFromUI() {
-            }
-
-            async function performSearch(query) {
-                if (!query) return;
-
-                saveRecentSearch(query);
-                updateRecentSearchesUI();
-
-                searchState.query = query;
-
-                toggleLoading(true);
-
-                document.getElementById('initialSearchView').style.display = 'none';
-
-                try {
-                    setTimeout(() => {
-                        displaySearchResults([
-                            {
-                                id: 'prop1',
-                                title: "فيلا فاخرة",
-                                location: "الواجهة البحرية",
-                                price: 1250000,
-                                priceFormatted: "$1,250,000",
-                                propertyType: "villa",
-                                transactionType: "للبيع",
-                                features: {
-                                    bedrooms: 5,
-                                    bathrooms: 4,
-                                    area: 3500
-                                },
-                                imageUrl: "img/placeholder.jpg"
-                            },
-                            {
-                                id: 'prop2',
-                                title: "شقة حديثة",
-                                location: "وسط المدينة",
-                                price: 350000,
-                                priceFormatted: "$350,000",
-                                propertyType: "apartment",
-                                transactionType: "للبيع",
-                                features: {
-                                    bedrooms: 2,
-                                    bathrooms: 2,
-                                    area: 1200
-                                },
-                                imageUrl: "img/placeholder.jpg"
-                            }
-                        ]);
-                    }, 1000);
-                } catch (error) {
-                    console.error('Error performing search:', error);
-                    showToast('حدث خطأ أثناء البحث', 'error');
-
-                    toggleLoading(false);
-
-                    document.getElementById('initialSearchView').style.display = 'block';
-                }
-            }
-
-            function toggleLoading(show) {
-                const loadingEl = document.getElementById('searchLoading');
-                const resultsView = document.getElementById('searchResultsView');
-                const noResults = document.getElementById('noResults');
-
-                if (loadingEl) {
-                    loadingEl.style.display = show ? 'block' : 'none';
-                }
-
-                if (resultsView) {
-                    resultsView.style.display = show ? 'none' : 'block';
-                }
-
-                if (noResults) {
-                    noResults.style.display = 'none';
-                }
-            }
-
-            function displaySearchResults(results) {
+            } catch (error) {
+                console.error('Error performing search:', error);
+                showToast('حدث خطأ أثناء البحث', 'error');
+                
+                // Hide loading
                 toggleLoading(false);
-
-                const resultsContainer = document.getElementById('resultsContainer');
-                const resultsView = document.getElementById('searchResultsView');
-                const noResults = document.getElementById('noResults');
-                const resultsCount = document.getElementById('resultsCount');
-
-                if (!resultsContainer || !resultsView || !noResults) return;
-
-                if (!results || results.length === 0) {
-                    resultsView.style.display = 'none';
-                    noResults.style.display = 'block';
-                    return;
-                }
-
-                if (resultsCount) {
-                    resultsCount.textContent = `${results.length} عقار`;
-                }
-
-                resultsContainer.innerHTML = '';
-
-                results.forEach(property => {
-                    const propertyCard = createPropertyCard(property);
-                    resultsContainer.appendChild(propertyCard);
-                });
-
-                resultsView.style.display = 'block';
-
-                initFavoriteButtons();
+                
+                // Show initial view
+                document.getElementById('initialSearchView').style.display = 'block';
             }
-
-            function createPropertyCard(property) {
-                const cardElement = document.createElement('div');
-                cardElement.className = 'property-card';
-
-                cardElement.innerHTML = `
+        }
+        
+        function toggleLoading(show) {
+            const loadingEl = document.getElementById('searchLoading');
+            const resultsView = document.getElementById('searchResultsView');
+            const noResults = document.getElementById('noResults');
+            
+            if (loadingEl) {
+                loadingEl.style.display = show ? 'block' : 'none';
+            }
+            
+            if (resultsView) {
+                resultsView.style.display = show ? 'none' : 'block';
+            }
+            
+            if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+        
+        function displaySearchResults(results) {
+            // Hide loading
+            toggleLoading(false);
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsView = document.getElementById('searchResultsView');
+            const noResults = document.getElementById('noResults');
+            const resultsCount = document.getElementById('resultsCount');
+            
+            if (!resultsContainer || !resultsView || !noResults) return;
+            
+            // Check if we have results
+            if (!results || results.length === 0) {
+                resultsView.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            // Update results count
+            if (resultsCount) {
+                resultsCount.textContent = `${results.length} عقار`;
+            }
+            
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            
+            // Add result items
+            results.forEach(property => {
+                const propertyCard = createPropertyCard(property);
+                resultsContainer.appendChild(propertyCard);
+            });
+            
+            // Show results view
+            resultsView.style.display = 'block';
+            
+            // Initialize favorite buttons for new cards
+            initFavoriteButtons();
+        }
+        
+        function createPropertyCard(property) {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'property-card';
+            
+            cardElement.innerHTML = `
                 <div class="property-card__image">
                     <img src="${property.imageUrl}" class="property-card__img" alt="${property.title}">
                     <button class="property-card__favorite-btn" data-property-id="${property.id}">
@@ -831,49 +902,48 @@
                     <a href="property-details.html?id=${property.id}" class="btn btn--primary btn--block">عرض التفاصيل</a>
                 </div>
             `;
-
-                return cardElement;
-            }
-
-            function initFavoriteButtons() {
-                const favoriteButtons = document.querySelectorAll('.property-card__favorite-btn');
-
-                favoriteButtons.forEach(btn => {
-                    btn.addEventListener('click', async function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const propertyId = this.dataset.propertyId;
-                        const user = await getCurrentUser();
-
-                        if (!user) {
-                            showLoginModal('يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة');
-                            return;
+            
+            return cardElement;
+        }
+        
+        function initFavoriteButtons() {
+            const favoriteButtons = document.querySelectorAll('.property-card__favorite-btn');
+            
+            favoriteButtons.forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const propertyId = this.dataset.propertyId;
+                    const user = await getCurrentUser();
+                    
+                    if (!user) {
+                        showLoginModal('يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة');
+                        return;
+                    }
+                    
+                    try {
+                        const isAdded = await toggleFavorite(user.id, propertyId);
+                        const heartIcon = this.querySelector('i');
+                        
+                        if (isAdded) {
+                            heartIcon.classList.remove('far');
+                            heartIcon.classList.add('fas');
+                            heartIcon.style.color = '#ef4444';
+                            showToast('تمت إضافة العقار إلى المفضلة', 'success');
+                        } else {
+                            heartIcon.classList.remove('fas');
+                            heartIcon.classList.add('far');
+                            heartIcon.style.color = '';
+                            showToast('تمت إزالة العقار من المفضلة', 'info');
                         }
-
-                        try {
-                            const isAdded = await toggleFavorite(user.id, propertyId);
-                            const heartIcon = this.querySelector('i');
-
-                            if (isAdded) {
-                                heartIcon.classList.remove('far');
-                                heartIcon.classList.add('fas');
-                                heartIcon.style.color = '#ef4444';
-                                showToast('تمت إضافة العقار إلى المفضلة', 'success');
-                            } else {
-                                heartIcon.classList.remove('fas');
-                                heartIcon.classList.add('far');
-                                heartIcon.style.color = '';
-                                showToast('تمت إزالة العقار من المفضلة', 'info');
-                            }
-                        } catch (error) {
-                            console.error("Error toggling favorite:", error);
-                            showToast('حدث خطأ، يرجى المحاولة مرة أخرى', 'error');
-                        }
-                    });
+                    } catch (error) {
+                        console.error("Error toggling favorite:", error);
+                        showToast('حدث خطأ، يرجى المحاولة مرة أخرى', 'error');
+                    }
                 });
-            }
-        </script>
+            });
+        }
+    </script>
 </body>
-
 </html>
