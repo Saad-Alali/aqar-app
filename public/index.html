@@ -90,8 +90,8 @@
 
     <script type="module">
         import { initializeJsonService } from './js/json-service.js';
-        import { getCurrentUser } from './js/auth-service.js';
-        import { showToast, updateAuthUI } from './js/app.js';
+        import { getCurrentUser, toggleFavorite } from './js/auth-service.js';
+        import { showToast, updateAuthUI, showLoginModal } from './js/app.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -239,12 +239,12 @@
                             'يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة' : 
                             'You must login first to add this property to favorites';
                         
-                        window.showLoginModal(message);
+                        showLoginModal(message);
                         return;
                     }
                     
                     try {
-                        const isAdded = await window.Aqar.Auth.toggleFavorite(propertyId);
+                        const isAdded = await toggleFavorite(user.id, propertyId);
                         
                         const heartIcon = this.querySelector('i');
                         if (isAdded) {
