@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -29,29 +30,29 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .dev-info-content {
             background-color: white;
             padding: 24px;
             border-radius: 12px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
-        
+
         .dev-info-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        
+
         .dev-info-title {
             font-size: 1.2rem;
             font-weight: 600;
             color: var(--primary-color);
         }
-        
+
         .dev-info-close {
             background: none;
             border: none;
@@ -59,21 +60,22 @@
             color: var(--gray-color);
             cursor: pointer;
         }
-        
+
         .dev-info-item {
             margin-bottom: 12px;
         }
-        
+
         .dev-info-label {
             font-weight: 600;
             margin-bottom: 4px;
         }
-        
+
         .dev-info-value {
             color: var(--gray-color);
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <header class="app-header">
@@ -94,14 +96,15 @@
                 <span class="language-switcher__current">العربية</span>
             </button>
             <div class="language-switcher__dropdown" id="languageDropdown" style="display: none;">
-                <a href="#" class="language-switcher__option language-switcher__option--active" data-lang="ar">العربية</a>
+                <a href="#" class="language-switcher__option language-switcher__option--active"
+                    data-lang="ar">العربية</a>
                 <a href="#" class="language-switcher__option" data-lang="en">English</a>
             </div>
         </div>
 
         <div class="app-content profile-container" id="profileContent">
             <div id="profileAlerts"></div>
-            
+
             <div class="profile__card">
                 <div class="profile__header">
                     <div class="profile__avatar">
@@ -110,21 +113,21 @@
                     <div>
                         <h2 class="profile__title" id="profileName">جاري التحميل...</h2>
                         <p class="profile__email" id="profileEmail"></p>
-                        
+
                         <div class="profile__upload">
                             <input type="file" id="avatarUpload" class="profile__upload-input" accept="image/*">
                             <label for="avatarUpload" class="profile__upload-label">
                                 <i class="fas fa-camera"></i> تغيير الصورة
                             </label>
                         </div>
-                        
+
                         <button id="deleteAvatarBtn" class="profile__upload-label" style="margin-right: 8px;">
                             <i class="fas fa-trash"></i> حذف الصورة
                         </button>
                     </div>
                 </div>
             </div>
-            
+
             <div class="profile__card" style="padding: 0;">
                 <a href="edit-profile.html" class="profile-menu-item">
                     <div class="profile-menu-icon">
@@ -137,7 +140,7 @@
                         <i class="fas fa-chevron-left"></i>
                     </div>
                 </a>
-                
+
                 <a href="favorites.html" class="profile-menu-item">
                     <div class="profile-menu-icon">
                         <i class="fas fa-heart"></i>
@@ -149,7 +152,7 @@
                         <i class="fas fa-chevron-left"></i>
                     </div>
                 </a>
-                
+
                 <a href="#" class="profile-menu-item" id="clearFavoritesBtn">
                     <div class="profile-menu-icon">
                         <i class="fas fa-trash"></i>
@@ -161,7 +164,7 @@
                         <i class="fas fa-chevron-left"></i>
                     </div>
                 </a>
-                
+
                 <a href="#" class="profile-menu-item" id="developerInfoBtn">
                     <div class="profile-menu-icon">
                         <i class="fas fa-code"></i>
@@ -173,7 +176,7 @@
                         <i class="fas fa-chevron-left"></i>
                     </div>
                 </a>
-                
+
                 <a href="#" class="profile-menu-item profile-menu-item--danger" id="deleteAccountBtn">
                     <div class="profile-menu-icon profile-menu-icon--danger">
                         <i class="fas fa-user-slash"></i>
@@ -182,7 +185,7 @@
                         حذف الحساب
                     </div>
                 </a>
-                
+
                 <a href="#" class="profile-menu-item profile-menu-item--danger" id="logoutBtn">
                     <div class="profile-menu-icon profile-menu-icon--danger">
                         <i class="fas fa-sign-out-alt"></i>
@@ -192,7 +195,7 @@
                     </div>
                 </a>
             </div>
-            
+
             <div class="text-center mt-4" style="color: var(--gray-color); font-size: 0.875rem;">
                 <p data-i18n="appVersion">نسخة التطبيق: 1.0.0</p>
                 <p class="mt-1" data-i18n="copyright">&copy; 2025 عقار - جميع الحقوق محفوظة</p>
@@ -217,7 +220,7 @@
                 <div class="tab-bar__label" data-i18n="tabBar.profile">حسابي</div>
             </a>
         </div>
-        
+
         <div class="auth-overlay" id="authOverlay" style="display: none;">
             <div class="auth-overlay__icon">
                 <i class="fas fa-user-lock"></i>
@@ -231,7 +234,7 @@
                 <a href="register.html" class="btn btn--outline-primary" data-i18n="createAccount">إنشاء حساب جديد</a>
             </div>
         </div>
-        
+
         <div class="dev-info-dialog" id="devInfoDialog">
             <div class="dev-info-content">
                 <div class="dev-info-header">
@@ -268,113 +271,113 @@
         import { clearAllFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
         import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
-        
-        document.addEventListener('DOMContentLoaded', async function() {
+
+        document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await initializeJsonService();
-                
+
                 const user = await getCurrentUser();
-                
+
                 if (!user) {
                     showAuthOverlay();
                     return;
                 }
-                
+
                 updateProfileUI(user);
                 initializeInteractions(user);
-                
+
                 // Initialize developer info modal
                 initDevInfoModal();
-                
+
                 // Apply language
                 const currentLang = detectPreferredLanguage();
                 applyLanguage(currentLang);
-                
+
             } catch (error) {
                 console.error("Error initializing profile page:", error);
                 showToast("حدث خطأ في تهيئة الصفحة", "error");
             }
         });
-        
+
         function showAuthOverlay() {
             const authOverlay = document.getElementById('authOverlay');
             const content = document.getElementById('profileContent');
-            
+
             if (authOverlay) {
                 authOverlay.style.display = 'flex';
             }
-            
+
             if (content) {
                 content.classList.add('blurred-content');
             }
         }
-        
+
         function updateProfileUI(user) {
             const profileName = document.getElementById('profileName');
             const profileEmail = document.getElementById('profileEmail');
             const profileAvatar = document.getElementById('profileAvatar');
-            
+
             if (profileName) profileName.textContent = user.fullName || 'المستخدم';
             if (profileEmail) profileEmail.textContent = user.email || '';
             if (profileAvatar) profileAvatar.src = user.avatarUrl || 'img/placeholder.jpg';
         }
-        
+
         function initializeInteractions(user) {
             // Initialize language switcher
             const switcherButton = document.getElementById('languageSwitcher');
             const languageDropdown = document.getElementById('languageDropdown');
-            
+
             if (switcherButton && languageDropdown) {
-                switcherButton.addEventListener('click', function(e) {
+                switcherButton.addEventListener('click', function (e) {
                     e.preventDefault();
                     const isVisible = languageDropdown.style.display === 'block';
                     languageDropdown.style.display = isVisible ? 'none' : 'block';
                 });
-                
+
                 // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
                         languageDropdown.style.display = 'none';
                     }
                 });
-                
+
                 // Handle language selection
                 const languageOptions = document.querySelectorAll('.language-switcher__option');
                 languageOptions.forEach(option => {
-                    option.addEventListener('click', function(e) {
+                    option.addEventListener('click', function (e) {
                         e.preventDefault();
-                        
+
                         const lang = this.getAttribute('data-lang');
-                        
+
                         // Store selected language
                         localStorage.setItem('aqar_language', lang);
-                        
+
                         // Apply language
                         applyLanguage(lang);
-                        
+
                         // Update UI
                         languageOptions.forEach(opt => {
                             opt.classList.remove('language-switcher__option--active');
                         });
                         this.classList.add('language-switcher__option--active');
-                        
-                        switcherButton.querySelector('.language-switcher__current').textContent = 
+
+                        switcherButton.querySelector('.language-switcher__current').textContent =
                             lang === 'ar' ? 'العربية' : 'English';
-                        
+
                         languageDropdown.style.display = 'none';
-                        
+
                         // Show success message
                         showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
                     });
                 });
             }
-            
+
             // Initialize logout button
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', async function(e) {
+                logoutBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
-                    
+
                     if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
                         try {
                             await logoutUser();
@@ -386,35 +389,35 @@
                     }
                 });
             }
-            
+
             // Initialize avatar upload
             const avatarUpload = document.getElementById('avatarUpload');
             if (avatarUpload) {
-                avatarUpload.addEventListener('change', async function(e) {
+                avatarUpload.addEventListener('change', async function (e) {
                     const file = e.target.files[0];
                     if (!file) return;
-                    
+
                     // Check if file is an image
                     if (!file.type.match('image.*')) {
                         showToast('الرجاء اختيار صورة صالحة', 'error');
                         return;
                     }
-                    
+
                     // Check file size (max 5MB)
                     if (file.size > 5 * 1024 * 1024) {
                         showToast('حجم الصورة كبير جدًا (الحد الأقصى 5 ميجابايت)', 'error');
                         return;
                     }
-                    
+
                     try {
                         showToast('جارٍ رفع الصورة...', 'info');
-                        
+
                         // Upload to Firebase Storage
                         const updatedUser = await updateUserAvatar(user.id, file);
-                        
+
                         // Update UI
                         updateProfileUI(updatedUser);
-                        
+
                         showToast('تم تحديث الصورة الشخصية بنجاح', 'success');
                     } catch (error) {
                         console.error("Error uploading avatar:", error);
@@ -422,20 +425,20 @@
                     }
                 });
             }
-            
+
             // Initialize delete avatar button
             const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
             if (deleteAvatarBtn) {
-                deleteAvatarBtn.addEventListener('click', async function(e) {
+                deleteAvatarBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
-                    
+
                     if (confirm('هل أنت متأكد من حذف الصورة الشخصية؟')) {
                         try {
                             const updatedUser = await deleteUserAvatar(user.id);
-                            
+
                             // Update UI
                             updateProfileUI(updatedUser);
-                            
+
                             showToast('تم حذف الصورة الشخصية بنجاح', 'success');
                         } catch (error) {
                             console.error("Error deleting avatar:", error);
@@ -444,13 +447,13 @@
                     }
                 });
             }
-            
+
             // Initialize clear favorites button
             const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
             if (clearFavoritesBtn) {
-                clearFavoritesBtn.addEventListener('click', async function(e) {
+                clearFavoritesBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
-                    
+
                     if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
                         try {
                             await clearAllFavorites(user.id);
@@ -462,18 +465,18 @@
                     }
                 });
             }
-            
+
             // Initialize delete account button
             const deleteAccountBtn = document.getElementById('deleteAccountBtn');
             if (deleteAccountBtn) {
-                deleteAccountBtn.addEventListener('click', async function(e) {
+                deleteAccountBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
-                    
+
                     if (confirm('هل أنت متأكد من حذف الحساب؟ لا يمكن التراجع عن هذه العملية.')) {
                         try {
                             await deleteUserAccount(user.id);
                             showToast('تم حذف الحساب بنجاح', 'success');
-                            
+
                             setTimeout(() => {
                                 window.location.href = 'index.html';
                             }, 1500);
@@ -485,29 +488,33 @@
                 });
             }
         }
-        
+
         function initDevInfoModal() {
             const developerInfoBtn = document.getElementById('developerInfoBtn');
             const devInfoDialog = document.getElementById('devInfoDialog');
             const closeDevInfoBtn = document.getElementById('closeDevInfoBtn');
-            
+
             if (developerInfoBtn && devInfoDialog && closeDevInfoBtn) {
-                developerInfoBtn.addEventListener('click', function(e) {
+                developerInfoBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     devInfoDialog.style.display = 'flex';
                 });
-                
-                closeDevInfoBtn.addEventListener('click', function() {
+
+                closeDevInfoBtn.addEventListener('click', function () {
                     devInfoDialog.style.display = 'none';
                 });
-                
-                devInfoDialog.addEventListener('click', function(e) {
+
+                devInfoDialog.addEventListener('click', function (e) {
                     if (e.target === devInfoDialog) {
                         devInfoDialog.style.display = 'none';
                     }
                 });
             }
         }
+
+
+        
     </script>
 </body>
+
 </html>

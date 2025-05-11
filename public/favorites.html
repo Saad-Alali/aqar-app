@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -15,8 +16,9 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/favorites.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="app-container">
         <header class="app-header">
@@ -52,11 +54,12 @@
                         <i class="far fa-heart"></i>
                     </div>
                     <h3 class="empty-state__title">لا توجد عقارات في المفضلة</h3>
-                    <p class="empty-state__description">قم بإضافة العقارات التي تعجبك إلى المفضلة للوصول إليها لاحقًا بسهولة</p>
+                    <p class="empty-state__description">قم بإضافة العقارات التي تعجبك إلى المفضلة للوصول إليها لاحقًا
+                        بسهولة</p>
                     <a href="index.html" class="btn btn--primary">استعرض العقارات</a>
                 </div>
             </div>
-            
+
             <!-- Clear All Button -->
             <div class="container" style="text-align: center; margin-top: 20px;">
                 <button id="clearAllFavoritesBtn" class="btn btn--danger" style="display: none;">
@@ -84,7 +87,7 @@
                 <div class="tab-bar__label">حسابي</div>
             </a>
         </div>
-        
+
         <div class="auth-overlay" id="authOverlay" style="display: none;">
             <div class="auth-overlay__icon">
                 <i class="fas fa-heart"></i>
@@ -98,18 +101,33 @@
                 <a href="register.html" class="btn btn--outline-primary">إنشاء حساب جديد</a>
             </div>
         </div>
-        
+        <div class="language-switcher">
+            <button class="language-switcher__button" id="languageSwitcher">
+                <i class="fas fa-globe"></i>
+                <span class="language-switcher__current">العربية</span>
+            </button>
+            <div class="language-switcher__dropdown" id="languageDropdown" style="display: none;">
+                <a href="#" class="language-switcher__option language-switcher__option--active"
+                    data-lang="ar">العربية</a>
+                <a href="#" class="language-switcher__option" data-lang="en">English</a>
+            </div>
+        </div>
+
         <!-- More Options Menu -->
-        <div class="dropdown-menu" id="optionsMenu" style="display: none; position: fixed; top: 60px; right: 10px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;">
-            <div class="dropdown-menu__item" id="clearAllBtn" style="padding: 10px 15px; display: flex; align-items: center; cursor: pointer;">
+        <div class="dropdown-menu" id="optionsMenu"
+            style="display: none; position: fixed; top: 60px; right: 10px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+            <div class="dropdown-menu__item" id="clearAllBtn"
+                style="padding: 10px 15px; display: flex; align-items: center; cursor: pointer;">
                 <i class="fas fa-trash-alt" style="margin-left: 8px; color: #ef4444;"></i>
                 <span>حذف جميع المفضلات</span>
             </div>
-            <div class="dropdown-menu__item" id="sortByNewestBtn" style="padding: 10px 15px; display: flex; align-items: center; cursor: pointer;">
+            <div class="dropdown-menu__item" id="sortByNewestBtn"
+                style="padding: 10px 15px; display: flex; align-items: center; cursor: pointer;">
                 <i class="fas fa-sort-amount-down" style="margin-left: 8px;"></i>
                 <span>ترتيب حسب الأحدث</span>
             </div>
-            <div class="dropdown-menu__item" id="sortByPriceBtn" style="padding: 10px 15px; display: flex; align-items: center; cursor: pointer;">
+            <div class="dropdown-menu__item" id="sortByPriceBtn"
+                style="padding: 10px 15px; display: flex; align-items: center; cursor: pointer;">
                 <i class="fas fa-sort-numeric-down" style="margin-left: 8px;"></i>
                 <span>ترتيب حسب السعر</span>
             </div>
@@ -122,29 +140,29 @@
         import { getUserFavorites, removeFromFavorites, clearAllFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
         import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
-        
-        document.addEventListener('DOMContentLoaded', async function() {
+
+        document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await initializeJsonService();
-                
+
                 const user = await getCurrentUser();
-                
+
                 if (!user) {
                     showAuthOverlay();
                     return;
                 }
-                
+
                 await loadFavorites(user);
-                
+
                 // Initialize tabs
                 initTabs();
-                
+
                 // Initialize options menu
                 initOptionsMenu(user);
-                
+
                 // Initialize clear all button
                 initClearAllButton(user);
-                
+
                 // Apply language
                 const currentLang = detectPreferredLanguage();
                 applyLanguage(currentLang);
@@ -153,48 +171,48 @@
                 showToast("حدث خطأ في تهيئة الصفحة", "error");
             }
         });
-        
+
         function showAuthOverlay() {
             const authOverlay = document.getElementById('authOverlay');
             const content = document.getElementById('favoritesContent');
-            
+
             if (authOverlay) {
                 authOverlay.style.display = 'flex';
             }
-            
+
             if (content) {
                 content.classList.add('blurred-content');
             }
         }
-        
+
         async function loadFavorites(user) {
             try {
                 const favorites = await getUserFavorites(user.id);
-                
+
                 const favoritesContainer = document.getElementById('favoritesWithItems');
                 const emptyState = document.getElementById('favoritesEmpty');
                 const clearAllBtn = document.getElementById('clearAllFavoritesBtn');
-                
+
                 if (!favoritesContainer || !emptyState) return;
-                
+
                 if (!favorites || favorites.length === 0) {
                     favoritesContainer.style.display = 'none';
                     emptyState.style.display = 'block';
                     if (clearAllBtn) clearAllBtn.style.display = 'none';
                     return;
                 }
-                
+
                 favoritesContainer.innerHTML = '';
                 favoritesContainer.style.display = 'block';
                 emptyState.style.display = 'none';
                 if (clearAllBtn) clearAllBtn.style.display = 'inline-block';
-                
+
                 // Create favorite property items
                 favorites.forEach(property => {
                     const favoriteItem = createFavoriteItem(property);
                     favoritesContainer.appendChild(favoriteItem);
                 });
-                
+
                 // Attach event listeners to delete buttons
                 attachDeleteButtons(user.id);
             } catch (error) {
@@ -202,14 +220,14 @@
                 showToast("حدث خطأ في تحميل المفضلة", "error");
             }
         }
-        
+
         function createFavoriteItem(property) {
             const itemElement = document.createElement('div');
             itemElement.className = 'favorite-property';
             itemElement.dataset.id = property.id;
             itemElement.dataset.type = property.transactionType || 'للبيع';
             itemElement.dataset.category = property.propertyType || 'apartment';
-            
+
             itemElement.innerHTML = `
                 <div class="favorite-property__content">
                     <div class="favorite-property__image">
@@ -243,47 +261,47 @@
                     </a>
                 </div>
             `;
-            
+
             // Add click event to navigate to property details
-            itemElement.addEventListener('click', function(e) {
+            itemElement.addEventListener('click', function (e) {
                 // Don't navigate if clicking on an action button
                 if (e.target.closest('.favorite-property__action')) {
                     return;
                 }
-                
+
                 window.location.href = `property-details.html?id=${property.id}`;
             });
-            
+
             return itemElement;
         }
-        
+
         function attachDeleteButtons(userId) {
             const deleteButtons = document.querySelectorAll('.favorite-property__action--delete');
-            
+
             deleteButtons.forEach(button => {
-                button.addEventListener('click', async function(e) {
+                button.addEventListener('click', async function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     const propertyId = this.dataset.id;
                     const propertyItem = this.closest('.favorite-property');
-                    
+
                     if (!propertyId || !propertyItem) return;
-                    
+
                     try {
                         // Remove from favorites in database
                         await removeFromFavorites(userId, propertyId);
-                        
+
                         // Animate removal
                         propertyItem.style.transition = 'all 0.3s ease';
                         propertyItem.style.opacity = '0';
                         propertyItem.style.height = '0';
                         propertyItem.style.marginBottom = '0';
                         propertyItem.style.overflow = 'hidden';
-                        
+
                         setTimeout(() => {
                             propertyItem.remove();
-                            
+
                             // Check if there are any remaining favorites
                             const remainingProperties = document.querySelectorAll('.favorite-property');
                             if (remainingProperties.length === 0) {
@@ -292,7 +310,7 @@
                                 document.getElementById('clearAllFavoritesBtn').style.display = 'none';
                             }
                         }, 300);
-                        
+
                         showToast('تمت إزالة العقار من المفضلة', 'info');
                     } catch (error) {
                         console.error("Error removing from favorites:", error);
@@ -301,34 +319,34 @@
                 });
             });
         }
-        
+
         function initTabs() {
             const tabs = document.querySelectorAll('.favorites-tab');
-            
+
             tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
+                tab.addEventListener('click', function () {
                     tabs.forEach(t => t.classList.remove('favorites-tab--active'));
                     this.classList.add('favorites-tab--active');
-                    
+
                     const filter = this.dataset.filter;
                     filterFavorites(filter);
                 });
             });
         }
-        
+
         function filterFavorites(filter) {
             const favoriteItems = document.querySelectorAll('.favorite-property');
             const favoritesContainer = document.getElementById('favoritesWithItems');
             const emptyState = document.getElementById('favoritesEmpty');
-            
+
             if (!favoriteItems.length) {
                 if (favoritesContainer) favoritesContainer.style.display = 'none';
                 if (emptyState) emptyState.style.display = 'block';
                 return;
             }
-            
+
             let hasVisibleItems = false;
-            
+
             favoriteItems.forEach(item => {
                 if (filter === 'all') {
                     item.style.display = 'block';
@@ -340,7 +358,7 @@
                     item.style.display = 'none';
                 }
             });
-            
+
             if (hasVisibleItems) {
                 if (favoritesContainer) favoritesContainer.style.display = 'block';
                 if (emptyState) emptyState.style.display = 'none';
@@ -349,41 +367,41 @@
                 if (emptyState) emptyState.style.display = 'block';
             }
         }
-        
+
         function initOptionsMenu(user) {
             const optionsBtn = document.getElementById('moreOptionsBtn');
             const optionsMenu = document.getElementById('optionsMenu');
-            
+
             if (!optionsBtn || !optionsMenu) return;
-            
+
             // Toggle menu on button click
-            optionsBtn.addEventListener('click', function() {
+            optionsBtn.addEventListener('click', function () {
                 const isVisible = optionsMenu.style.display === 'block';
                 optionsMenu.style.display = isVisible ? 'none' : 'block';
             });
-            
+
             // Close menu when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!optionsBtn.contains(e.target) && !optionsMenu.contains(e.target)) {
                     optionsMenu.style.display = 'none';
                 }
             });
-            
+
             // Clear all button
             const clearAllBtn = document.getElementById('clearAllBtn');
             if (clearAllBtn) {
-                clearAllBtn.addEventListener('click', async function() {
+                clearAllBtn.addEventListener('click', async function () {
                     if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
                         try {
                             await clearAllFavorites(user.id);
-                            
+
                             // Update UI
                             document.getElementById('favoritesWithItems').style.display = 'none';
                             document.getElementById('favoritesEmpty').style.display = 'block';
                             document.getElementById('clearAllFavoritesBtn').style.display = 'none';
-                            
+
                             showToast('تم حذف جميع المفضلات', 'success');
-                            
+
                             // Close menu
                             optionsMenu.style.display = 'none';
                         } catch (error) {
@@ -393,32 +411,32 @@
                     }
                 });
             }
-            
+
             // Sort buttons
             const sortByNewestBtn = document.getElementById('sortByNewestBtn');
             const sortByPriceBtn = document.getElementById('sortByPriceBtn');
-            
+
             if (sortByNewestBtn) {
-                sortByNewestBtn.addEventListener('click', function() {
+                sortByNewestBtn.addEventListener('click', function () {
                     sortFavorites('newest');
                     optionsMenu.style.display = 'none';
                 });
             }
-            
+
             if (sortByPriceBtn) {
-                sortByPriceBtn.addEventListener('click', function() {
+                sortByPriceBtn.addEventListener('click', function () {
                     sortFavorites('price');
                     optionsMenu.style.display = 'none';
                 });
             }
         }
-        
+
         function sortFavorites(sortType) {
             const favoritesContainer = document.getElementById('favoritesWithItems');
             const items = Array.from(document.querySelectorAll('.favorite-property'));
-            
+
             if (items.length <= 1) return;
-            
+
             items.sort((a, b) => {
                 if (sortType === 'price') {
                     // Extract price from element - remove currency symbol and commas
@@ -426,40 +444,40 @@
                         .replace(/[^\d]/g, '');
                     const priceB = b.querySelector('.favorite-property__price').textContent
                         .replace(/[^\d]/g, '');
-                    
+
                     return parseInt(priceA) - parseInt(priceB);
                 } else if (sortType === 'newest') {
                     // In a real application, we would sort by date
                     // For this example, we'll just reverse the current order
                     return -1;
                 }
-                
+
                 return 0;
             });
-            
+
             // Add sorted items back to container
             items.forEach(item => {
                 favoritesContainer.appendChild(item);
             });
-            
+
             showToast('تم ترتيب العقارات', 'success');
         }
-        
+
         function initClearAllButton(user) {
             const clearAllBtn = document.getElementById('clearAllFavoritesBtn');
-            
+
             if (!clearAllBtn) return;
-            
-            clearAllBtn.addEventListener('click', async function() {
+
+            clearAllBtn.addEventListener('click', async function () {
                 if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
                     try {
                         await clearAllFavorites(user.id);
-                        
+
                         // Update UI
                         document.getElementById('favoritesWithItems').style.display = 'none';
                         document.getElementById('favoritesEmpty').style.display = 'block';
                         clearAllBtn.style.display = 'none';
-                        
+
                         showToast('تم حذف جميع المفضلات', 'success');
                     } catch (error) {
                         console.error("Error clearing favorites:", error);
@@ -470,4 +488,5 @@
         }
     </script>
 </body>
+
 </html>
