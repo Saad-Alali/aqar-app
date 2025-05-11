@@ -740,3 +740,90 @@ export {
   getTranslation,
   showToast
 };
+
+
+// Initialize language switcher
+const switcherButton = document.getElementById('languageSwitcher');
+const languageDropdown = document.getElementById('languageDropdown');
+
+if (switcherButton && languageDropdown) {
+    switcherButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        const isVisible = languageDropdown.style.display === 'block';
+        languageDropdown.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (switcherButton && languageDropdown && 
+            !switcherButton.contains(e.target) && 
+            !languageDropdown.contains(e.target)) {
+            languageDropdown.style.display = 'none';
+        }
+    });
+    
+    // Handle language selection
+    const languageOptions = document.querySelectorAll('.language-switcher__option');
+    languageOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const lang = this.getAttribute('data-lang');
+            
+            // Store selected language
+            localStorage.setItem('aqar_language', lang);
+            
+            // Apply language
+            if (typeof applyLanguage === 'function') {
+                applyLanguage(lang);
+            } else {
+                document.documentElement.lang = lang;
+                document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                
+                if (lang === 'ar') {
+                    document.body.style.fontFamily = "'Tajawal', sans-serif";
+                } else {
+                    document.body.style.fontFamily = "'Poppins', sans-serif";
+                }
+            }
+            
+            // Update UI
+            languageOptions.forEach(opt => {
+                opt.classList.remove('language-switcher__option--active');
+            });
+            this.classList.add('language-switcher__option--active');
+            
+            if (switcherButton.querySelector('.language-switcher__current')) {
+                switcherButton.querySelector('.language-switcher__current').textContent = 
+                    lang === 'ar' ? 'العربية' : 'English';
+            }
+            
+            languageDropdown.style.display = 'none';
+            
+            // Show success message if showToast function exists
+            if (typeof showToast === 'function') {
+                showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
+            }
+            
+            // Reload page to apply language changes
+            location.reload();
+        });
+    });
+    
+    // Initialize with saved language
+    const savedLang = localStorage.getItem('aqar_language') || 'ar';
+    const currentLangSpan = switcherButton.querySelector('.language-switcher__current');
+    if (currentLangSpan) {
+        currentLangSpan.textContent = savedLang === 'ar' ? 'العربية' : 'English';
+    }
+    
+    // Set active option
+    languageOptions.forEach(option => {
+        const optionLang = option.getAttribute('data-lang');
+        if (optionLang === savedLang) {
+            option.classList.add('language-switcher__option--active');
+        } else {
+            option.classList.remove('language-switcher__option--active');
+        }
+    });
+}

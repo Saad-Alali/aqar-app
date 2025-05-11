@@ -15,7 +15,64 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/profile.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .dev-info-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dev-info-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .dev-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .dev-info-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .dev-info-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--gray-color);
+            cursor: pointer;
+        }
+        
+        .dev-info-item {
+            margin-bottom: 12px;
+        }
+        
+        .dev-info-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .dev-info-value {
+            color: var(--gray-color);
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -105,6 +162,18 @@
                     </div>
                 </a>
                 
+                <a href="#" class="profile-menu-item" id="developerInfoBtn">
+                    <div class="profile-menu-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="profile-menu-text">
+                        معلومات المطور
+                    </div>
+                    <div class="profile-menu-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </a>
+                
                 <a href="#" class="profile-menu-item profile-menu-item--danger" id="deleteAccountBtn">
                     <div class="profile-menu-icon profile-menu-icon--danger">
                         <i class="fas fa-user-slash"></i>
@@ -162,6 +231,35 @@
                 <a href="register.html" class="btn btn--outline-primary" data-i18n="createAccount">إنشاء حساب جديد</a>
             </div>
         </div>
+        
+        <div class="dev-info-dialog" id="devInfoDialog">
+            <div class="dev-info-content">
+                <div class="dev-info-header">
+                    <div class="dev-info-title">معلومات المطور</div>
+                    <button class="dev-info-close" id="closeDevInfoBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="dev-info-body">
+                    <div class="dev-info-item">
+                        <div class="dev-info-label">الاسم:</div>
+                        <div class="dev-info-value">سعد ياسر العلي</div>
+                    </div>
+                    <div class="dev-info-item">
+                        <div class="dev-info-label">رقم الجامعي:</div>
+                        <div class="dev-info-value">443332004</div>
+                    </div>
+                    <div class="dev-info-item">
+                        <div class="dev-info-label">التخصص:</div>
+                        <div class="dev-info-value">هندسة البرمجيات</div>
+                    </div>
+                    <div class="dev-info-item">
+                        <div class="dev-info-label">تاريخ انشاء البرنامج:</div>
+                        <div class="dev-info-value">05/11/2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -184,6 +282,9 @@
                 
                 updateProfileUI(user);
                 initializeInteractions(user);
+                
+                // Initialize developer info modal
+                initDevInfoModal();
                 
                 // Apply language
                 const currentLang = detectPreferredLanguage();
@@ -380,6 +481,29 @@
                             console.error("Error deleting account:", error);
                             showToast('فشل حذف الحساب', 'error');
                         }
+                    }
+                });
+            }
+        }
+        
+        function initDevInfoModal() {
+            const developerInfoBtn = document.getElementById('developerInfoBtn');
+            const devInfoDialog = document.getElementById('devInfoDialog');
+            const closeDevInfoBtn = document.getElementById('closeDevInfoBtn');
+            
+            if (developerInfoBtn && devInfoDialog && closeDevInfoBtn) {
+                developerInfoBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    devInfoDialog.style.display = 'flex';
+                });
+                
+                closeDevInfoBtn.addEventListener('click', function() {
+                    devInfoDialog.style.display = 'none';
+                });
+                
+                devInfoDialog.addEventListener('click', function(e) {
+                    if (e.target === devInfoDialog) {
+                        devInfoDialog.style.display = 'none';
                     }
                 });
             }

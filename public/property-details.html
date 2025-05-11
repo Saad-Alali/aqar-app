@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2563eb">
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -143,6 +143,12 @@
             font-size: 0.875rem;
             color: var(--gray-color);
         }
+        .language-switcher {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 900;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +169,17 @@
                 </a>
             </div>
         </header>
+
+        <div class="language-switcher">
+            <button class="language-switcher__button" id="languageSwitcher">
+                <i class="fas fa-globe"></i>
+                <span class="language-switcher__current">العربية</span>
+            </button>
+            <div class="language-switcher__dropdown" id="languageDropdown" style="display: none;">
+                <a href="#" class="language-switcher__option language-switcher__option--active" data-lang="ar">العربية</a>
+                <a href="#" class="language-switcher__option" data-lang="en">English</a>
+            </div>
+        </div>
 
         <!-- App Content -->
         <div class="app-content property-details-container" id="propertyContent">
@@ -327,6 +344,7 @@
         import { toggleFavorite } from './js/auth-service.js';
         import { isFavorite } from './js/favorites-service.js';
         import { showToast, showLoginModal } from './js/app.js';
+        import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -350,6 +368,15 @@
                     return;
                 }
                 
+                // Initialize language switcher
+                initLanguageSwitcher();
+                
+                // Apply language
+                const currentLang = detectPreferredLanguage ? detectPreferredLanguage() : (localStorage.getItem('aqar_language') || 'ar');
+                if (applyLanguage) {
+                    applyLanguage(currentLang);
+                }
+                
                 // Load property data
                 await loadPropertyData(propertyId, user);
                 
@@ -361,6 +388,93 @@
                 showError('حدث خطأ في تحميل تفاصيل العقار');
             }
         });
+        
+        function initLanguageSwitcher() {
+            const switcherButton = document.getElementById('languageSwitcher');
+            const languageDropdown = document.getElementById('languageDropdown');
+            
+            if (switcherButton && languageDropdown) {
+                switcherButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const isVisible = languageDropdown.style.display === 'block';
+                    languageDropdown.style.display = isVisible ? 'none' : 'block';
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
+                        languageDropdown.style.display = 'none';
+                    }
+                });
+                
+                // Handle language selection
+                const languageOptions = document.querySelectorAll('.language-switcher__option');
+                languageOptions.forEach(option => {
+                    option.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        const lang = this.getAttribute('data-lang');
+                        
+                        // Store selected language
+                        localStorage.setItem('aqar_language', lang);
+                        
+                        // Update UI
+                        languageOptions.forEach(opt => {
+                            opt.classList.remove('language-switcher__option--active');
+                        });
+                        this.classList.add('language-switcher__option--active');
+                        
+                        switcherButton.querySelector('.language-switcher__current').textContent = 
+                            lang === 'ar' ? 'العربية' : 'English';
+                        
+                        languageDropdown.style.display = 'none';
+                        
+                        // Apply language
+                        document.documentElement.lang = lang;
+                        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                        
+                        if (lang === 'ar') {
+                            document.body.style.fontFamily = "'Tajawal', sans-serif";
+                        } else {
+                            document.body.style.fontFamily = "'Poppins', sans-serif";
+                        }
+                        
+                        // Show toast message if function available
+                        if (typeof showToast === 'function') {
+                            showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
+                        }
+                        
+                        // Reload page to apply language changes
+                        location.reload();
+                    });
+                });
+                
+                // Initialize with saved language
+                const savedLang = localStorage.getItem('aqar_language') || 'ar';
+                document.documentElement.lang = savedLang;
+                document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
+                
+                if (savedLang === 'ar') {
+                    document.body.style.fontFamily = "'Tajawal', sans-serif";
+                } else {
+                    document.body.style.fontFamily = "'Poppins', sans-serif";
+                }
+                
+                const currentLangSpan = switcherButton.querySelector('.language-switcher__current');
+                if (currentLangSpan) {
+                    currentLangSpan.textContent = savedLang === 'ar' ? 'العربية' : 'English';
+                }
+                
+                languageOptions.forEach(option => {
+                    const optionLang = option.getAttribute('data-lang');
+                    if (optionLang === savedLang) {
+                        option.classList.add('language-switcher__option--active');
+                    } else {
+                        option.classList.remove('language-switcher__option--active');
+                    }
+                });
+            }
+        }
         
         async function loadPropertyData(propertyId, user) {
             try {
