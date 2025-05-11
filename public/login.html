@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/components.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="module" src="js/language-handler.js"></script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -55,12 +56,6 @@
         }
         .login-footer a:hover {
             text-decoration: underline;
-        }
-        .language-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 900;
         }
     </style>
 </head>
@@ -106,7 +101,6 @@
     <script type="module">
         import { initializeJsonService } from './js/json-service.js';
         import { loginUser } from './js/auth-service.js';
-        import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -171,14 +165,6 @@
                     });
                 }
                 
-                // Initialize language switcher
-                initLanguageSwitcher();
-                
-                // Apply language
-                const currentLang = detectPreferredLanguage ? detectPreferredLanguage() : (localStorage.getItem('aqar_language') || 'ar');
-                if (applyLanguage) {
-                    applyLanguage(currentLang);
-                }
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
                 
@@ -188,88 +174,6 @@
                 }
             }
         });
-        
-        function initLanguageSwitcher() {
-            const switcherButton = document.getElementById('languageSwitcher');
-            const languageDropdown = document.getElementById('languageDropdown');
-            
-            if (switcherButton && languageDropdown) {
-                switcherButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const isVisible = languageDropdown.style.display === 'block';
-                    languageDropdown.style.display = isVisible ? 'none' : 'block';
-                });
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
-                        languageDropdown.style.display = 'none';
-                    }
-                });
-                
-                // Handle language selection
-                const languageOptions = document.querySelectorAll('.language-switcher__option');
-                languageOptions.forEach(option => {
-                    option.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        
-                        const lang = this.getAttribute('data-lang');
-                        
-                        // Store selected language
-                        localStorage.setItem('aqar_language', lang);
-                        
-                        // Update UI
-                        languageOptions.forEach(opt => {
-                            opt.classList.remove('language-switcher__option--active');
-                        });
-                        this.classList.add('language-switcher__option--active');
-                        
-                        switcherButton.querySelector('.language-switcher__current').textContent = 
-                            lang === 'ar' ? 'العربية' : 'English';
-                        
-                        languageDropdown.style.display = 'none';
-                        
-                        // Apply language
-                        document.documentElement.lang = lang;
-                        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-                        
-                        if (lang === 'ar') {
-                            document.body.style.fontFamily = "'Tajawal', sans-serif";
-                        } else {
-                            document.body.style.fontFamily = "'Poppins', sans-serif";
-                        }
-                        
-                        // Reload page to apply language changes
-                        location.reload();
-                    });
-                });
-                
-                // Initialize with saved language
-                const savedLang = localStorage.getItem('aqar_language') || 'ar';
-                document.documentElement.lang = savedLang;
-                document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
-                
-                if (savedLang === 'ar') {
-                    document.body.style.fontFamily = "'Tajawal', sans-serif";
-                } else {
-                    document.body.style.fontFamily = "'Poppins', sans-serif";
-                }
-                
-                const currentLangSpan = switcherButton.querySelector('.language-switcher__current');
-                if (currentLangSpan) {
-                    currentLangSpan.textContent = savedLang === 'ar' ? 'العربية' : 'English';
-                }
-                
-                languageOptions.forEach(option => {
-                    const optionLang = option.getAttribute('data-lang');
-                    if (optionLang === savedLang) {
-                        option.classList.add('language-switcher__option--active');
-                    } else {
-                        option.classList.remove('language-switcher__option--active');
-                    }
-                });
-            }
-        }
         
         function validateEmail(input) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

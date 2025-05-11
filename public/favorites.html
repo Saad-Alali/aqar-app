@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/favorites.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="module" src="js/language-handler.js"></script>
 </head>
 
 <body>
@@ -128,7 +129,6 @@
         import { getCurrentUser } from './js/auth-service.js';
         import { getUserFavorites, removeFromFavorites, clearAllFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
-        import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -142,19 +142,10 @@
                 }
 
                 await loadFavorites(user);
-
-                // Initialize tabs
                 initTabs();
-
-                // Initialize options menu
                 initOptionsMenu(user);
-
-                // Initialize clear all button
                 initClearAllButton(user);
 
-                // Apply language
-                const currentLang = detectPreferredLanguage();
-                applyLanguage(currentLang);
             } catch (error) {
                 console.error("Error initializing favorites page:", error);
                 showToast("حدث خطأ في تهيئة الصفحة", "error");
@@ -196,13 +187,11 @@
                 emptyState.style.display = 'none';
                 if (clearAllBtn) clearAllBtn.style.display = 'inline-block';
 
-                // Create favorite property items
                 favorites.forEach(property => {
                     const favoriteItem = createFavoriteItem(property);
                     favoritesContainer.appendChild(favoriteItem);
                 });
 
-                // Attach event listeners to delete buttons
                 attachDeleteButtons(user.id);
             } catch (error) {
                 console.error("Error loading favorites:", error);
@@ -251,9 +240,7 @@
                 </div>
             `;
 
-            // Add click event to navigate to property details
             itemElement.addEventListener('click', function (e) {
-                // Don't navigate if clicking on an action button
                 if (e.target.closest('.favorite-property__action')) {
                     return;
                 }
@@ -278,10 +265,7 @@
                     if (!propertyId || !propertyItem) return;
 
                     try {
-                        // Remove from favorites in database
                         await removeFromFavorites(userId, propertyId);
-
-                        // Animate removal
                         propertyItem.style.transition = 'all 0.3s ease';
                         propertyItem.style.opacity = '0';
                         propertyItem.style.height = '0';
@@ -290,8 +274,6 @@
 
                         setTimeout(() => {
                             propertyItem.remove();
-
-                            // Check if there are any remaining favorites
                             const remainingProperties = document.querySelectorAll('.favorite-property');
                             if (remainingProperties.length === 0) {
                                 document.getElementById('favoritesWithItems').style.display = 'none';
@@ -363,35 +345,27 @@
 
             if (!optionsBtn || !optionsMenu) return;
 
-            // Toggle menu on button click
             optionsBtn.addEventListener('click', function () {
                 const isVisible = optionsMenu.style.display === 'block';
                 optionsMenu.style.display = isVisible ? 'none' : 'block';
             });
 
-            // Close menu when clicking outside
             document.addEventListener('click', function (e) {
                 if (!optionsBtn.contains(e.target) && !optionsMenu.contains(e.target)) {
                     optionsMenu.style.display = 'none';
                 }
             });
 
-            // Clear all button
             const clearAllBtn = document.getElementById('clearAllBtn');
             if (clearAllBtn) {
                 clearAllBtn.addEventListener('click', async function () {
                     if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
                         try {
                             await clearAllFavorites(user.id);
-
-                            // Update UI
                             document.getElementById('favoritesWithItems').style.display = 'none';
                             document.getElementById('favoritesEmpty').style.display = 'block';
                             document.getElementById('clearAllFavoritesBtn').style.display = 'none';
-
                             showToast('تم حذف جميع المفضلات', 'success');
-
-                            // Close menu
                             optionsMenu.style.display = 'none';
                         } catch (error) {
                             console.error("Error clearing favorites:", error);
@@ -401,7 +375,6 @@
                 });
             }
 
-            // Sort buttons
             const sortByNewestBtn = document.getElementById('sortByNewestBtn');
             const sortByPriceBtn = document.getElementById('sortByPriceBtn');
 
@@ -428,7 +401,6 @@
 
             items.sort((a, b) => {
                 if (sortType === 'price') {
-                    // Extract price from element - remove currency symbol and commas
                     const priceA = a.querySelector('.favorite-property__price').textContent
                         .replace(/[^\d]/g, '');
                     const priceB = b.querySelector('.favorite-property__price').textContent
@@ -436,15 +408,12 @@
 
                     return parseInt(priceA) - parseInt(priceB);
                 } else if (sortType === 'newest') {
-                    // In a real application, we would sort by date
-                    // For this example, we'll just reverse the current order
                     return -1;
                 }
 
                 return 0;
             });
 
-            // Add sorted items back to container
             items.forEach(item => {
                 favoritesContainer.appendChild(item);
             });
@@ -461,12 +430,9 @@
                 if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
                     try {
                         await clearAllFavorites(user.id);
-
-                        // Update UI
                         document.getElementById('favoritesWithItems').style.display = 'none';
                         document.getElementById('favoritesEmpty').style.display = 'block';
                         clearAllBtn.style.display = 'none';
-
                         showToast('تم حذف جميع المفضلات', 'success');
                     } catch (error) {
                         console.error("Error clearing favorites:", error);

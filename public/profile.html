@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/profile.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="module" src="js/language-handler.js"></script>
     <style>
         .dev-info-dialog {
             display: none;
@@ -89,17 +90,6 @@
                 <i class="fas fa-cog" id="settingsBtn"></i>
             </div>
         </header>
-
-<div class="language-switcher">
-    <button class="language-switcher__button" id="languageSwitcher">
-        <i class="fas fa-globe"></i>
-        <span class="language-switcher__current">العربية</span>
-    </button>
-    <div class="language-switcher__dropdown" id="languageDropdown" style="display: none;">
-        <a href="#" class="language-switcher__option language-switcher__option--active" data-lang="ar">العربية</a>
-        <a href="#" class="language-switcher__option" data-lang="en">English</a>
-    </div>
-</div>
 
         <div class="app-content profile-container" id="profileContent">
             <div id="profileAlerts"></div>
@@ -175,6 +165,19 @@
                         <i class="fas fa-chevron-left"></i>
                     </div>
                 </a>
+
+                <div class="profile-menu-item" id="languageSwitcherItem">
+                    <div class="profile-menu-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="profile-menu-text">
+                        <span id="languageLabel">اللغة</span>:
+                        <span id="currentLanguage" style="margin-right: 6px; color: var(--primary-color);">العربية</span>
+                    </div>
+                    <div class="profile-menu-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
 
                 <a href="#" class="profile-menu-item profile-menu-item--danger" id="deleteAccountBtn">
                     <div class="profile-menu-icon profile-menu-icon--danger">
@@ -262,6 +265,27 @@
                 </div>
             </div>
         </div>
+
+        <div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+            <div style="background-color: white; border-radius: 12px; padding: 20px; width: 85%; max-width: 320px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600;" id="selectLanguageTitle">اختر اللغة</h3>
+                    <button id="closeLanguageModal" style="background: none; border: none; color: var(--gray-color); font-size: 1.25rem; cursor: pointer;"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div>
+                    <button id="selectArabic" class="btn btn--block" style="margin-bottom: 10px; text-align: right; padding: 12px; justify-content: space-between; display: flex; align-items: center; border: 1px solid var(--light-gray);">
+                        العربية
+                        <span class="language-check" style="color: var(--primary-color); display: none;"><i class="fas fa-check"></i></span>
+                    </button>
+                    
+                    <button id="selectEnglish" class="btn btn--block" style="text-align: right; padding: 12px; justify-content: space-between; display: flex; align-items: center; border: 1px solid var(--light-gray);">
+                        English
+                        <span class="language-check" style="color: var(--primary-color); display: none;"><i class="fas fa-check"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -269,7 +293,6 @@
         import { getCurrentUser, logoutUser, updateUserAvatar, deleteUserAvatar, deleteUserAccount } from './js/auth-service.js';
         import { clearAllFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
-        import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -284,13 +307,8 @@
 
                 updateProfileUI(user);
                 initializeInteractions(user);
-
-                // Initialize developer info modal
+                initializeLanguageSwitcher();
                 initDevInfoModal();
-
-                // Apply language
-                const currentLang = detectPreferredLanguage();
-                applyLanguage(currentLang);
 
             } catch (error) {
                 console.error("Error initializing profile page:", error);
@@ -322,56 +340,6 @@
         }
 
         function initializeInteractions(user) {
-            // Initialize language switcher
-            const switcherButton = document.getElementById('languageSwitcher');
-            const languageDropdown = document.getElementById('languageDropdown');
-
-            if (switcherButton && languageDropdown) {
-                switcherButton.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const isVisible = languageDropdown.style.display === 'block';
-                    languageDropdown.style.display = isVisible ? 'none' : 'block';
-                });
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
-                        languageDropdown.style.display = 'none';
-                    }
-                });
-
-                // Handle language selection
-                const languageOptions = document.querySelectorAll('.language-switcher__option');
-                languageOptions.forEach(option => {
-                    option.addEventListener('click', function (e) {
-                        e.preventDefault();
-
-                        const lang = this.getAttribute('data-lang');
-
-                        // Store selected language
-                        localStorage.setItem('aqar_language', lang);
-
-                        // Apply language
-                        applyLanguage(lang);
-
-                        // Update UI
-                        languageOptions.forEach(opt => {
-                            opt.classList.remove('language-switcher__option--active');
-                        });
-                        this.classList.add('language-switcher__option--active');
-
-                        switcherButton.querySelector('.language-switcher__current').textContent =
-                            lang === 'ar' ? 'العربية' : 'English';
-
-                        languageDropdown.style.display = 'none';
-
-                        // Show success message
-                        showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
-                    });
-                });
-            }
-
-            // Initialize logout button
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async function (e) {
@@ -389,20 +357,17 @@
                 });
             }
 
-            // Initialize avatar upload
             const avatarUpload = document.getElementById('avatarUpload');
             if (avatarUpload) {
                 avatarUpload.addEventListener('change', async function (e) {
                     const file = e.target.files[0];
                     if (!file) return;
 
-                    // Check if file is an image
                     if (!file.type.match('image.*')) {
                         showToast('الرجاء اختيار صورة صالحة', 'error');
                         return;
                     }
 
-                    // Check file size (max 5MB)
                     if (file.size > 5 * 1024 * 1024) {
                         showToast('حجم الصورة كبير جدًا (الحد الأقصى 5 ميجابايت)', 'error');
                         return;
@@ -410,13 +375,8 @@
 
                     try {
                         showToast('جارٍ رفع الصورة...', 'info');
-
-                        // Upload to Firebase Storage
                         const updatedUser = await updateUserAvatar(user.id, file);
-
-                        // Update UI
                         updateProfileUI(updatedUser);
-
                         showToast('تم تحديث الصورة الشخصية بنجاح', 'success');
                     } catch (error) {
                         console.error("Error uploading avatar:", error);
@@ -425,7 +385,6 @@
                 });
             }
 
-            // Initialize delete avatar button
             const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
             if (deleteAvatarBtn) {
                 deleteAvatarBtn.addEventListener('click', async function (e) {
@@ -434,10 +393,7 @@
                     if (confirm('هل أنت متأكد من حذف الصورة الشخصية؟')) {
                         try {
                             const updatedUser = await deleteUserAvatar(user.id);
-
-                            // Update UI
                             updateProfileUI(updatedUser);
-
                             showToast('تم حذف الصورة الشخصية بنجاح', 'success');
                         } catch (error) {
                             console.error("Error deleting avatar:", error);
@@ -447,7 +403,6 @@
                 });
             }
 
-            // Initialize clear favorites button
             const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
             if (clearFavoritesBtn) {
                 clearFavoritesBtn.addEventListener('click', async function (e) {
@@ -465,7 +420,6 @@
                 });
             }
 
-            // Initialize delete account button
             const deleteAccountBtn = document.getElementById('deleteAccountBtn');
             if (deleteAccountBtn) {
                 deleteAccountBtn.addEventListener('click', async function (e) {
@@ -510,66 +464,86 @@
                 });
             }
         }
-function initLanguageSwitcher() {
-    const switcherButton = document.getElementById('languageSwitcher');
-    const languageDropdown = document.getElementById('languageDropdown');
-    
-    if (switcherButton && languageDropdown) {
-        switcherButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const isVisible = languageDropdown.style.display === 'block';
-            languageDropdown.style.display = isVisible ? 'none' : 'block';
-        });
         
-        document.addEventListener('click', function(e) {
-            if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
-                languageDropdown.style.display = 'none';
-            }
-        });
-        
-        const languageOptions = document.querySelectorAll('.language-switcher__option');
-        languageOptions.forEach(option => {
-            option.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const lang = this.getAttribute('data-lang');
-                localStorage.setItem('aqar_language', lang);
-                
-                languageOptions.forEach(opt => {
-                    opt.classList.remove('language-switcher__option--active');
-                });
-                this.classList.add('language-switcher__option--active');
-                
-                switcherButton.querySelector('.language-switcher__current').textContent = 
-                    lang === 'ar' ? 'العربية' : 'English';
-                
-                languageDropdown.style.display = 'none';
-                
-                applyLanguage(lang);
-                showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
-                
-                location.reload();
+        function initializeLanguageSwitcher() {
+            const languageSwitcherItem = document.getElementById('languageSwitcherItem');
+            const languageModal = document.getElementById('languageModal');
+            const closeLanguageModal = document.getElementById('closeLanguageModal');
+            const selectArabic = document.getElementById('selectArabic');
+            const selectEnglish = document.getElementById('selectEnglish');
+            const currentLanguage = document.getElementById('currentLanguage');
+            const languageLabel = document.getElementById('languageLabel');
+            const selectLanguageTitle = document.getElementById('selectLanguageTitle');
+            
+            const savedLang = localStorage.getItem('aqar_language') || 'ar';
+            
+            updateLanguageUI(savedLang);
+            
+            languageSwitcherItem.addEventListener('click', function() {
+                languageModal.style.display = 'flex';
             });
-        });
-        
-        const savedLang = localStorage.getItem('aqar_language') || 'ar';
-        const currentLangSpan = switcherButton.querySelector('.language-switcher__current');
-        if (currentLangSpan) {
-            currentLangSpan.textContent = savedLang === 'ar' ? 'العربية' : 'English';
-        }
-        
-        languageOptions.forEach(option => {
-            const optionLang = option.getAttribute('data-lang');
-            if (optionLang === savedLang) {
-                option.classList.add('language-switcher__option--active');
-            } else {
-                option.classList.remove('language-switcher__option--active');
+            
+            closeLanguageModal.addEventListener('click', function() {
+                languageModal.style.display = 'none';
+            });
+            
+            languageModal.addEventListener('click', function(e) {
+                if (e.target === languageModal) {
+                    languageModal.style.display = 'none';
+                }
+            });
+            
+            selectArabic.addEventListener('click', function() {
+                updateLanguage('ar');
+            });
+            
+            selectEnglish.addEventListener('click', function() {
+                updateLanguage('en');
+            });
+            
+            function updateLanguageUI(lang) {
+                const arabicCheck = selectArabic.querySelector('.language-check');
+                const englishCheck = selectEnglish.querySelector('.language-check');
+                
+                if (lang === 'ar') {
+                    arabicCheck.style.display = 'block';
+                    englishCheck.style.display = 'none';
+                    currentLanguage.textContent = 'العربية';
+                    languageLabel.textContent = 'اللغة';
+                    selectLanguageTitle.textContent = 'اختر اللغة';
+                } else {
+                    arabicCheck.style.display = 'none';
+                    englishCheck.style.display = 'block';
+                    currentLanguage.textContent = 'English';
+                    languageLabel.textContent = 'Language';
+                    selectLanguageTitle.textContent = 'Select Language';
+                }
             }
-        });
-    }
-}
-
-        
+            
+            function updateLanguage(lang) {
+                localStorage.setItem('aqar_language', lang);
+                updateLanguageUI(lang);
+                languageModal.style.display = 'none';
+                
+                if (typeof showToast === 'function') {
+                    const message = lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English';
+                    showToast(message, 'success');
+                }
+                
+                document.documentElement.lang = lang;
+                document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                
+                if (lang === 'ar') {
+                    document.body.style.fontFamily = "'Tajawal', sans-serif";
+                } else {
+                    document.body.style.fontFamily = "'Poppins', sans-serif";
+                }
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 300);
+            }
+        }
     </script>
 </body>
 

@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/components.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="module" src="js/language-handler.js"></script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -32,12 +33,6 @@
             filter: blur(5px);
             pointer-events: none;
             user-select: none;
-        }
-        .language-switcher {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 900;
         }
     </style>
 </head>
@@ -126,7 +121,6 @@
         import { initializeJsonService } from './js/json-service.js';
         import { getCurrentUser, updateUserProfile } from './js/auth-service.js';
         import { showToast } from './js/app.js';
-        import { detectPreferredLanguage, applyLanguage } from './js/language-switcher.js';
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -139,108 +133,14 @@
                     return;
                 }
                 
-                // Populate form with user data
                 populateForm(user);
-                
-                // Initialize form submission
                 initializeForm(user);
-                
-                // Initialize language switcher
-                initLanguageSwitcher();
-                
-                // Apply language
-                const currentLang = detectPreferredLanguage ? detectPreferredLanguage() : (localStorage.getItem('aqar_language') || 'ar');
-                if (applyLanguage) {
-                    applyLanguage(currentLang);
-                }
                 
             } catch (error) {
                 console.error("Error initializing edit profile page:", error);
                 showToast("حدث خطأ في تهيئة الصفحة", "error");
             }
         });
-        
-        function initLanguageSwitcher() {
-            const switcherButton = document.getElementById('languageSwitcher');
-            const languageDropdown = document.getElementById('languageDropdown');
-            
-            if (switcherButton && languageDropdown) {
-                switcherButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const isVisible = languageDropdown.style.display === 'block';
-                    languageDropdown.style.display = isVisible ? 'none' : 'block';
-                });
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
-                        languageDropdown.style.display = 'none';
-                    }
-                });
-                
-                // Handle language selection
-                const languageOptions = document.querySelectorAll('.language-switcher__option');
-                languageOptions.forEach(option => {
-                    option.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        
-                        const lang = this.getAttribute('data-lang');
-                        
-                        // Store selected language
-                        localStorage.setItem('aqar_language', lang);
-                        
-                        // Update UI
-                        languageOptions.forEach(opt => {
-                            opt.classList.remove('language-switcher__option--active');
-                        });
-                        this.classList.add('language-switcher__option--active');
-                        
-                        switcherButton.querySelector('.language-switcher__current').textContent = 
-                            lang === 'ar' ? 'العربية' : 'English';
-                        
-                        languageDropdown.style.display = 'none';
-                        
-                        // Apply language
-                        document.documentElement.lang = lang;
-                        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-                        
-                        if (lang === 'ar') {
-                            document.body.style.fontFamily = "'Tajawal', sans-serif";
-                        } else {
-                            document.body.style.fontFamily = "'Poppins', sans-serif";
-                        }
-                        
-                        // Reload page to apply language changes
-                        location.reload();
-                    });
-                });
-                
-                // Initialize with saved language
-                const savedLang = localStorage.getItem('aqar_language') || 'ar';
-                document.documentElement.lang = savedLang;
-                document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
-                
-                if (savedLang === 'ar') {
-                    document.body.style.fontFamily = "'Tajawal', sans-serif";
-                } else {
-                    document.body.style.fontFamily = "'Poppins', sans-serif";
-                }
-                
-                const currentLangSpan = switcherButton.querySelector('.language-switcher__current');
-                if (currentLangSpan) {
-                    currentLangSpan.textContent = savedLang === 'ar' ? 'العربية' : 'English';
-                }
-                
-                languageOptions.forEach(option => {
-                    const optionLang = option.getAttribute('data-lang');
-                    if (optionLang === savedLang) {
-                        option.classList.add('language-switcher__option--active');
-                    } else {
-                        option.classList.remove('language-switcher__option--active');
-                    }
-                });
-            }
-        }
         
         function showAuthOverlay() {
             const authOverlay = document.getElementById('authOverlay');
@@ -275,7 +175,6 @@
             const phoneInput = document.getElementById('phone');
             const addressInput = document.getElementById('address');
             
-            // Add validation on blur
             fullNameInput.addEventListener('blur', function() {
                 validateFullName(this);
             });
@@ -284,11 +183,9 @@
                 validatePhone(this);
             });
             
-            // Handle form submission
             editProfileForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Validate fields
                 const isFullNameValid = validateFullName(fullNameInput);
                 const isPhoneValid = validatePhone(phoneInput);
                 
@@ -297,12 +194,10 @@
                 }
                 
                 try {
-                    // Show loading state
                     const saveBtn = document.getElementById('saveBtn');
                     saveBtn.textContent = 'جارٍ الحفظ...';
                     saveBtn.disabled = true;
                     
-                    // Update user profile
                     const updatedUser = await updateUserProfile(user.id, {
                         fullName: fullNameInput.value,
                         phone: phoneInput.value,
@@ -311,26 +206,21 @@
                         favorites: user.favorites
                     });
                     
-                    // Show success message
                     const alertsContainer = document.getElementById('formAlerts');
                     alertsContainer.innerHTML = '<div class="alert alert--success">تم تحديث الملف الشخصي بنجاح!</div>';
                     
-                    // Reset button state
                     saveBtn.textContent = 'حفظ التغييرات';
                     saveBtn.disabled = false;
                     
-                    // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = 'profile.html';
                     }, 1500);
                 } catch (error) {
                     console.error("Error updating profile:", error);
                     
-                    // Show error message
                     const alertsContainer = document.getElementById('formAlerts');
                     alertsContainer.innerHTML = '<div class="alert alert--danger">فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.</div>';
                     
-                    // Reset button state
                     const saveBtn = document.getElementById('saveBtn');
                     saveBtn.textContent = 'حفظ التغييرات';
                     saveBtn.disabled = false;
@@ -346,7 +236,6 @@
         
         function validatePhone(input) {
             if (input.value.trim() === '') {
-                // Phone is optional
                 toggleError(input, true, 'phoneError');
                 return true;
             }
