@@ -18,6 +18,7 @@ function applyLanguage(lang) {
     }
     
     updatePageTitle(lang);
+    translateElements(lang);
 }
 
 function updatePageTitle(lang) {
@@ -25,25 +26,109 @@ function updatePageTitle(lang) {
     const pageName = pagePath.split('/').pop() || 'index.html';
     const appName = lang === 'ar' ? 'عقار' : 'Aqar';
     
-    let pageTitle = '';
+    const titles = {
+        ar: {
+            'login.html': 'تسجيل الدخول',
+            'register.html': 'إنشاء حساب',
+            'profile.html': 'حسابي',
+            'edit-profile.html': 'تعديل الملف الشخصي',
+            'favorites.html': 'المفضلة',
+            'search.html': 'بحث',
+            'property-details.html': 'تفاصيل العقار',
+            'index.html': 'الرئيسية'
+        },
+        en: {
+            'login.html': 'Login',
+            'register.html': 'Register',
+            'profile.html': 'My Profile',
+            'edit-profile.html': 'Edit Profile',
+            'favorites.html': 'Favorites',
+            'search.html': 'Search',
+            'property-details.html': 'Property Details',
+            'index.html': 'Home'
+        }
+    };
     
-    if (pageName.includes('login')) {
-        pageTitle = lang === 'ar' ? 'تسجيل الدخول' : 'Login';
-    } else if (pageName.includes('register')) {
-        pageTitle = lang === 'ar' ? 'إنشاء حساب' : 'Register';
-    } else if (pageName.includes('profile')) {
-        pageTitle = lang === 'ar' ? 'حسابي' : 'My Profile';
-    } else if (pageName.includes('edit-profile')) {
-        pageTitle = lang === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile';
-    } else if (pageName.includes('favorites')) {
-        pageTitle = lang === 'ar' ? 'المفضلة' : 'Favorites';
-    } else if (pageName.includes('search')) {
-        pageTitle = lang === 'ar' ? 'بحث' : 'Search';
-    } else if (pageName.includes('property-details')) {
-        pageTitle = lang === 'ar' ? 'تفاصيل العقار' : 'Property Details';
+    if (titles[lang] && titles[lang][pageName]) {
+        document.title = `${titles[lang][pageName]} - ${appName}`;
     }
+}
+
+function translateElements(lang) {
+    const translations = {
+        ar: {
+            'appTitle': 'عقار',
+            'homePage': 'الرئيسية',
+            'searchPage': 'بحث',
+            'favoritesPage': 'المفضلة',
+            'profilePage': 'حسابي',
+            'loginRequired': 'تسجيل الدخول مطلوب',
+            'loginRequiredDesc': 'يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى هذه الميزة',
+            'login': 'تسجيل الدخول',
+            'createAccount': 'إنشاء حساب جديد',
+            'personalInfo': 'المعلومات الشخصية',
+            'favorites': 'المفضلة',
+            'clearFavorites': 'حذف جميع المفضلات',
+            'developerInfo': 'معلومات المطور',
+            'language': 'اللغة',
+            'deleteAccount': 'حذف الحساب',
+            'logout': 'تسجيل الخروج',
+            'appVersion': 'نسخة التطبيق: 1.0.0',
+            'copyright': '© 2025 عقار - جميع الحقوق محفوظة',
+            'forSale': 'للبيع',
+            'forRent': 'للإيجار',
+            'apartments': 'شقق',
+            'villas': 'فلل',
+            'houses': 'منازل',
+            'commercial': 'مباني تجارية',
+            'all': 'الكل',
+            'noFavorites': 'لا توجد عقارات في المفضلة',
+            'noFavoritesDesc': 'قم بإضافة العقارات التي تعجبك إلى المفضلة للوصول إليها لاحقًا بسهولة',
+            'browseProperties': 'استعرض العقارات',
+            'deleteAllFavorites': 'حذف جميع المفضلات',
+            'sortByNewest': 'ترتيب حسب الأحدث',
+            'sortByPrice': 'ترتيب حسب السعر'
+        },
+        en: {
+            'appTitle': 'Aqar',
+            'homePage': 'Home',
+            'searchPage': 'Search',
+            'favoritesPage': 'Favorites',
+            'profilePage': 'My Profile',
+            'loginRequired': 'Login Required',
+            'loginRequiredDesc': 'You must log in or create an account to access this feature',
+            'login': 'Login',
+            'createAccount': 'Create Account',
+            'personalInfo': 'Personal Information',
+            'favorites': 'Favorites',
+            'clearFavorites': 'Clear All Favorites',
+            'developerInfo': 'Developer Info',
+            'language': 'Language',
+            'deleteAccount': 'Delete Account',
+            'logout': 'Logout',
+            'appVersion': 'App Version: 1.0.0',
+            'copyright': '© 2025 Aqar - All Rights Reserved',
+            'forSale': 'For Sale',
+            'forRent': 'For Rent',
+            'apartments': 'Apartments',
+            'villas': 'Villas',
+            'houses': 'Houses',
+            'commercial': 'Commercial',
+            'all': 'All',
+            'noFavorites': 'No Favorites Found',
+            'noFavoritesDesc': 'Add properties to your favorites for easy access later',
+            'browseProperties': 'Browse Properties',
+            'deleteAllFavorites': 'Delete All Favorites',
+            'sortByNewest': 'Sort by Newest',
+            'sortByPrice': 'Sort by Price'
+        }
+    };
     
-    if (pageTitle) {
-        document.title = `${pageTitle} - ${appName}`;
-    }
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
 }

@@ -102,17 +102,6 @@
                     <div>
                         <h2 class="profile__title" id="profileName">جاري التحميل...</h2>
                         <p class="profile__email" id="profileEmail"></p>
-
-                        <div class="profile__upload">
-                            <input type="file" id="avatarUpload" class="profile__upload-input" accept="image/*">
-                            <label for="avatarUpload" class="profile__upload-label">
-                                <i class="fas fa-camera"></i> تغيير الصورة
-                            </label>
-                        </div>
-
-                        <button id="deleteAvatarBtn" class="profile__upload-label" style="margin-right: 8px;">
-                            <i class="fas fa-trash"></i> حذف الصورة
-                        </button>
                     </div>
                 </div>
             </div>
@@ -290,7 +279,7 @@
 
     <script type="module">
         import { initializeJsonService } from './js/json-service.js';
-        import { getCurrentUser, logoutUser, updateUserAvatar, deleteUserAvatar, deleteUserAccount } from './js/auth-service.js';
+        import { getCurrentUser, logoutUser, deleteUserAccount } from './js/auth-service.js';
         import { clearAllFavorites } from './js/favorites-service.js';
         import { showToast } from './js/app.js';
 
@@ -352,52 +341,6 @@
                         } catch (error) {
                             console.error("Error logging out:", error);
                             showToast("حدث خطأ في تسجيل الخروج", "error");
-                        }
-                    }
-                });
-            }
-
-            const avatarUpload = document.getElementById('avatarUpload');
-            if (avatarUpload) {
-                avatarUpload.addEventListener('change', async function (e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    if (!file.type.match('image.*')) {
-                        showToast('الرجاء اختيار صورة صالحة', 'error');
-                        return;
-                    }
-
-                    if (file.size > 5 * 1024 * 1024) {
-                        showToast('حجم الصورة كبير جدًا (الحد الأقصى 5 ميجابايت)', 'error');
-                        return;
-                    }
-
-                    try {
-                        showToast('جارٍ رفع الصورة...', 'info');
-                        const updatedUser = await updateUserAvatar(user.id, file);
-                        updateProfileUI(updatedUser);
-                        showToast('تم تحديث الصورة الشخصية بنجاح', 'success');
-                    } catch (error) {
-                        console.error("Error uploading avatar:", error);
-                        showToast('فشل تحديث الصورة الشخصية', 'error');
-                    }
-                });
-            }
-
-            const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
-            if (deleteAvatarBtn) {
-                deleteAvatarBtn.addEventListener('click', async function (e) {
-                    e.preventDefault();
-
-                    if (confirm('هل أنت متأكد من حذف الصورة الشخصية؟')) {
-                        try {
-                            const updatedUser = await deleteUserAvatar(user.id);
-                            updateProfileUI(updatedUser);
-                            showToast('تم حذف الصورة الشخصية بنجاح', 'success');
-                        } catch (error) {
-                            console.error("Error deleting avatar:", error);
-                            showToast('فشل حذف الصورة الشخصية', 'error');
                         }
                     }
                 });
@@ -538,6 +481,55 @@
                 } else {
                     document.body.style.fontFamily = "'Poppins', sans-serif";
                 }
+                
+                const translations = {
+                    ar: {
+                        "appTitle": "حسابي",
+                        "personalInfo": "المعلومات الشخصية",
+                        "favorites": "المفضلة",
+                        "logout": "تسجيل الخروج",
+                        "deleteAccount": "حذف الحساب",
+                        "clearFavorites": "حذف جميع المفضلات",
+                        "developerInfo": "معلومات المطور",
+                        "appVersion": "نسخة التطبيق: 1.0.0",
+                        "copyright": "© 2025 عقار - جميع الحقوق محفوظة",
+                        "tabBar.home": "الرئيسية",
+                        "tabBar.search": "بحث",
+                        "tabBar.favorites": "المفضلة",
+                        "tabBar.profile": "حسابي",
+                        "loginRequired": "تسجيل الدخول مطلوب",
+                        "loginToViewProfile": "يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى صفحة الملف الشخصي",
+                        "login": "تسجيل الدخول",
+                        "createAccount": "إنشاء حساب جديد"
+                    },
+                    en: {
+                        "appTitle": "My Profile",
+                        "personalInfo": "Personal Information",
+                        "favorites": "Favorites",
+                        "logout": "Logout",
+                        "deleteAccount": "Delete Account",
+                        "clearFavorites": "Clear All Favorites",
+                        "developerInfo": "Developer Info",
+                        "appVersion": "App Version: 1.0.0",
+                        "copyright": "© 2025 Aqar - All Rights Reserved",
+                        "tabBar.home": "Home",
+                        "tabBar.search": "Search",
+                        "tabBar.favorites": "Favorites",
+                        "tabBar.profile": "Profile",
+                        "loginRequired": "Login Required",
+                        "loginToViewProfile": "You must login or create an account to access the profile page",
+                        "login": "Login",
+                        "createAccount": "Create Account"
+                    }
+                };
+                
+                const currentTranslations = translations[lang];
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (currentTranslations[key]) {
+                        element.textContent = currentTranslations[key];
+                    }
+                });
                 
                 setTimeout(() => {
                     location.reload();

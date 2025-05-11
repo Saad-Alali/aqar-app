@@ -24,20 +24,17 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Search Header -->
         <div class="search-header">
             <div class="search-input-container">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن عقار، منطقة، أو حي...">
-                    <!-- Voice search removed -->
                 </div>
                 <div class="filter-button" id="filterButton">
                     <i class="fas fa-sliders-h"></i>
                 </div>
             </div>
             
-            <!-- Filter Chips -->
             <div class="search-filter-chips">
                 <div class="search-filter-chip search-filter-chip--active" data-filter="all">الكل</div>
                 <div class="search-filter-chip" data-filter="للبيع">للبيع</div>
@@ -50,11 +47,8 @@
             </div>
         </div>
         
-        <!-- Main Content -->
         <div class="app-content search-container">
-            <!-- Initial View (Recent Searches and Suggestions) -->
             <div id="initialSearchView">
-                <!-- Recent Searches Section -->
                 <div class="recent-searches" id="recentSearches">
                     <div class="section-header">
                         <h3 class="section-title">عمليات البحث الأخيرة</h3>
@@ -83,14 +77,12 @@
                     </div>
                 </div>
                 
-                <!-- Property Suggestions -->
                 <div class="property-suggestions">
                     <div class="section-header">
                         <h3 class="section-title">اقتراحات عقارية</h3>
                         <a href="#" class="section-action">عرض الكل</a>
                     </div>
                     
-                    <!-- Property Card -->
                     <div class="property-card">
                         <div class="property-card__image">
                             <img src="img/placeholder.jpg" class="property-card__img" alt="فيلا فاخرة">
@@ -123,7 +115,6 @@
                         </div>
                     </div>
                     
-                    <!-- Property Card -->
                     <div class="property-card">
                         <div class="property-card__image">
                             <img src="img/placeholder.jpg" class="property-card__img" alt="شقة حديثة">
@@ -158,7 +149,6 @@
                 </div>
             </div>
             
-            <!-- Search Results View (hidden initially) -->
             <div id="searchResultsView" class="search-results">
                 <div class="results-header">
                     <div class="results-count" id="resultsCount">24 عقار</div>
@@ -169,17 +159,14 @@
                 </div>
                 
                 <div id="resultsContainer">
-                    <!-- Results will be dynamically added here -->
                 </div>
             </div>
             
-            <!-- Loading Indicator -->
             <div class="search-loading" id="searchLoading">
                 <div class="loading-spinner"></div>
                 <div>جاري البحث...</div>
             </div>
             
-            <!-- No Results State -->
             <div class="no-results" id="noResults">
                 <div class="no-results-icon">
                     <i class="fas fa-search"></i>
@@ -192,10 +179,8 @@
             </div>
         </div>
         
-        <!-- Filters Overlay -->
         <div class="search-filters-overlay" id="filtersOverlay"></div>
         
-        <!-- Filters Panel -->
         <div class="search-filters-panel" id="filtersPanel">
             <div class="filters-header">
                 <button class="filters-close" id="closeFiltersBtn">
@@ -206,7 +191,6 @@
             </div>
             
             <div class="filters-content">
-                <!-- Property Type Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">نوع العقار</h3>
                     <div class="filter-options">
@@ -219,7 +203,6 @@
                     </div>
                 </div>
                 
-                <!-- Transaction Type Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">نوع المعاملة</h3>
                     <div class="filter-options" style="grid-template-columns: repeat(2, 1fr);">
@@ -228,7 +211,6 @@
                     </div>
                 </div>
                 
-                <!-- Price Range Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">نطاق السعر</h3>
                     <div class="filter-range-slider">
@@ -242,7 +224,6 @@
                     </div>
                 </div>
                 
-                <!-- Bedrooms Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">غرف النوم</h3>
                     <div class="filter-options">
@@ -255,7 +236,6 @@
                     </div>
                 </div>
                 
-                <!-- Bathrooms Filter -->
                 <div class="filter-section">
                     <h3 class="filter-section__title">الحمامات</h3>
                     <div class="filter-options">
@@ -267,43 +247,6 @@
                         <div class="filter-option" data-filter="5+">5+</div>
                     </div>
                 </div>
-                
-                <!-- Area Filter -->
-                <div class="filter-section">
-                    <h3 class="filter-section__title">المساحة</h3>
-                    <div class="filter-options">
-                        <div class="filter-option filter-option--selected" data-filter="all">الكل</div>
-                        <div class="filter-option" data-filter="<1000"><1000</div>
-                        <div class="filter-option" data-filter="1000-2000">1000-2000</div>
-                        <div class="filter-option" data-filter="2000-3000">2000-3000</div>
-                        <div class="filter-option" data-filter="3000-4000">3000-4000</div>
-                        <div class="filter-option" data-filter=">4000">أكثر من 4000</div>
-                    </div>
-                </div>
-                
-                <!-- Amenities Filter -->
-                <div class="filter-section">
-                    <h3 class="filter-section__title">المميزات</h3>
-                    <div class="filter-options">
-                        <div class="filter-option" data-filter="pool">حمام سباحة</div>
-                        <div class="filter-option" data-filter="garage">مواقف سيارات</div>
-                        <div class="filter-option" data-filter="garden">حديقة</div>
-                        <div class="filter-option" data-filter="elevator">مصعد</div>
-                        <div class="filter-option" data-filter="ac">تكييف</div>
-                        <div class="filter-option" data-filter="security">أمن</div>
-                    </div>
-                </div>
-                
-                <!-- Keywords Filter -->
-                <div class="filter-section">
-                    <h3 class="filter-section__title">كلمات مفتاحية</h3>
-                    <input type="text" class="search-input" placeholder="أضف كلمات مفتاحية للبحث..." style="margin-bottom: 10px;">
-                    <div class="filter-options">
-                        <div class="filter-option" data-filter="modern">حديث</div>
-                        <div class="filter-option" data-filter="renovated">مجدد</div>
-                        <div class="filter-option" data-filter="furnished">مفروش</div>
-                    </div>
-                </div>
             </div>
             
             <div class="filters-footer">
@@ -311,7 +254,6 @@
             </div>
         </div>
         
-        <!-- Updated Tab Bar -->
         <div class="tab-bar">
             <a href="index.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
@@ -659,28 +601,32 @@
                             area: 1200
                         },
                         imageUrl: "img/placeholder.jpg"
-                    },
-                    {
-                        id: 'prop3',
-                        title: "منزل عائلي",
-                        location: "الضواحي",
-                        price: 580000,
-                        priceFormatted: "$580,000",
-                        propertyType: "house",
-                        transactionType: "للبيع",
-                        features: {
-                            bedrooms: 4,
-                            bathrooms: 3,
-                            area: 2400
-                        },
-                        imageUrl: "img/placeholder.jpg"
                     }
                 ]);
             }, 1000);
         }
         
         function collectFiltersFromUI() {
-            // For now, we'll just use default values
+            const propertyTypeOptions = document.querySelectorAll('.filter-section:nth-child(1) .filter-option--selected');
+            const transactionTypeOptions = document.querySelectorAll('.filter-section:nth-child(2) .filter-option--selected');
+            const bedroomsOptions = document.querySelectorAll('.filter-section:nth-child(4) .filter-option--selected');
+            const bathroomsOptions = document.querySelectorAll('.filter-section:nth-child(5) .filter-option--selected');
+            
+            if (propertyTypeOptions.length > 0) {
+                searchState.filters.type = propertyTypeOptions[0].dataset.filter;
+            }
+            
+            if (transactionTypeOptions.length > 0) {
+                searchState.filters.transaction = transactionTypeOptions[0].dataset.filter;
+            }
+            
+            if (bedroomsOptions.length > 0) {
+                searchState.filters.bedrooms = bedroomsOptions[0].dataset.filter;
+            }
+            
+            if (bathroomsOptions.length > 0) {
+                searchState.filters.bathrooms = bathroomsOptions[0].dataset.filter;
+            }
         }
         
         async function performSearch(query) {
