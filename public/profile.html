@@ -85,7 +85,7 @@
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
-            <h1 class="app-title" data-i18n="appTitle">حسابي</h1>
+            <h1 class="app-title" data-i18n="profile">حسابي</h1>
             <div class="app-header-action">
                 <i class="fas fa-cog" id="settingsBtn"></i>
             </div>
@@ -135,7 +135,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-trash"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="clearFavorites">
                         حذف جميع المفضلات
                     </div>
                     <div class="profile-menu-arrow">
@@ -147,7 +147,7 @@
                     <div class="profile-menu-icon">
                         <i class="fas fa-code"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="developerInfo">
                         معلومات المطور
                     </div>
                     <div class="profile-menu-arrow">
@@ -160,7 +160,7 @@
                         <i class="fas fa-globe"></i>
                     </div>
                     <div class="profile-menu-text">
-                        <span id="languageLabel">اللغة</span>:
+                        <span id="languageLabel" data-i18n="language">اللغة</span>:
                         <span id="currentLanguage" style="margin-right: 6px; color: var(--primary-color);">العربية</span>
                     </div>
                     <div class="profile-menu-arrow">
@@ -172,7 +172,7 @@
                     <div class="profile-menu-icon profile-menu-icon--danger">
                         <i class="fas fa-user-slash"></i>
                     </div>
-                    <div class="profile-menu-text">
+                    <div class="profile-menu-text" data-i18n="deleteAccount">
                         حذف الحساب
                     </div>
                 </a>
@@ -196,19 +196,19 @@
         <div class="tab-bar">
             <a href="index.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-home"></i></div>
-                <div class="tab-bar__label" data-i18n="tabBar.home">الرئيسية</div>
+                <div class="tab-bar__label" data-i18n="home">الرئيسية</div>
             </a>
             <a href="search.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-search"></i></div>
-                <div class="tab-bar__label" data-i18n="tabBar.search">بحث</div>
+                <div class="tab-bar__label" data-i18n="search">بحث</div>
             </a>
             <a href="favorites.html" class="tab-bar__item">
                 <div class="tab-bar__icon"><i class="fas fa-heart"></i></div>
-                <div class="tab-bar__label" data-i18n="tabBar.favorites">المفضلة</div>
+                <div class="tab-bar__label" data-i18n="favorites">المفضلة</div>
             </a>
             <a href="profile.html" class="tab-bar__item tab-bar__item--active">
                 <div class="tab-bar__icon"><i class="fas fa-user"></i></div>
-                <div class="tab-bar__label" data-i18n="tabBar.profile">حسابي</div>
+                <div class="tab-bar__label" data-i18n="profile">حسابي</div>
             </a>
         </div>
 
@@ -229,26 +229,26 @@
         <div class="dev-info-dialog" id="devInfoDialog">
             <div class="dev-info-content">
                 <div class="dev-info-header">
-                    <div class="dev-info-title">معلومات المطور</div>
+                    <div class="dev-info-title" data-i18n="developerInfo">معلومات المطور</div>
                     <button class="dev-info-close" id="closeDevInfoBtn">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 <div class="dev-info-body">
                     <div class="dev-info-item">
-                        <div class="dev-info-label">الاسم:</div>
+                        <div class="dev-info-label" data-i18n="name">الاسم:</div>
                         <div class="dev-info-value">سعد ياسر العلي</div>
                     </div>
                     <div class="dev-info-item">
-                        <div class="dev-info-label">رقم الجامعي:</div>
+                        <div class="dev-info-label" data-i18n="universityId">رقم الجامعي:</div>
                         <div class="dev-info-value">443332004</div>
                     </div>
                     <div class="dev-info-item">
-                        <div class="dev-info-label">التخصص:</div>
-                        <div class="dev-info-value">هندسة البرمجيات</div>
+                        <div class="dev-info-label" data-i18n="major">التخصص:</div>
+                        <div class="dev-info-value" data-i18n="softwareEngineering">هندسة البرمجيات</div>
                     </div>
                     <div class="dev-info-item">
-                        <div class="dev-info-label">تاريخ انشاء البرنامج:</div>
+                        <div class="dev-info-label" data-i18n="creationDate">تاريخ انشاء البرنامج:</div>
                         <div class="dev-info-value">05/11/2025</div>
                     </div>
                 </div>
@@ -258,7 +258,7 @@
         <div id="languageModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
             <div style="background-color: white; border-radius: 12px; padding: 20px; width: 85%; max-width: 320px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600;" id="selectLanguageTitle">اختر اللغة</h3>
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 600;" id="selectLanguageTitle" data-i18n="selectLanguage">اختر اللغة</h3>
                     <button id="closeLanguageModal" style="background: none; border: none; color: var(--gray-color); font-size: 1.25rem; cursor: pointer;"><i class="fas fa-times"></i></button>
                 </div>
                 
@@ -334,13 +334,22 @@
                 logoutBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
 
-                    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                    const confirmMessage = document.documentElement.lang === 'ar' ? 
+                        'هل أنت متأكد من تسجيل الخروج؟' : 
+                        'Are you sure you want to log out?';
+
+                    if (confirm(confirmMessage)) {
                         try {
                             await logoutUser();
                             window.location.href = 'login.html';
                         } catch (error) {
                             console.error("Error logging out:", error);
-                            showToast("حدث خطأ في تسجيل الخروج", "error");
+                            
+                            const errorMessage = document.documentElement.lang === 'ar' ? 
+                                'حدث خطأ في تسجيل الخروج' : 
+                                'Error logging out';
+                            
+                            showToast(errorMessage, "error");
                         }
                     }
                 });
@@ -351,13 +360,27 @@
                 clearFavoritesBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
 
-                    if (confirm('هل أنت متأكد من حذف جميع المفضلات؟')) {
+                    const confirmMessage = document.documentElement.lang === 'ar' ? 
+                        'هل أنت متأكد من حذف جميع المفضلات؟' : 
+                        'Are you sure you want to delete all favorites?';
+
+                    if (confirm(confirmMessage)) {
                         try {
                             await clearAllFavorites(user.id);
-                            showToast('تم حذف جميع المفضلات بنجاح', 'success');
+                            
+                            const successMessage = document.documentElement.lang === 'ar' ? 
+                                'تم حذف جميع المفضلات بنجاح' : 
+                                'All favorites have been deleted successfully';
+                            
+                            showToast(successMessage, 'success');
                         } catch (error) {
                             console.error("Error clearing favorites:", error);
-                            showToast('فشل حذف المفضلات', 'error');
+                            
+                            const errorMessage = document.documentElement.lang === 'ar' ? 
+                                'فشل حذف المفضلات' : 
+                                'Failed to delete favorites';
+                            
+                            showToast(errorMessage, 'error');
                         }
                     }
                 });
@@ -368,17 +391,31 @@
                 deleteAccountBtn.addEventListener('click', async function (e) {
                     e.preventDefault();
 
-                    if (confirm('هل أنت متأكد من حذف الحساب؟ لا يمكن التراجع عن هذه العملية.')) {
+                    const confirmMessage = document.documentElement.lang === 'ar' ? 
+                        'هل أنت متأكد من حذف الحساب؟ لا يمكن التراجع عن هذه العملية.' : 
+                        'Are you sure you want to delete your account? This action cannot be undone.';
+
+                    if (confirm(confirmMessage)) {
                         try {
                             await deleteUserAccount(user.id);
-                            showToast('تم حذف الحساب بنجاح', 'success');
+                            
+                            const successMessage = document.documentElement.lang === 'ar' ? 
+                                'تم حذف الحساب بنجاح' : 
+                                'Account deleted successfully';
+                            
+                            showToast(successMessage, 'success');
 
                             setTimeout(() => {
                                 window.location.href = 'index.html';
                             }, 1500);
                         } catch (error) {
                             console.error("Error deleting account:", error);
-                            showToast('فشل حذف الحساب', 'error');
+                            
+                            const errorMessage = document.documentElement.lang === 'ar' ? 
+                                'فشل حذف الحساب' : 
+                                'Failed to delete account';
+                            
+                            showToast(errorMessage, 'error');
                         }
                     }
                 });
@@ -415,8 +452,6 @@
             const selectArabic = document.getElementById('selectArabic');
             const selectEnglish = document.getElementById('selectEnglish');
             const currentLanguage = document.getElementById('currentLanguage');
-            const languageLabel = document.getElementById('languageLabel');
-            const selectLanguageTitle = document.getElementById('selectLanguageTitle');
             
             const savedLang = localStorage.getItem('aqar_language') || 'ar';
             
@@ -452,14 +487,10 @@
                     arabicCheck.style.display = 'block';
                     englishCheck.style.display = 'none';
                     currentLanguage.textContent = 'العربية';
-                    languageLabel.textContent = 'اللغة';
-                    selectLanguageTitle.textContent = 'اختر اللغة';
                 } else {
                     arabicCheck.style.display = 'none';
                     englishCheck.style.display = 'block';
                     currentLanguage.textContent = 'English';
-                    languageLabel.textContent = 'Language';
-                    selectLanguageTitle.textContent = 'Select Language';
                 }
             }
             
@@ -468,71 +499,11 @@
                 updateLanguageUI(lang);
                 languageModal.style.display = 'none';
                 
-                if (typeof showToast === 'function') {
-                    const message = lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English';
-                    showToast(message, 'success');
-                }
-                
-                document.documentElement.lang = lang;
-                document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-                
-                if (lang === 'ar') {
-                    document.body.style.fontFamily = "'Tajawal', sans-serif";
-                } else {
-                    document.body.style.fontFamily = "'Poppins', sans-serif";
-                }
-                
-                const translations = {
-                    ar: {
-                        "appTitle": "حسابي",
-                        "personalInfo": "المعلومات الشخصية",
-                        "favorites": "المفضلة",
-                        "logout": "تسجيل الخروج",
-                        "deleteAccount": "حذف الحساب",
-                        "clearFavorites": "حذف جميع المفضلات",
-                        "developerInfo": "معلومات المطور",
-                        "appVersion": "نسخة التطبيق: 1.0.0",
-                        "copyright": "© 2025 عقار - جميع الحقوق محفوظة",
-                        "tabBar.home": "الرئيسية",
-                        "tabBar.search": "بحث",
-                        "tabBar.favorites": "المفضلة",
-                        "tabBar.profile": "حسابي",
-                        "loginRequired": "تسجيل الدخول مطلوب",
-                        "loginToViewProfile": "يجب تسجيل الدخول أو إنشاء حساب جديد للوصول إلى صفحة الملف الشخصي",
-                        "login": "تسجيل الدخول",
-                        "createAccount": "إنشاء حساب جديد"
-                    },
-                    en: {
-                        "appTitle": "My Profile",
-                        "personalInfo": "Personal Information",
-                        "favorites": "Favorites",
-                        "logout": "Logout",
-                        "deleteAccount": "Delete Account",
-                        "clearFavorites": "Clear All Favorites",
-                        "developerInfo": "Developer Info",
-                        "appVersion": "App Version: 1.0.0",
-                        "copyright": "© 2025 Aqar - All Rights Reserved",
-                        "tabBar.home": "Home",
-                        "tabBar.search": "Search",
-                        "tabBar.favorites": "Favorites",
-                        "tabBar.profile": "Profile",
-                        "loginRequired": "Login Required",
-                        "loginToViewProfile": "You must login or create an account to access the profile page",
-                        "login": "Login",
-                        "createAccount": "Create Account"
-                    }
-                };
-                
-                const currentTranslations = translations[lang];
-                document.querySelectorAll('[data-i18n]').forEach(element => {
-                    const key = element.getAttribute('data-i18n');
-                    if (currentTranslations[key]) {
-                        element.textContent = currentTranslations[key];
-                    }
-                });
+                const message = lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English';
+                showToast(message, 'success');
                 
                 setTimeout(() => {
-                    location.reload();
+                    window.location.reload();
                 }, 300);
             }
         }
