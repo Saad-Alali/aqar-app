@@ -146,20 +146,18 @@ function addCityMarkers() {
     locationsData.cities.forEach(city => {
         const markerPosition = { lat: city.lat, lng: city.lng };
         
-        // Create marker element
-        const markerContent = document.createElement('div');
-        markerContent.style.width = '16px';
-        markerContent.style.height = '16px';
-        markerContent.style.borderRadius = '50%';
-        markerContent.style.backgroundColor = '#2563eb';
-        markerContent.style.border = '2px solid #ffffff';
-        
-        // Use AdvancedMarkerElement instead of Marker
-        const marker = new google.maps.marker.AdvancedMarkerElement({
+        const marker = new google.maps.Marker({
             position: markerPosition,
             map: map,
             title: city.name,
-            content: markerContent
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                fillColor: '#2563eb',
+                fillOpacity: 1,
+                scale: 8,
+                strokeColor: '#ffffff',
+                strokeWeight: 2
+            }
         });
         
         const infoWindow = new google.maps.InfoWindow({
@@ -193,20 +191,18 @@ function addNeighborhoodMarkers(city) {
     city.neighborhoods.forEach(neighborhood => {
         const markerPosition = { lat: neighborhood.lat, lng: neighborhood.lng };
         
-        // Create marker element
-        const markerContent = document.createElement('div');
-        markerContent.style.width = '12px';
-        markerContent.style.height = '12px';
-        markerContent.style.borderRadius = '50%';
-        markerContent.style.backgroundColor = '#059669';
-        markerContent.style.border = '2px solid #ffffff';
-        
-        // Use AdvancedMarkerElement instead of Marker
-        const marker = new google.maps.marker.AdvancedMarkerElement({
+        const marker = new google.maps.Marker({
             position: markerPosition,
             map: map,
             title: neighborhood.name,
-            content: markerContent
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                fillColor: '#059669',
+                fillOpacity: 1,
+                scale: 6,
+                strokeColor: '#ffffff',
+                strokeWeight: 2
+            }
         });
         
         const infoWindow = new google.maps.InfoWindow({
