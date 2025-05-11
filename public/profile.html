@@ -90,17 +90,16 @@
             </div>
         </header>
 
-        <div class="language-switcher">
-            <button class="language-switcher__button" id="languageSwitcher">
-                <i class="fas fa-globe"></i>
-                <span class="language-switcher__current">العربية</span>
-            </button>
-            <div class="language-switcher__dropdown" id="languageDropdown" style="display: none;">
-                <a href="#" class="language-switcher__option language-switcher__option--active"
-                    data-lang="ar">العربية</a>
-                <a href="#" class="language-switcher__option" data-lang="en">English</a>
-            </div>
-        </div>
+<div class="language-switcher">
+    <button class="language-switcher__button" id="languageSwitcher">
+        <i class="fas fa-globe"></i>
+        <span class="language-switcher__current">العربية</span>
+    </button>
+    <div class="language-switcher__dropdown" id="languageDropdown" style="display: none;">
+        <a href="#" class="language-switcher__option language-switcher__option--active" data-lang="ar">العربية</a>
+        <a href="#" class="language-switcher__option" data-lang="en">English</a>
+    </div>
+</div>
 
         <div class="app-content profile-container" id="profileContent">
             <div id="profileAlerts"></div>
@@ -511,7 +510,64 @@
                 });
             }
         }
-
+function initLanguageSwitcher() {
+    const switcherButton = document.getElementById('languageSwitcher');
+    const languageDropdown = document.getElementById('languageDropdown');
+    
+    if (switcherButton && languageDropdown) {
+        switcherButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isVisible = languageDropdown.style.display === 'block';
+            languageDropdown.style.display = isVisible ? 'none' : 'block';
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!switcherButton.contains(e.target) && !languageDropdown.contains(e.target)) {
+                languageDropdown.style.display = 'none';
+            }
+        });
+        
+        const languageOptions = document.querySelectorAll('.language-switcher__option');
+        languageOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const lang = this.getAttribute('data-lang');
+                localStorage.setItem('aqar_language', lang);
+                
+                languageOptions.forEach(opt => {
+                    opt.classList.remove('language-switcher__option--active');
+                });
+                this.classList.add('language-switcher__option--active');
+                
+                switcherButton.querySelector('.language-switcher__current').textContent = 
+                    lang === 'ar' ? 'العربية' : 'English';
+                
+                languageDropdown.style.display = 'none';
+                
+                applyLanguage(lang);
+                showToast(lang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
+                
+                location.reload();
+            });
+        });
+        
+        const savedLang = localStorage.getItem('aqar_language') || 'ar';
+        const currentLangSpan = switcherButton.querySelector('.language-switcher__current');
+        if (currentLangSpan) {
+            currentLangSpan.textContent = savedLang === 'ar' ? 'العربية' : 'English';
+        }
+        
+        languageOptions.forEach(option => {
+            const optionLang = option.getAttribute('data-lang');
+            if (optionLang === savedLang) {
+                option.classList.add('language-switcher__option--active');
+            } else {
+                option.classList.remove('language-switcher__option--active');
+            }
+        });
+    }
+}
 
         
     </script>
