@@ -87,7 +87,7 @@
                     </div>
                 </div>
                 
-                <div id="resultsContainer" class="properties__grid">
+                <div id="resultsContainer">
                     <!-- Results will be dynamically added here -->
                 </div>
             </div>
@@ -662,32 +662,37 @@
             const cardElement = document.createElement('div');
             cardElement.className = 'property-card';
             
+            const viewDetailsText = document.documentElement.lang === 'ar' ? 'عرض التفاصيل' : 'View Details';
+            
             cardElement.innerHTML = `
                 <div class="property-card__image">
-                    <img src="${property.imageUrl}" alt="${property.title}" class="property-card__img">
+                    <img src="${property.imageUrl}" class="property-card__img" alt="${property.title}">
                     <button class="property-card__favorite-btn" data-property-id="${property.id}">
                         <i class="far fa-heart"></i>
                     </button>
+                    <div class="property-location-badge">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${property.location}
+                    </div>
                 </div>
                 <div class="property-card__content">
                     <h3 class="property-card__title">${property.title}</h3>
-                    <div class="property-card__location">
-                        <i class="fas fa-map-marker-alt property-card__location-icon"></i>
-                        ${property.location}
-                    </div>
                     <div class="property-card__price">${property.priceFormatted}</div>
                     <div class="property-card__features">
                         <div class="property-card__feature">
-                            <i class="fas fa-bed property-card__feature-icon"></i> ${property.features.bedrooms}
+                            <i class="fas fa-bed"></i>
+                            ${property.features.bedrooms} غرف
                         </div>
                         <div class="property-card__feature">
-                            <i class="fas fa-bath property-card__feature-icon"></i> ${property.features.bathrooms}
+                            <i class="fas fa-bath"></i>
+                            ${property.features.bathrooms} حمامات
                         </div>
                         <div class="property-card__feature">
-                            <i class="fas fa-ruler-combined property-card__feature-icon"></i> ${property.features.area} قدم²
+                            <i class="fas fa-ruler-combined"></i>
+                            ${property.features.area} قدم²
                         </div>
                     </div>
-                    <a href="property-details.html?id=${property.id}" class="btn btn--primary property-card__btn" data-i18n="viewDetails">عرض التفاصيل</a>
+                    <a href="property-details.html?id=${property.id}" class="btn btn--primary btn--block">${viewDetailsText}</a>
                 </div>
             `;
             
@@ -706,7 +711,11 @@
                     const user = await getCurrentUser();
                     
                     if (!user) {
-                        showLoginModal('يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة');
+                        const message = document.documentElement.lang === 'ar' ? 
+                            'يجب تسجيل الدخول أولاً لإضافة العقار إلى المفضلة' : 
+                            'You must login first to add this property to favorites';
+                        
+                        showLoginModal(message);
                         return;
                     }
                     
@@ -718,12 +727,22 @@
                             heartIcon.classList.remove('far');
                             heartIcon.classList.add('fas');
                             heartIcon.style.color = '#ef4444';
-                            showToast('تمت إضافة العقار إلى المفضلة', 'success');
+                            
+                            const successMessage = document.documentElement.lang === 'ar' ? 
+                                'تمت إضافة العقار إلى المفضلة' : 
+                                'Property added to favorites';
+                            
+                            showToast(successMessage, 'success');
                         } else {
                             heartIcon.classList.remove('fas');
                             heartIcon.classList.add('far');
                             heartIcon.style.color = '';
-                            showToast('تمت إزالة العقار من المفضلة', 'info');
+                            
+                            const infoMessage = document.documentElement.lang === 'ar' ? 
+                                'تمت إزالة العقار من المفضلة' : 
+                                'Property removed from favorites';
+                            
+                            showToast(infoMessage, 'info');
                         }
                     } catch (error) {
                         console.error("Error toggling favorite:", error);

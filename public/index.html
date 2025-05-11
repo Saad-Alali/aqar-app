@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/search.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script type="module" src="js/language-handler.js"></script>
@@ -51,7 +52,7 @@
                         </div>
                     </div>
                     
-                    <div class="properties__grid" id="propertiesGrid">
+                    <div id="propertiesGrid">
                         <!-- Properties will be dynamically loaded here -->
                     </div>
                     
@@ -189,30 +190,33 @@
             
             cardElement.innerHTML = `
                 <div class="property-card__image">
-                    <img src="${property.imageUrl}" alt="${property.title}" class="property-card__img">
+                    <img src="${property.imageUrl}" class="property-card__img" alt="${property.title}">
                     <button class="property-card__favorite-btn" data-property-id="${property.id}">
                         <i class="far fa-heart"></i>
                     </button>
+                    <div class="property-location-badge">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${property.location}
+                    </div>
                 </div>
                 <div class="property-card__content">
                     <h3 class="property-card__title">${property.title}</h3>
-                    <div class="property-card__location">
-                        <i class="fas fa-map-marker-alt property-card__location-icon"></i>
-                        ${property.location}
-                    </div>
                     <div class="property-card__price">${property.priceFormatted}</div>
                     <div class="property-card__features">
                         <div class="property-card__feature">
-                            <i class="fas fa-bed property-card__feature-icon"></i> ${property.features.bedrooms}
+                            <i class="fas fa-bed"></i>
+                            ${property.features.bedrooms} غرف
                         </div>
                         <div class="property-card__feature">
-                            <i class="fas fa-bath property-card__feature-icon"></i> ${property.features.bathrooms}
+                            <i class="fas fa-bath"></i>
+                            ${property.features.bathrooms} حمامات
                         </div>
                         <div class="property-card__feature">
-                            <i class="fas fa-ruler-combined property-card__feature-icon"></i> ${property.features.area} قدم²
+                            <i class="fas fa-ruler-combined"></i>
+                            ${property.features.area} قدم²
                         </div>
                     </div>
-                    <a href="property-details.html?id=${property.id}" class="btn btn--primary property-card__btn">${viewDetailsText}</a>
+                    <a href="property-details.html?id=${property.id}" class="btn btn--primary btn--block">${viewDetailsText}</a>
                 </div>
             `;
             
